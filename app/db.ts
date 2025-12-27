@@ -1,4 +1,6 @@
 import initSqlJs, { type Database, type SqlJsStatic, type QueryExecResult } from 'sql.js';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export type { Database, SqlJsStatic, QueryExecResult };
 export type SqlValue = number | string | Uint8Array | null;
@@ -6,13 +8,44 @@ export type SqlValue = number | string | Uint8Array | null;
 let db: Database | null = null;
 let SQL: SqlJsStatic | null = null;
 
+const DB_PATH = path.join(process.cwd(), 'database.db');
+
+async function saveDatabase(): Promise<void> {
+  if (!db) return;
+  try {
+    const data = db.export();
+    const buffer = Buffer.from(data);
+    fs.writeFileSync(DB_PATH, buffer);
+  } catch (error) {
+    console.error('Failed to save database:', error);
+  }
+}
+
 export async function initializeDatabase(): Promise<{ db: Database; SQL: SqlJsStatic }> {
   if (db && SQL) return { db, SQL };
 
   SQL = await initSqlJs();
 
-  // Initialize database in memory
-  db = new SQL.Database();
+  // Load database from file if it exists, otherwise create new
+  if (fs.existsSync(DB_PATH)) {
+    try {
+      const data = fs.readFileSync(DB_PATH);
+      db = new SQL.Database(data);
+    } catch (error) {
+      console.error('Failed to load database from file, creating new one:', error);
+      db = new SQL.Database();
+      initializeTables();
+    }
+  } else {
+    db = new SQL.Database();
+    initializeTables();
+  }
+
+  return { db, SQL };
+}
+
+function initializeTables(): void {
+  if (!db) return;
 
   // Create sample table
   db.run(`
@@ -37,7 +70,7 @@ export async function initializeDatabase(): Promise<{ db: Database; SQL: SqlJsSt
     )
   `);
 
-  return { db, SQL };
+  saveDatabase();
 }
 
 export async function getDatabase(): Promise<{ db: Database; SQL: SqlJsStatic }> {
@@ -56,6 +89,7 @@ export async function createUser(name: string, email: string): Promise<SqlValue[
       'SELECT * FROM users WHERE email = ? ORDER BY id DESC LIMIT 1',
       [email]
     );
+    await saveDatabase();
     return result[0]?.values[0] || null;
   } catch (error) {
     throw new Error(`Failed to create user: ${error}`);
@@ -83,6 +117,7 @@ export async function updateUser(id: number, name: string, email: string): Promi
       id,
     ]);
     const result: QueryExecResult[] = db.exec('SELECT * FROM users WHERE id = ?', [id]);
+    await saveDatabase();
     return result[0]?.values[0] || null;
   } catch (error) {
     throw new Error(`Failed to update user: ${error}`);
@@ -93,6 +128,7 @@ export async function deleteUser(id: number): Promise<{ success: boolean }> {
   const { db } = await getDatabase();
   db.run('DELETE FROM users WHERE id = ?', [id]);
   db.run('DELETE FROM tasks WHERE user_id = ?', [id]);
+  await saveDatabase();
   return { success: true };
 }
 
@@ -112,6 +148,7 @@ export async function createTask(
       'SELECT * FROM tasks WHERE user_id = ? ORDER BY id DESC LIMIT 1',
       [userId]
     );
+    await saveDatabase();
     return result[0]?.values[0] || null;
   } catch (error) {
     throw new Error(`Failed to create task: ${error}`);
@@ -125,6 +162,12 @@ export async function getTasks(userId: number): Promise<SqlValue[][]> {
     [userId]
   );
   return result[0]?.values || [];
+}
+
+export async function getTask(id: number): Promise<SqlValue[] | null> {
+  const { db } = await getDatabase();
+  const result: QueryExecResult[] = db.exec('SELECT * FROM tasks WHERE id = ?', [id]);
+  return result[0]?.values[0] || null;
 }
 
 export async function getAllTasks(): Promise<Record<number, SqlValue[][]>> {
@@ -141,12 +184,6 @@ export async function getAllTasks(): Promise<Record<number, SqlValue[][]>> {
     grouped[userId].push(task);
   }
   return grouped;
-}
-
-export async function getTask(id: number): Promise<SqlValue[] | null> {
-  const { db } = await getDatabase();
-  const result: QueryExecResult[] = db.exec('SELECT * FROM tasks WHERE id = ?', [id]);
-  return result[0]?.values[0] || null;
 }
 
 export async function updateTask(
@@ -168,6 +205,7 @@ export async function updateTask(
       db.run('UPDATE tasks SET completed = ? WHERE id = ?', [completed ? 1 : 0, id]);
     }
     const result: QueryExecResult[] = db.exec('SELECT * FROM tasks WHERE id = ?', [id]);
+    await saveDatabase();
     return result[0]?.values[0] || null;
   } catch (error) {
     throw new Error(`Failed to update task: ${error}`);
@@ -177,6 +215,7 @@ export async function updateTask(
 export async function deleteTask(id: number): Promise<{ success: boolean }> {
   const { db } = await getDatabase();
   db.run('DELETE FROM tasks WHERE id = ?', [id]);
+  await saveDatabase();
   return { success: true };
 }
 

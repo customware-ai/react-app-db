@@ -4,10 +4,10 @@ import { useFetcher, useLoaderData } from "react-router";
 import type { SqlValue } from "../db";
 import {
   getUsers,
+  getAllTasks,
   createUser,
   updateUser,
   deleteUser,
-  getAllTasks,
   createTask,
   updateTask,
   deleteTask,

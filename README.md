@@ -1,40 +1,24 @@
-# Welcome to React Router!
+# SQLite Database Management App
 
-A modern, production-ready template for building full-stack React applications using React Router.
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+A full-stack React Router application with SQLite database integration, demonstrating modern patterns for data loading, mutations, and persistence.
 
 ## Features
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
+- 🚀 Server-side rendering with React Router v7
+- 📊 SQLite database with file persistence (`database.db`)
+- 📥 Server-side loaders for data fetching
+- 📤 Server-side actions for mutations
+- ⚡️ Automatic data revalidation after changes
+- 🔄 Non-destructive form submissions with `useFetcher`
 - 🔒 TypeScript by default
-- 🎨 Minimal custom CSS styling
-- 📖 [React Router docs](https://reactrouter.com/)
 
-## Getting Started
-
-### Installation
-
-Install the dependencies:
+### Type checking
 
 ```bash
-npm install
+npm run typecheck
 ```
 
-### Development
-
-Start the development server with HMR:
-
-```bash
-npm run dev
-```
-
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
+### Building for Production
 
 Create a production build:
 
@@ -42,46 +26,133 @@ Create a production build:
 npm run build
 ```
 
-## Deployment
+## Architecture
 
-### Docker Deployment
+### Database Layer (`app/db.ts`)
 
-To build and run using Docker:
+The application uses **sql.js** (SQLite in JavaScript) with persistent file storage.
+
+The database persists to `database.db` in the project root. Data created during development will be saved and restored on server restart.
+
+#### Tables
+
+**Users Table:**
+
+```sql
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+```
+
+**Tasks Table:**
+
+```sql
+CREATE TABLE tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  completed BOOLEAN DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+)
+```
+
+#### Key Functions
+
+- `getUsers()` - Fetch all users
+- `createUser(name, email)` - Create a new user
+- `updateUser(id, name, email)` - Update user details
+- `deleteUser(id)` - Delete user and their tasks
+- `getAllTasks()` - Fetch all tasks grouped by user
+- `createTask(userId, title, description)` - Create a task
+- `updateTask(id, title?, description?, completed?)` - Update task
+- `deleteTask(id)` - Delete a task
+
+All mutations automatically call `saveDatabase()` to persist changes to `database.db`.
+
+## React Router Patterns
+
+### Loaders
+
+Server-side data fetching that runs before component renders. Use `useLoaderData()` in components to access data.
+
+```typescript
+export async function loader() {
+  const users = await getUsers();
+  return { users };
+}
+
+// In component:
+const { users } = useLoaderData();
+```
+
+### Actions
+
+Server-side mutations for create/update/delete. Automatically revalidates loaders on completion.
+
+```typescript
+export async function action({ request }) {
+  const formData = await request.formData();
+  const action = formData.get("action");
+
+  if (action === "create") {
+    return await createUser(...);
+  }
+}
+```
+
+### useFetcher
+
+Non-destructive form submissions without navigation.
+
+```typescript
+const fetcher = useFetcher();
+fetcher.submit({ action: "create", data }, { method: "post" });
+
+// Check state: fetcher.state === "idle" | "submitting" | "loading"
+```
+
+## Database Persistence
+
+The database persists to a `database.db` file in your project root.
+
+**On startup:**
+
+- If `database.db` exists, it's loaded into memory
+- If not, a new database is created with tables
+
+**On mutations:**
+
+- Every create, update, delete operation calls `saveDatabase()`
+- The in-memory database is exported and written to `database.db`
+- Data survives server restarts
+
+**To reset the database:**
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+rm database.db
+npm run dev
 ```
 
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
+## Project Structure
 
 ```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+app/
+├── db.ts           # Database CRUD operations
+├── routes/
+│   ├── home.tsx    # Main page with loader and action
+│   ├── api.users.tsx
+│   └── api.tasks.tsx
+├── root.tsx        # Root layout
+└── app.css         # Global styles
+
+database.db        # Persistent SQLite database
 ```
-
-## Styling
-
-This project ships with a small hand-written stylesheet in `app/app.css` that handles the layout, typography, and color system shown in the starter UI.
 
 ---
 
-Built with ❤️ using React Router.
+Built with ❤️ using React Router and SQLite.

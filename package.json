@@ -1,0 +1,29 @@
+{
+  "name": "react-app-db",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc"
+  },
+  "dependencies": {
+    "@react-router/node": "7.10.1",
+    "@react-router/serve": "7.10.1",
+    "isbot": "^5.1.31",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router": "7.10.1",
+    "sql.js": "^1.13.0"
+  },
+  "devDependencies": {
+    "@react-router/dev": "7.10.1",
+    "@types/node": "^22",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@types/sql.js": "^1.4.9",
+    "typescript": "^5.9.2",
+    "vite": "npm:rolldown-vite@7.2.11"
+  }
+}

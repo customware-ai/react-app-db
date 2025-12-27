@@ -1,0 +1,162 @@
+:root {
+  --page-bg: #f8fafc;
+  --text-color: #0f172a;
+  --muted-text: #475569;
+  --border-color: #e2e8f0;
+  --card-bg: #ffffff;
+  --link-color: #1d4ed8;
+  --link-hover-color: #1e40af;
+  --link-bg-hover: rgba(30, 64, 175, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-bg: #020617;
+    --text-color: #e2e8f0;
+    --muted-text: #cbd5f5;
+    --border-color: #374151;
+    --card-bg: #0f172a;
+    --link-color: #3b82f6;
+    --link-hover-color: #60a5fa;
+    --link-bg-hover: rgba(96, 165, 250, 0.12);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--page-bg);
+  color: var(--text-color);
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  line-height: 1.5;
+}
+
+.home-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem 1rem;
+}
+
+.home-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+  min-height: 0;
+}
+
+.home-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.25rem;
+}
+
+.home-logo-wrapper {
+  width: min(500px, 100%);
+  padding: 1rem;
+}
+
+.home-logo-wrapper img {
+  width: 100%;
+  display: block;
+  height: auto;
+}
+
+.resource-wrapper {
+  max-width: 300px;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.resource-card {
+  border: 1px solid var(--border-color);
+  border-radius: 3rem;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.resource-prompt {
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+  color: var(--muted-text);
+}
+
+.resource-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.resource-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  color: var(--link-color);
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.resource-link:hover {
+  background: var(--link-bg-hover);
+  color: var(--link-hover-color);
+}
+
+.resource-icon {
+  min-width: 24px;
+  min-height: 24px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.resource-icon path {
+  stroke: currentColor;
+}
+
+.error-boundary {
+  padding: 4rem 1rem;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.error-stack {
+  width: 100%;
+  padding: 1rem;
+  margin: 1rem 0 0;
+  border-radius: 0.5rem;
+  background: rgba(148, 163, 184, 0.25);
+  overflow-x: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .error-stack {
+    background: rgba(148, 163, 184, 0.15);
+  }
+}

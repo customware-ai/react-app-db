@@ -6,4 +6,18 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  optimizeDeps: {
+    exclude: ["sql.js"],
+  },
+  build: {
+    rolldownOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("sql.js")) {
+            return "sqljs";
+          }
+        },
+      },
+    },
+  },
 });

@@ -116,6 +116,55 @@ fetcher.submit({ action: "create", data }, { method: "post" });
 // Check state: fetcher.state === "idle" | "submitting" | "loading"
 ```
 
+### Loading States
+
+React Router provides state to show loading indicators during data fetching and mutations.
+
+**useNavigation - Loader Loading States:**
+
+```typescript
+import { useNavigation } from "react-router";
+
+export default function UsersPage() {
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+
+  return (
+    <div>
+      {isLoading && <p>Loading users...</p>}
+      {/* content */}
+    </div>
+  );
+}
+```
+
+**useFetcher.state - Action Loading States:**
+
+```typescript
+const fetcher = useFetcher();
+const isSubmitting = fetcher.state === "submitting";
+const isCreating = fetcher.state === "submitting" && fetcher.formData?.get("action") === "create";
+
+return (
+  <button disabled={isSubmitting}>
+    {isCreating ? "Creating..." : "Create User"}
+  </button>
+);
+```
+
+**Navigation Progress:**
+
+Track global loading progress for page transitions:
+
+```typescript
+const navigation = useNavigation();
+const progress = navigation.state === "loading"
+  ? navigation.loaders.filter(Boolean).length / navigation.loaders.length
+  : 0;
+
+return <progress value={progress} max={1} />;
+```
+
 ## Database Persistence
 
 The database persists to a `database.db` file in your project root.

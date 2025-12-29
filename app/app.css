@@ -160,3 +160,9 @@ body {
     background: rgba(148, 163, 184, 0.15);
   }
 }
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

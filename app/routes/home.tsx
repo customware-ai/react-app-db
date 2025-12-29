@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
-import { useFetcher, useLoaderData } from "react-router";
+import { useFetcher, useLoaderData, useNavigation } from "react-router";
 import type { SqlValue } from "../db";
 import {
   getUsers,
@@ -146,6 +146,20 @@ interface LoaderData {
 
 export default function DatabasePage() {
   const { users: loaderUsers, tasks: loaderTasks } = useLoaderData<LoaderData>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
+  const [showLoading, setShowLoading] = useState(false);
+
+  // Show loading indicator after a short delay to avoid flashing
+  useEffect(() => {
+    if (isSubmitting) {
+      const timer = setTimeout(() => setShowLoading(true), 100);
+      return () => clearTimeout(timer);
+    } else {
+      setShowLoading(false);
+    }
+  }, [isSubmitting]);
+
   const users = (loaderUsers || []).map((row) => ({
     id: row[0] as number,
     name: row[1] as string,
@@ -281,6 +295,13 @@ export default function DatabasePage() {
 
       {error && <div style={styles.error}>{error}</div>}
 
+      {showLoading && (
+        <div style={styles.loadingOverlay}>
+          <div style={styles.loadingSpinner} />
+          <span>Saving...</span>
+        </div>
+      )}
+
       <div style={styles.grid}>
         {/* Users Section */}
         <section style={styles.section}>
@@ -310,7 +331,13 @@ export default function DatabasePage() {
               disabled={userFetcher.state !== "idle"}
               style={styles.button}
             >
-              {editingUserId ? "Update User" : "Create User"}
+              {userFetcher.state === "submitting"
+                ? editingUserId
+                  ? "Updating..."
+                  : "Creating..."
+                : editingUserId
+                ? "Update User"
+                : "Create User"}
             </button>
             {editingUserId && (
               <button
@@ -398,7 +425,7 @@ export default function DatabasePage() {
                   disabled={taskFetcher.state !== "idle"}
                   style={styles.button}
                 >
-                  Add Task
+                  {taskFetcher.state === "submitting" ? "Adding..." : "Add Task"}
                 </button>
               </form>
 
@@ -526,5 +553,25 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#721c24",
     borderRadius: "4px",
     marginBottom: "20px",
+  },
+  loadingOverlay: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "12px",
+    padding: "16px",
+    background: "#e7f3ff",
+    borderRadius: "4px",
+    marginBottom: "20px",
+    color: "#007bff",
+    fontWeight: "500",
+  },
+  loadingSpinner: {
+    width: "20px",
+    height: "20px",
+    border: "2px solid #007bff",
+    borderTopColor: "transparent",
+    borderRadius: "50%",
+    animation: "spin 0.8s linear infinite",
   },
 };

@@ -2,6 +2,10 @@
 
 A full-stack React Router application with SQLite database integration, featuring modern tooling and type-safe error handling.
 
+**This is a template** demonstrating best practices and project structure—not a live application. Use it as a starting point for new projects.
+
+> **Required reading**: Review [CLAUDE.md](./CLAUDE.md) before development for coding patterns, commands, and project conventions.
+
 ## Features
 
 - React Router v7.13 with server-side rendering
@@ -70,7 +74,7 @@ app/
 ├── hooks/
 │   └── useForm.ts          # Type-safe form handling
 ├── schemas/
-│   └── index.ts            # Zod schemas for User, Task
+│   └── index.ts            # Zod validation schemas
 ├── types/
 │   └── errors.ts           # Error types for neverthrow
 ├── utils/
@@ -81,8 +85,7 @@ app/
 ├── routes/
 │   ├── home.tsx            # Main page with loader/action
 │   ├── showcase.tsx        # Theme demo page
-│   ├── api.users.tsx       # Users API
-│   └── api.tasks.tsx       # Tasks API
+│   └── api.*.tsx           # API endpoints
 ├── db.ts                   # Database operations with Result types
 ├── routes.ts               # Route configuration
 ├── root.tsx                # Root layout with ErrorBoundary
@@ -100,85 +103,7 @@ vitest.config.ts            # Vitest configuration
 database.db                 # Persistent SQLite database
 ```
 
-## Architecture
-
-### Error Handling with neverthrow
-
-All database operations return `Result<T, E>` types for type-safe error handling:
-
-```typescript
-import { Result, ok, err } from 'neverthrow';
-import type { DatabaseError } from './types/errors';
-
-export async function getUsers(): Promise<Result<SqlValue[][], DatabaseError>> {
-  try {
-    const { db } = await getDatabase();
-    const result = db.exec("SELECT * FROM users");
-    return ok(result[0]?.values || []);
-  } catch (error) {
-    return err({
-      type: 'DATABASE_ERROR',
-      message: 'Failed to get users',
-      originalError: error instanceof Error ? error : undefined,
-    });
-  }
-}
-
-// Usage in loaders
-const usersResult = await getUsers();
-if (usersResult.isErr()) {
-  return { users: [], error: usersResult.error.message };
-}
-return { users: usersResult.value };
-```
-
-### Schema Validation with Zod
-
-Schemas are defined in `app/schemas/index.ts` and used for validation:
-
-```typescript
-import { z } from 'zod';
-
-export const UserSchema = z.object({
-  id: z.number().optional(),
-  name: z.string().min(1, 'Name is required').max(100),
-  email: z.string().email('Invalid email address'),
-  created_at: z.string().optional(),
-});
-
-export type User = z.infer<typeof UserSchema>;
-```
-
-### Database Layer
-
-The application uses **sql.js** (SQLite in JavaScript) with persistent file storage.
-
-#### Tables
-
-**Users Table:**
-```sql
-CREATE TABLE users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  email TEXT NOT NULL UNIQUE,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-)
-```
-
-**Tasks Table:**
-```sql
-CREATE TABLE tasks (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  title TEXT NOT NULL,
-  description TEXT,
-  completed BOOLEAN DEFAULT 0,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-)
-```
-
-### Tailwind CSS Theme
+## Tailwind CSS Theme
 
 Custom theme defined in `tailwind.config.ts` with:
 
@@ -200,56 +125,6 @@ Reusable components in `app/components/ui/`:
 - **Input/Textarea**: Label, error state, helper text support
 - **Badge**: Variants (default, primary, success, warning, danger, info)
 - **Alert**: Variants (info, success, warning, danger), dismissible
-
-## React Router Patterns
-
-### Loaders
-
-Server-side data fetching with Result handling:
-
-```typescript
-export async function loader(_args: LoaderFunctionArgs): Promise<LoaderData> {
-  const usersResult = await getUsers();
-  if (usersResult.isErr()) {
-    return { users: [], tasks: {}, error: usersResult.error.message };
-  }
-  return { users: usersResult.value, tasks: {} };
-}
-```
-
-### Actions
-
-Server-side mutations with validation:
-
-```typescript
-export async function action({ request }: ActionFunctionArgs): Promise<Response> {
-  const formData = await request.formData();
-  const name = getFormString(formData, "name");
-  const email = getFormString(formData, "email");
-
-  if (!name || !email) {
-    return json({ error: "Missing required fields" }, { status: 400 });
-  }
-
-  const result = await createUserDirect(name, email);
-  if (result.isErr()) {
-    return json({ error: result.error.message }, { status: 500 });
-  }
-  return json(result.value, { status: 201 });
-}
-```
-
-### useFetcher
-
-Non-destructive form submissions:
-
-```typescript
-const fetcher = useFetcher();
-void fetcher.submit(
-  { action: "create", ...formData },
-  { method: "post" }
-);
-```
 
 ## Database Persistence
 
@@ -288,9 +163,7 @@ tests/
 ├── db/
 │   └── db.test.ts              # Database operation tests
 ├── routes/                     # API route tests
-│   ├── api.users.test.ts
-│   ├── api.tasks.test.ts
-│   └── home.test.ts
+│   └── *.test.ts
 └── utils/                      # Utility tests
     ├── validate.test.ts
     └── api.test.ts
@@ -308,12 +181,12 @@ npm run check
 
 ### Test Coverage
 
-- **198 tests** covering:
-  - All UI components (Button, Card, Input, Badge, Alert)
-  - Database CRUD operations (Users, Tasks)
-  - API routes (loaders and actions)
-  - Utility functions (validate, createApiResponse)
-  - Schema validation with Zod
+Tests cover:
+- UI components (Button, Card, Input, Badge, Alert)
+- Database CRUD operations
+- API routes (loaders and actions)
+- Utility functions
+- Schema validation with Zod
 
 ## Scripts
 

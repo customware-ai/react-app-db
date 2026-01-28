@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **For project overview**: See [README.md](./README.md) for features, architecture details, and documentation.
+
 ## Commands
 
 ```bash
@@ -31,13 +33,100 @@ This is a full-stack React Router v7 application with SQLite (sql.js) persistenc
 
 ### Key Patterns
 
-**Error Handling**: All database operations in `app/db.ts` return `Result<T, E>` types from neverthrow. Check results with `.isErr()` / `.isOk()` before accessing values. Error types are defined in `app/types/errors.ts`.
+#### Error Handling with neverthrow
 
-**Schema Validation**: Zod schemas in `app/schemas/index.ts` define User and Task types. Use `z.infer<typeof Schema>` for type inference.
+All database operations in `app/db.ts` return `Result<T, E>` types from neverthrow. Check results with `.isErr()` / `.isOk()` before accessing values. Error types are defined in `app/types/errors.ts`.
 
-**Database**: sql.js runs SQLite in JavaScript with file persistence to `database.db`. Every mutation calls `saveDatabase()` to persist changes. Tables: `users` (id, name, email, created_at), `tasks` (id, user_id, title, description, completed, created_at).
+```typescript
+import { Result, ok, err } from 'neverthrow';
+import type { DatabaseError } from './types/errors';
 
-**React Router**: Routes in `app/routes/` use loaders for data fetching and actions for mutations. The `useFetcher` hook handles form submissions.
+export async function getRecords(): Promise<Result<SqlValue[][], DatabaseError>> {
+  try {
+    const { db } = await getDatabase();
+    const result = db.exec("SELECT * FROM my_table");
+    return ok(result[0]?.values || []);
+  } catch (error) {
+    return err({
+      type: 'DATABASE_ERROR',
+      message: 'Failed to fetch records',
+      originalError: error instanceof Error ? error : undefined,
+    });
+  }
+}
+
+// Usage in loaders
+const result = await getRecords();
+if (result.isErr()) {
+  return { data: [], error: result.error.message };
+}
+return { data: result.value };
+```
+
+#### Schema Validation with Zod
+
+Zod schemas in `app/schemas/index.ts` define data types. Use `z.infer<typeof Schema>` for type inference.
+
+```typescript
+import { z } from 'zod';
+
+export const RecordSchema = z.object({
+  id: z.number().optional(),
+  name: z.string().min(1, 'Name is required').max(100),
+  created_at: z.string().optional(),
+});
+
+export type Record = z.infer<typeof RecordSchema>;
+```
+
+#### Database
+
+sql.js runs SQLite in JavaScript with file persistence to `database.db`. Every mutation calls `saveDatabase()` to persist changes. Define your tables in `app/db.ts`. If `database.db` is not present, treat this as a new project—tables are created on first run without migrations.
+
+#### React Router
+
+Routes in `app/routes/` use loaders for data fetching and actions for mutations.
+
+**Loaders** - Server-side data fetching:
+
+```typescript
+export async function loader(_args: LoaderFunctionArgs): Promise<LoaderData> {
+  const result = await getRecords();
+  if (result.isErr()) {
+    return { data: [], error: result.error.message };
+  }
+  return { data: result.value };
+}
+```
+
+**Actions** - Server-side mutations:
+
+```typescript
+export async function action({ request }: ActionFunctionArgs): Promise<Response> {
+  const formData = await request.formData();
+  const name = getFormString(formData, "name");
+
+  if (!name) {
+    return json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  const result = await createRecord(name);
+  if (result.isErr()) {
+    return json({ error: result.error.message }, { status: 500 });
+  }
+  return json(result.value, { status: 201 });
+}
+```
+
+**useFetcher** - Non-destructive form submissions:
+
+```typescript
+const fetcher = useFetcher();
+void fetcher.submit(
+  { action: "create", ...formData },
+  { method: "post" }
+);
+```
 
 ### Directory Structure
 

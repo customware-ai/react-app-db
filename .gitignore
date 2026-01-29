@@ -2,6 +2,10 @@
 .env
 /node_modules/
 
+# Never commit database files
+*.db
+database.db
+
 # React Router
 /.react-router/
 /build/

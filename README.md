@@ -87,14 +87,14 @@ This template demonstrates:
 # Install dependencies
 npm install
 
-# Run database migrations (demonstrates migration pattern)
+# Run database migrations
 npm run migrate
 
-# Build production bundle
+# Or build for production
 npm run build
 ```
 
-> **Note**: Many UI buttons are intentionally non-functional - they exist to demonstrate component patterns and design system. Focus on the **code structure, patterns, and styling** rather than feature completeness.
+> **For development workflow and coding guidelines**, see [AGENTS.md](./AGENTS.md)
 
 ## 📁 Project Structure
 
@@ -125,12 +125,9 @@ app/
 
 ## 🗄️ Database Architecture
 
-### ✅ Using sql.js
+**Technology**: SQLite via sql.js (in-memory with file persistence to `database.db`)
 
-- **In-memory SQLite with file persistence**
-- All database operations go through `db.ts`
-- **db.ts is the ONLY file that writes to filesystem**
-- Never use better-sqlite3 or direct filesystem access
+**Key Pattern**: All database operations go through `db.ts` (single source of truth for filesystem access)
 
 ### Tables Implemented
 
@@ -188,77 +185,6 @@ npm run dev
 | `npm test`          | Run all tests                        |
 | `npm run check`     | Run typecheck, lint, build, and test |
 
-## 🔧 Development Guidelines
-
-### Database Operations
-
-```typescript
-// ✅ CORRECT - Use db.ts
-import { getDatabase } from "./db";
-const { db } = await getDatabase();
-```
-
-**NEVER:**
-
-- Import better-sqlite3
-- Write to filesystem directly
-- Bypass db.ts
-
-### Service Layer
-
-```typescript
-// All business logic goes in services/
-import { getCustomers, createCustomer } from "./services/erp";
-
-// Uses Result<T, Error> pattern (neverthrow)
-const result = await getCustomers();
-if (result.isOk()) {
-  const customers = result.value;
-} else {
-  const error = result.error;
-}
-```
-
-### Result Pattern
-
-Always use neverthrow's Result pattern for error handling:
-
-```typescript
-const result = await createCustomer(data);
-if (result.isOk()) {
-  const customer = result.value;
-  // Success path
-} else {
-  console.error(result.error.message);
-  // Error path
-}
-```
-
-### Schema Validation
-
-Validate all input with Zod before database operations:
-
-```typescript
-import { CreateCustomerSchema } from "./schemas/sales";
-
-const validation = CreateCustomerSchema.safeParse(data);
-if (!validation.success) {
-  return err(new Error("Validation failed"));
-}
-
-// Now safe to use validated data
-const result = await createCustomer(validation.data);
-```
-
-### Single Responsibility
-
-- **db.ts**: Database & filesystem only
-- **services/erp.ts**: Business logic & CRUD
-- **schemas/**: Validation rules (Zod)
-- **utils/**: Pure utilities
-- **components/**: UI only
-- **routes/**: Page components with loaders/actions
-
 ## 🧪 Testing
 
 ### Running Tests
@@ -281,65 +207,24 @@ Tests cover:
 
 All tests use Vitest and React Testing Library.
 
-## 🏗️ Template Structure Examples
+## 🏗️ Application Modules
 
-The template uses an ERP-style structure to demonstrate patterns for complex applications:
+The codebase includes example modules to demonstrate full-stack patterns:
 
-### Sales & CRM Module (Pattern Examples)
+- **Sales & CRM** - Customer management, leads tracking, quotes, orders
+- **Accounting & Finance** - Chart of accounts, invoices, payments, reports
+- **Dashboard** - Overview with metrics, charts, and quick actions
 
-- **Customers** - Demonstrates full CRUD with form validation, table views, detail pages
-- **Leads** - Shows Kanban board pattern, state management, view toggles
-- **Quotes** - Illustrates list/filter patterns, status badges, empty states
-- **Orders** - Template for order/transaction workflows
-
-### Accounting & Finance Module (Pattern Examples)
-
-- **Chart of Accounts** - Hierarchical data display, tree navigation patterns
-- **Invoices** - List views with filtering, sorting, search patterns
-- **Payments** - Table patterns with data transformations
-- **Journal Entries** - Double-entry pattern example
-- **Ledger** - Transaction history display pattern
-- **Reports** - Report generation UI patterns
-
-### Dashboard (Layout Pattern)
-
-- Metric card patterns with trends
-- Chart placeholder patterns
-- Summary table displays
-- Quick action card patterns
-
-## 🔒 Important Rules
-
-These rules are demonstrated throughout the codebase. Follow them in your own projects:
-
-1. **Single Responsibility** - db.ts is the ONLY file that writes to filesystem
-2. **Error Handling** - Use Result pattern, no throwing exceptions in business logic
-3. **Input Validation** - Validate with Zod before database operations
-4. **Type Safety** - Full TypeScript with strict mode, explicit return types
-5. **Code Documentation** - Comment the "why", not the "what"
-6. **Test Coverage** - Write tests for business logic and components
-7. **Component Patterns** - Reusable, composable UI components
-8. **Consistent Styling** - Follow the Tailwind patterns demonstrated
+> **For development guidelines, coding patterns, and architectural rules**, see [AGENTS.md](./AGENTS.md)
 
 ## 📖 Documentation
 
-- **README.md** - This file (project overview)
-- **AGENTS.md** - Agent coordination and development patterns
+- **README.md** - This file (project overview and quick start)
+- **[AGENTS.md](./AGENTS.md)** - Development patterns, coding rules, and architectural guidelines
 - Code comments throughout codebase
-
-## 🚦 Type Safety
-
-This project enforces strict TypeScript and linting:
-
-- **Explicit return types** on all functions
-- **No `any` types** - use `unknown` or specific types
-- **Type-aware linting** with oxlint
-- **Schema validation** with Zod at runtime
-
-Run `npm run check` to verify all checks pass before committing.
 
 ---
 
-**A template for building with industrial precision** 🏭
+_Remember:_ This is a **code pattern reference**, not a working application. Study the patterns, adapt the architecture, and build your own production-ready features following these standards.
 
-> Remember: This is a **code pattern reference**, not a working application. Study the patterns, adapt the architecture, and build your own production-ready features following these standards.
+> For all development rules, patterns, and guidelines, see **[AGENTS.md](./AGENTS.md)**

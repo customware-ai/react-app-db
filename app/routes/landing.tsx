@@ -55,16 +55,16 @@ function Gear({
 function ProgressBar(): ReactElement {
   return (
     <div className="w-full max-w-[300px] animate-fade-up [animation-delay:0.2s] [animation-fill-mode:both]">
-      {/* Track */}
-      <div className="h-1 bg-slate-700/50 rounded-full overflow-hidden">
-        <div className="h-full w-1/4 bg-gradient-to-r from-primary-500 to-primary-400 rounded-full animate-progress-loop" />
+      {/* Track - sharp edges, greyscale */}
+      <div className="h-1 bg-zinc-800 overflow-hidden">
+        <div className="h-full w-1/4 bg-gradient-to-r from-zinc-400 to-zinc-300 animate-progress-loop" />
       </div>
       {/* Dots */}
       <div className="flex justify-center gap-2 mt-4">
         {[0, 1, 2, 3, 4].map((i) => (
           <div
-            key={i}
-            className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-pulse-dot"
+            key={`dot-${i}`}
+            className="w-1.5 h-1.5 bg-zinc-700 animate-pulse-dot"
             style={{ animationDelay: `${i * 0.15}s` }}
           />
         ))}
@@ -83,10 +83,10 @@ function FloatingParticles(): ReactElement {
       {[...Array(12)].map((_, i) => (
         <div
           key={`particle-${i}`}
-          className="absolute w-1 h-1 bg-primary-500 rounded-full animate-float"
+          className="absolute w-1 h-1 bg-zinc-500 animate-float"
           style={{
-            left: `${10 + (i * 7) % 80}%`,
-            top: `${15 + (i * 11) % 70}%`,
+            left: `${10 + ((i * 7) % 80)}%`,
+            top: `${15 + ((i * 11) % 70)}%`,
             animationDelay: `${i * 0.4}s`,
             animationDuration: `${4 + (i % 4)}s`,
           }}
@@ -107,25 +107,28 @@ function FloatingParticles(): ReactElement {
  * - Uses animated elements for visual engagement
  *
  * Design Philosophy:
- * - Industrial aesthetic with gear/machinery motifs
- * - Professional color scheme (emerald + slate)
+ * - Brutalist aesthetic with sharp edges (no rounded corners)
+ * - Industrial gear/machinery motifs
+ * - Zinc color palette with emerald accents
  * - Smooth CSS animations for engagement
  * - Clear call-to-action to explore the demo
  */
 export default function LandingPage(): ReactElement {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Background Grid Pattern */}
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-zinc-950">
+      {/* Background Grid Pattern - greyscale */}
       <div
-        className="absolute inset-0 opacity-100"
+        className="absolute inset-0"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px)
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
           `,
           backgroundSize: "60px 60px",
-          maskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)",
-          WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)",
+          maskImage:
+            "radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)",
         }}
         aria-hidden="true"
       />
@@ -133,26 +136,29 @@ export default function LandingPage(): ReactElement {
       {/* Floating Particles */}
       <FloatingParticles />
 
-      {/* Decorative Gears */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      {/* Decorative Gears - greyscale */}
+      <div
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        aria-hidden="true"
+      >
         <Gear
           size={120}
-          className="absolute top-[10%] left-[5%] text-primary-500/10"
+          className="absolute top-[10%] left-[5%] text-zinc-700/30"
         />
         <Gear
           size={80}
-          className="absolute top-[15%] right-[8%] text-primary-500/10"
+          className="absolute top-[15%] right-[8%] text-zinc-700/30"
           reverse
           delay={0.5}
         />
         <Gear
           size={60}
-          className="absolute bottom-[20%] left-[10%] text-primary-500/10"
+          className="absolute bottom-[20%] left-[10%] text-zinc-700/30"
           delay={1}
         />
         <Gear
           size={100}
-          className="absolute bottom-[15%] right-[5%] text-primary-500/10"
+          className="absolute bottom-[15%] right-[5%] text-zinc-700/30"
           reverse
           delay={0.3}
         />
@@ -160,18 +166,18 @@ export default function LandingPage(): ReactElement {
 
       {/* Main Content */}
       <main className="relative z-10 flex flex-col items-center text-center px-6 max-w-2xl">
-        {/* Status Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500/10 border border-primary-500/30 rounded-full text-primary-400 text-sm font-medium tracking-wide animate-fade-up transition-shadow hover:shadow-[0_0_15px_0_rgba(16,185,129,0.2)]">
-          <span className="w-2 h-2 bg-primary-500 rounded-full animate-pulse-dot" />
+        {/* Status Badge - sharp edges, greyscale */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm font-medium tracking-wide animate-fade-up transition-shadow hover:shadow-[0_0_15px_0_rgba(255,255,255,0.1)]">
+          <span className="w-2 h-2 bg-zinc-400 animate-pulse-dot" />
           <span>Building in Progress</span>
         </div>
 
-        {/* Main Heading */}
+        {/* Main Heading - greyscale */}
         <h1 className="mt-8 flex flex-col gap-1 animate-fade-up [animation-delay:0.1s] [animation-fill-mode:both]">
-          <span className="text-4xl sm:text-5xl font-semibold text-slate-200 tracking-tight">
+          <span className="text-4xl sm:text-5xl font-semibold text-zinc-400 tracking-tight">
             Sit tight
           </span>
-          <span className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-primary-500 via-primary-400 to-primary-300 bg-clip-text text-transparent tracking-tight">
+          <span className="text-5xl sm:text-6xl font-bold text-white tracking-tight">
             We&apos;re building your app
           </span>
         </h1>
@@ -181,17 +187,18 @@ export default function LandingPage(): ReactElement {
           <ProgressBar />
         </div>
 
-        {/* Description */}
-        <p className="mt-8 text-lg text-slate-400 leading-relaxed animate-fade-up [animation-delay:0.3s] [animation-fill-mode:both]">
+        {/* Description - greyscale */}
+        <p className="mt-8 text-lg text-zinc-500 leading-relaxed animate-fade-up [animation-delay:0.3s] [animation-fill-mode:both]">
           In the meanwhile, you can explore a demo application
-          <br className="hidden sm:block" />
-          {" "}that <strong className="text-primary-500 font-semibold">Customware AI</strong> has built for you.
+          <br className="hidden sm:block" /> that{" "}
+          <strong className="text-white font-semibold">Customware AI</strong>{" "}
+          has built.
         </p>
 
-        {/* CTA Button */}
+        {/* CTA Button - sharp edges, greyscale brutalist style */}
         <Link
           to="/dashboard"
-          className="group relative inline-flex items-center gap-3 mt-10 px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-lg font-semibold rounded-xl overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(16,185,129,0.4)] shadow-[0_4px_15px_rgba(16,185,129,0.3)] animate-fade-up [animation-delay:0.4s] [animation-fill-mode:both]"
+          className="group relative inline-flex items-center gap-3 mt-10 px-8 py-4 bg-white text-zinc-950 text-lg font-semibold overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-200 hover:shadow-[0_8px_25px_rgba(255,255,255,0.2)] shadow-[0_4px_15px_rgba(255,255,255,0.1)] animate-fade-up [animation-delay:0.4s] [animation-fill-mode:both]"
         >
           <span className="relative z-10">Explore Demo</span>
           <span className="relative z-10 flex transition-transform duration-200 group-hover:translate-x-1">
@@ -210,35 +217,41 @@ export default function LandingPage(): ReactElement {
           </span>
           {/* Shine effect */}
           <span
-            className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shine"
+            className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-zinc-400/30 to-transparent -skew-x-12 animate-shine"
             aria-hidden="true"
           />
         </Link>
 
         {/* Footer Note */}
-        <p className="mt-12 text-sm text-slate-600 uppercase tracking-widest animate-fade-up [animation-delay:0.5s] [animation-fill-mode:both]">
+        <p className="mt-12 text-sm text-zinc-700 uppercase tracking-widest animate-fade-up [animation-delay:0.5s] [animation-fill-mode:both]">
           Powered by industrial-grade engineering
         </p>
       </main>
 
-      {/* Bottom Decoration - Industrial Stripes */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 flex overflow-hidden" aria-hidden="true">
+      {/* Bottom Decoration - Industrial Stripes, greyscale */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-1 flex overflow-hidden"
+        aria-hidden="true"
+      >
         <div
           className="flex-1 animate-stripe-move"
           style={{
-            background: "repeating-linear-gradient(90deg, #10b981 0px, #10b981 20px, #0f172a 20px, #0f172a 40px)",
+            background:
+              "repeating-linear-gradient(90deg, #fafafa 0px, #fafafa 20px, #09090b 20px, #09090b 40px)",
           }}
         />
         <div
           className="flex-1 animate-stripe-move [animation-delay:-0.5s]"
           style={{
-            background: "repeating-linear-gradient(90deg, #059669 0px, #059669 20px, #0f172a 20px, #0f172a 40px)",
+            background:
+              "repeating-linear-gradient(90deg, #a1a1aa 0px, #a1a1aa 20px, #09090b 20px, #09090b 40px)",
           }}
         />
         <div
           className="flex-1 animate-stripe-move [animation-delay:-1s]"
           style={{
-            background: "repeating-linear-gradient(90deg, #10b981 0px, #10b981 20px, #0f172a 20px, #0f172a 40px)",
+            background:
+              "repeating-linear-gradient(90deg, #fafafa 0px, #fafafa 20px, #09090b 20px, #09090b 40px)",
           }}
         />
       </div>

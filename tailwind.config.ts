@@ -6,6 +6,20 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Zinc palette
+        zinc: {
+          50: '#fafafa',
+          100: '#f4f4f5',
+          200: '#e4e4e7',
+          300: '#d4d4d8',
+          400: '#a1a1aa',
+          500: '#71717a',
+          600: '#52525b',
+          700: '#3f3f46',
+          800: '#27272a',
+          900: '#18181b',
+          950: '#09090b',
+        },
         // Primary - Emerald (Professional Green)
         primary: {
           50: '#ecfdf5',
@@ -71,7 +85,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Work Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Instrument Sans', 'Work Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'monospace'],
       },
       boxShadow: {

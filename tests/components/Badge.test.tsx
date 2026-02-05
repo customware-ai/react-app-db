@@ -55,8 +55,8 @@ describe('Badge', () => {
     it('should apply info variant', () => {
       render(<Badge variant="info">Info</Badge>);
       const badge = screen.getByText('Info');
-      expect(badge.className).toContain('bg-info-light');
-      expect(badge.className).toContain('text-info-dark');
+      expect(badge.className).toContain('bg-teal-100');
+      expect(badge.className).toContain('text-teal-700');
     });
   });
 

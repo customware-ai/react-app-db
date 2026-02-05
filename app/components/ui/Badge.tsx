@@ -19,7 +19,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   success: 'bg-success-light dark:bg-green-900/30 text-success-dark dark:text-green-400',
   warning: 'bg-warning-light dark:bg-amber-900/30 text-warning-dark dark:text-amber-400',
   danger: 'bg-danger-light dark:bg-red-900/30 text-danger-dark dark:text-red-400',
-  info: 'bg-info-light dark:bg-blue-900/30 text-info-dark dark:text-blue-400',
+  info: 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400',
 };
 
 export function Badge({

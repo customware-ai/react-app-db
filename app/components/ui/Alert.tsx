@@ -12,10 +12,10 @@ interface AlertProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles: Record<AlertVariant, string> = {
-  info: 'bg-info-light dark:bg-blue-900/30 text-info-dark dark:text-blue-300 border-info',
-  success: 'bg-success-light dark:bg-green-900/30 text-success-dark dark:text-green-300 border-success',
-  warning: 'bg-warning-light dark:bg-amber-900/30 text-warning-dark dark:text-amber-300 border-warning',
-  danger: 'bg-danger-light dark:bg-red-900/30 text-danger-dark dark:text-red-300 border-danger',
+  info: 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-500',
+  success: 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border-primary-500',
+  warning: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-500',
+  danger: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-500',
 };
 
 const iconMap: Record<AlertVariant, ReactNode> = {

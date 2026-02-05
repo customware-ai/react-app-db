@@ -197,14 +197,14 @@ export function Sidebar({
   return (
     <aside
       className={clsx(
-        "fixed left-0 top-10 bg-surface-900 border-r border-surface-800 transition-all duration-300 ease-out z-40",
+        "fixed left-0 top-10 bg-gradient-to-b from-surface-900 to-surface-950 border-r border-surface-800/50 transition-all duration-300 ease-out z-40",
         "h-[calc(100vh-2.5rem)]",
         collapsed ? "w-16" : "w-64"
       )}
     >
       <div className="flex flex-col h-full">
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-surface-800">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-surface-800/50">
           {!collapsed && (
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center shadow-lg">
@@ -292,7 +292,7 @@ export function Sidebar({
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-surface-800">
+        <div className="p-4 border-t border-surface-800/50">
           <Link
             to="/settings"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-surface-300 hover:bg-surface-800 hover:text-white transition-all group"

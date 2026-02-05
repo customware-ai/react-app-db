@@ -36,29 +36,29 @@ describe('Alert', () => {
     it('should apply info variant by default', () => {
       render(<Alert>Info</Alert>);
       const alert = screen.getByRole('alert');
-      expect(alert.className).toContain('bg-info-light');
-      expect(alert.className).toContain('text-info-dark');
+      expect(alert.className).toContain('bg-teal-50');
+      expect(alert.className).toContain('text-teal-700');
     });
 
     it('should apply success variant', () => {
       render(<Alert variant="success">Success</Alert>);
       const alert = screen.getByRole('alert');
-      expect(alert.className).toContain('bg-success-light');
-      expect(alert.className).toContain('text-success-dark');
+      expect(alert.className).toContain('bg-primary-50');
+      expect(alert.className).toContain('text-primary-700');
     });
 
     it('should apply warning variant', () => {
       render(<Alert variant="warning">Warning</Alert>);
       const alert = screen.getByRole('alert');
-      expect(alert.className).toContain('bg-warning-light');
-      expect(alert.className).toContain('text-warning-dark');
+      expect(alert.className).toContain('bg-amber-50');
+      expect(alert.className).toContain('text-amber-700');
     });
 
     it('should apply danger variant', () => {
       render(<Alert variant="danger">Danger</Alert>);
       const alert = screen.getByRole('alert');
-      expect(alert.className).toContain('bg-danger-light');
-      expect(alert.className).toContain('text-danger-dark');
+      expect(alert.className).toContain('bg-red-50');
+      expect(alert.className).toContain('text-red-700');
     });
   });
 

@@ -30,9 +30,9 @@ const statusStyles: Record<
     dot: "bg-surface-500",
   },
   sent: {
-    bg: "bg-blue-100 dark:bg-blue-900/30",
-    text: "text-blue-700 dark:text-blue-400",
-    dot: "bg-blue-500",
+    bg: "bg-teal-100 dark:bg-teal-900/30",
+    text: "text-teal-700 dark:text-teal-400",
+    dot: "bg-teal-500",
   },
   paid: {
     bg: "bg-primary-100 dark:bg-primary-900/30",
@@ -70,9 +70,9 @@ const statusStyles: Record<
     dot: "bg-red-500",
   },
   info: {
-    bg: "bg-blue-100 dark:bg-blue-900/30",
-    text: "text-blue-700 dark:text-blue-400",
-    dot: "bg-blue-500",
+    bg: "bg-teal-100 dark:bg-teal-900/30",
+    text: "text-teal-700 dark:text-teal-400",
+    dot: "bg-teal-500",
   },
 };
 

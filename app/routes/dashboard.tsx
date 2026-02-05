@@ -191,7 +191,7 @@ export default function Dashboard(): ReactElement {
           </div>
           <div className="space-y-4">
             {[
-              { stage: "Qualified", count: 12, value: "$45,300", color: "bg-blue-500" },
+              { stage: "Qualified", count: 12, value: "$45,300", color: "bg-teal-500" },
               { stage: "Proposal", count: 8, value: "$32,100", color: "bg-primary-500" },
               { stage: "Negotiation", count: 5, value: "$28,900", color: "bg-amber-500" },
               { stage: "Closed Won", count: 15, value: "$124,500", color: "bg-primary-600" },

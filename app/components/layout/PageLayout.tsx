@@ -19,16 +19,16 @@ export function PageLayout({ children, breadcrumbs }: PageLayoutProps): ReactEle
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-surface-50 dark:bg-surface-950 transition-colors">
-      {/* Industrial Grid Pattern Background */}
+    <div className="min-h-screen bg-gradient-to-br from-surface-50 via-surface-100/50 to-surface-50 dark:from-surface-950 dark:via-surface-900/50 dark:to-surface-950 transition-colors">
+      {/* Subtle Grid Pattern Background */}
       <div
-        className="fixed inset-0 pointer-events-none"
+        className="fixed inset-0 pointer-events-none dark:hidden"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px)
+            linear-gradient(rgba(120, 113, 108, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(120, 113, 108, 0.03) 1px, transparent 1px)
           `,
-          backgroundSize: "40px 40px",
+          backgroundSize: "32px 32px",
         }}
         aria-hidden="true"
       />
@@ -36,10 +36,10 @@ export function PageLayout({ children, breadcrumbs }: PageLayoutProps): ReactEle
         className="fixed inset-0 pointer-events-none hidden dark:block"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px)
+            linear-gradient(rgba(168, 162, 158, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(168, 162, 158, 0.04) 1px, transparent 1px)
           `,
-          backgroundSize: "40px 40px",
+          backgroundSize: "32px 32px",
         }}
         aria-hidden="true"
       />

@@ -21,6 +21,7 @@ import { Table } from "../../components/ui/Table";
 import type { Column } from "../../components/ui/Table";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Input } from "../../components/ui/Input";
+import { getDemoPayments } from "../../services/erp";
 
 interface Payment extends Record<string, unknown> {
   id: number;
@@ -39,10 +40,21 @@ interface Payment extends Record<string, unknown> {
 export async function loader({ request: _request }: LoaderFunctionArgs): Promise<{
   payments: Payment[];
 }> {
-  // TODO: Implement getPayments in erp service
-  return {
-    payments: [],
-  };
+  const demoPayments = await getDemoPayments();
+
+  // Transform to match the Payment interface
+  const payments: Payment[] = demoPayments.map((p) => ({
+    id: p.id,
+    payment_number: p.payment_number,
+    customer_id: p.id, // Dummy customer ID
+    invoice_id: p.id, // Dummy invoice ID
+    payment_date: p.payment_date,
+    amount: p.amount,
+    payment_method: p.payment_method,
+    reference_number: p.reference,
+  }));
+
+  return { payments };
 }
 
 export default function PaymentsPage(): ReactElement {
@@ -142,16 +154,8 @@ export default function PaymentsPage(): ReactElement {
       ]}
     >
       <PageHeader
-        title="Payments"
+        title="Payments (Demo Data)"
         description="Track and manage customer payments."
-        actions={
-          <Button variant="primary" onClick={() => navigate("/accounting/payments/new")}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Record Payment
-          </Button>
-        }
       />
 
       {/* Summary Card */}
@@ -192,14 +196,7 @@ export default function PaymentsPage(): ReactElement {
           description={
             searchQuery
               ? "Try adjusting your search"
-              : "Payments will appear here when recorded"
-          }
-          action={
-            !searchQuery ? (
-              <Button variant="primary" onClick={() => navigate("/accounting/payments/new")}>
-                Record Your First Payment
-              </Button>
-            ) : undefined
+              : "Demo template - Payment recording not implemented"
           }
         />
       ) : (

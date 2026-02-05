@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { useNavigate } from "react-router";
 import { PageLayout } from "../components/layout/PageLayout";
 import { PageHeader } from "../components/layout/PageHeader";
 import { Card } from "../components/ui/Card";
@@ -11,7 +12,7 @@ import type { Column } from "../components/ui/Table";
 // Sample data for demonstration
 const metrics = [
   {
-    label: "Total Revenue",
+    label: "Total Revenue (Demo)",
     value: "$124,590",
     change: "+12.5%",
     trend: "up" as const,
@@ -22,7 +23,7 @@ const metrics = [
     ),
   },
   {
-    label: "Outstanding Invoices",
+    label: "Outstanding Invoices (Demo)",
     value: "$32,450",
     change: "+8.2%",
     trend: "up" as const,
@@ -33,7 +34,7 @@ const metrics = [
     ),
   },
   {
-    label: "New Leads",
+    label: "New Leads (Demo)",
     value: "48",
     change: "+24%",
     trend: "up" as const,
@@ -44,7 +45,7 @@ const metrics = [
     ),
   },
   {
-    label: "Active Orders",
+    label: "Active Orders (Demo)",
     value: "23",
     change: "-3.4%",
     trend: "down" as const,
@@ -113,19 +114,13 @@ const invoiceColumns: Column<InvoiceData>[] = [
 ];
 
 export default function Dashboard(): ReactElement {
+  const navigate = useNavigate();
+
   return (
     <PageLayout breadcrumbs={[{ label: "Dashboard" }]}>
       <PageHeader
-        title="Dashboard"
-        description="Welcome back! Here's what's happening with your business today."
-        actions={
-          <Button variant="primary">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            New Invoice
-          </Button>
-        }
+        title="Dashboard (Demo)"
+        description="Welcome to the demo! Explore working CRUD with Customers & Invoices."
       />
 
       {/* Metrics Grid */}
@@ -161,10 +156,10 @@ export default function Dashboard(): ReactElement {
         <Card>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-surface-900">Revenue Overview</h3>
+              <h3 className="text-lg font-bold text-surface-900">Revenue Overview (Demo)</h3>
               <p className="text-sm text-surface-600">Last 12 months performance</p>
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => navigate("/accounting/reports")}>
               View Report
             </Button>
           </div>
@@ -183,10 +178,10 @@ export default function Dashboard(): ReactElement {
         <Card>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-surface-900">Sales Pipeline</h3>
+              <h3 className="text-lg font-bold text-surface-900">Sales Pipeline (Demo)</h3>
               <p className="text-sm text-surface-600">Current opportunities by stage</p>
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => navigate("/sales/leads")}>
               View All
             </Button>
           </div>
@@ -218,10 +213,10 @@ export default function Dashboard(): ReactElement {
       <Card>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold text-surface-900">Recent Invoices</h3>
+            <h3 className="text-lg font-bold text-surface-900">Recent Invoices (Demo)</h3>
             <p className="text-sm text-surface-600">Your latest billing activity</p>
           </div>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => navigate("/accounting/invoices")}>
             View All Invoices
           </Button>
         </div>
@@ -229,13 +224,13 @@ export default function Dashboard(): ReactElement {
           columns={invoiceColumns}
           data={recentInvoices}
           keyExtractor={(row) => row.id}
-          onRowClick={(row) => console.log("Clicked:", row)}
+          onRowClick={(row) => navigate(`/accounting/invoices/${row.id}`)}
         />
       </Card>
 
       {/* Quick Actions */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="hover:shadow-medium transition-shadow cursor-pointer">
+        <Card className="hover:shadow-medium transition-shadow cursor-pointer" onClick={() => navigate("/sales/customers/new")}>
           <div className="flex items-start gap-4">
             <div className="p-3 bg-primary-50 rounded-lg text-primary-600">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,7 +244,7 @@ export default function Dashboard(): ReactElement {
           </div>
         </Card>
 
-        <Card className="hover:shadow-medium transition-shadow cursor-pointer">
+        <Card>
           <div className="flex items-start gap-4">
             <div className="p-3 bg-primary-50 rounded-lg text-primary-600">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,7 +258,7 @@ export default function Dashboard(): ReactElement {
           </div>
         </Card>
 
-        <Card className="hover:shadow-medium transition-shadow cursor-pointer">
+        <Card className="hover:shadow-medium transition-shadow cursor-pointer" onClick={() => navigate("/accounting/reports")}>
           <div className="flex items-start gap-4">
             <div className="p-3 bg-primary-50 rounded-lg text-primary-600">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

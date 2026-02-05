@@ -185,8 +185,7 @@ export default function CustomerDetailPage(): ReactElement {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             <h3 className="text-lg font-semibold text-surface-900 mb-2">No Contacts Yet</h3>
-            <p className="text-surface-600 mb-4">Add contacts for this customer</p>
-            <Button variant="primary" size="sm">Add Contact</Button>
+            <p className="text-surface-600">Contacts feature not available in template</p>
           </div>
         </Card>
       ),
@@ -202,8 +201,7 @@ export default function CustomerDetailPage(): ReactElement {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
             <h3 className="text-lg font-semibold text-surface-900 mb-2">No Orders Yet</h3>
-            <p className="text-surface-600 mb-4">Create a sales order for this customer</p>
-            <Button variant="primary" size="sm">Create Order</Button>
+            <p className="text-surface-600">Orders feature not available in template</p>
           </div>
         </Card>
       ),
@@ -219,8 +217,7 @@ export default function CustomerDetailPage(): ReactElement {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <h3 className="text-lg font-semibold text-surface-900 mb-2">No Invoices Yet</h3>
-            <p className="text-surface-600 mb-4">Create an invoice for this customer</p>
-            <Button variant="primary" size="sm">Create Invoice</Button>
+            <p className="text-surface-600">Invoices feature not available in template</p>
           </div>
         </Card>
       ),
@@ -236,8 +233,7 @@ export default function CustomerDetailPage(): ReactElement {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <h3 className="text-lg font-semibold text-surface-900 mb-2">No Activities Yet</h3>
-            <p className="text-surface-600 mb-4">Log calls, meetings, or tasks</p>
-            <Button variant="primary" size="sm">Add Activity</Button>
+            <p className="text-surface-600">Activities feature not available in template</p>
           </div>
         </Card>
       ),
@@ -255,14 +251,6 @@ export default function CustomerDetailPage(): ReactElement {
       <PageHeader
         title={customer.company_name}
         description={customer.contact_name ? `Contact: ${customer.contact_name}` : undefined}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => navigate(`/sales/customers/${customer.id}/edit`)}>
-              Edit
-            </Button>
-            <Button variant="primary">Create Invoice</Button>
-          </div>
-        }
       />
 
       <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />

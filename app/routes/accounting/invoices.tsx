@@ -152,18 +152,6 @@ export default function InvoicesPage(): ReactElement {
       label: "",
       render: (_value: unknown, row: Invoice): JSX.Element => (
         <div className="flex items-center justify-end gap-2">
-          {row.status !== "paid" && row.status !== "cancelled" && (
-            <Button
-              size="sm"
-              variant="primary"
-              onClick={(e): void => {
-                e.stopPropagation();
-                void navigate(`/accounting/payments/new?invoice=${row.id}`);
-              }}
-            >
-              Record Payment
-            </Button>
-          )}
           <Button
             size="sm"
             variant="outline"
@@ -189,14 +177,6 @@ export default function InvoicesPage(): ReactElement {
       <PageHeader
         title="Invoices"
         description="Manage customer invoices and track payments."
-        actions={
-          <Button variant="primary" onClick={() => navigate("/accounting/invoices/new")}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            New Invoice
-          </Button>
-        }
       />
 
       {/* Error Alert */}
@@ -263,14 +243,7 @@ export default function InvoicesPage(): ReactElement {
           description={
             searchQuery || statusFilter !== "all"
               ? "Try adjusting your filters"
-              : "Get started by creating your first invoice"
-          }
-          action={
-            !searchQuery && statusFilter === "all" ? (
-              <Button variant="primary" onClick={() => navigate("/accounting/invoices/new")}>
-                Create Your First Invoice
-              </Button>
-            ) : undefined
+              : "Demo template - View working CRUD in Customers section"
           }
         />
       ) : (

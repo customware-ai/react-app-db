@@ -20,7 +20,7 @@ export function TopBar({ breadcrumbs = [], sidebarCollapsed = false }: TopBarPro
 
   return (
     <header className={clsx(
-      "fixed top-0 right-0 h-16 bg-white border-b border-surface-200 z-30 transition-all duration-300",
+      "fixed top-10 right-0 h-16 bg-white border-b border-surface-200 z-30 transition-all duration-300",
       sidebarCollapsed ? "left-16" : "left-64"
     )}>
       <div className="h-full flex items-center justify-between px-6">
@@ -145,7 +145,7 @@ export function TopBar({ breadcrumbs = [], sidebarCollapsed = false }: TopBarPro
                 <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-strong border border-surface-200 z-50 overflow-hidden animate-scale-in">
                   <div className="p-3 border-b border-surface-200">
                     <div className="font-medium text-sm text-surface-900">Demo User</div>
-                    <div className="text-xs text-surface-500">demo@customware.ai</div>
+                    <div className="text-xs text-surface-500">template@example.com</div>
                   </div>
                   <div className="p-2">
                     <Link

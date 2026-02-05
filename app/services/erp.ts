@@ -600,5 +600,46 @@ export async function getAccountsByType(
   }
 }
 
+// Demo data functions
+export async function getDemoLeads() {
+  const stages = ["new", "contacted", "qualified", "proposal", "negotiation", "won"];
+  return stages.map((stage, index) => ({
+    id: index + 1,
+    company_name: `${["Acme Corp", "TechStart Inc", "Global Solutions", "Innovation Labs", "Future Systems", "Prime Industries"][index]}`,
+    contact_name: `${["John Smith", "Sarah Johnson", "Mike Chen", "Lisa Anderson", "David Kim", "Emily Brown"][index]}`,
+    estimated_value: [25000, 50000, 75000, 100000, 150000, 200000][index],
+    probability: [20, 40, 60, 70, 80, 100][index],
+    stage,
+    created_at: new Date(Date.now() - (6 - index) * 7 * 24 * 60 * 60 * 1000).toISOString()
+  }));
+}
+
+export async function getDemoQuotes() {
+  const statuses = ["draft", "sent", "approved", "rejected", "expired"];
+  return Array.from({ length: 5 }, (_, index) => ({
+    id: index + 1,
+    quote_number: `QT-2026-${String(index + 1).padStart(3, "0")}`,
+    customer: `${["Acme Corp", "TechStart Inc", "Global Solutions", "Innovation Labs", "Future Systems"][index]}`,
+    amount: [5000, 12500, 8000, 15000, 6500][index],
+    status: statuses[index],
+    date: new Date(Date.now() - (5 - index) * 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    valid_until: new Date(Date.now() + (index + 1) * 15 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+  }));
+}
+
+export async function getDemoPayments() {
+  const methods = ["bank_transfer", "credit_card", "check"];
+  return Array.from({ length: 3 }, (_, index) => ({
+    id: index + 1,
+    payment_number: `PAY-2026-${String(index + 1).padStart(3, "0")}`,
+    customer: `${["Acme Corp", "Global Solutions", "Innovation Labs"][index]}`,
+    invoice_number: `INV-2026-${String(index + 1).padStart(3, "0")}`,
+    amount: [5000, 8500, 12000][index],
+    payment_method: methods[index],
+    payment_date: new Date(Date.now() - (3 - index) * 10 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    reference: `REF-${String(index + 1).padStart(4, "0")}`
+  }));
+}
+
 // Export all functions
 export * from "../schemas";

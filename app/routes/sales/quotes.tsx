@@ -24,6 +24,7 @@ import type { Status } from "../../components/ui/StatusBadge";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Select } from "../../components/ui/Select";
 import { Input } from "../../components/ui/Input";
+import { getDemoQuotes } from "../../services/erp";
 
 interface Quote extends Record<string, unknown> {
   id: number;
@@ -39,30 +40,20 @@ interface Quote extends Record<string, unknown> {
  * Loader - fetches quotes from database
  */
 export async function loader({ request: _request }: LoaderFunctionArgs): Promise<{ quotes: Quote[] }> {
-  // TODO: Implement getQuotes in erp service
-  // Mock data for now
-  return {
-    quotes: [
-      {
-        id: 1,
-        quote_number: "QT-000001",
-        customer_name: "Sample Customer A",
-        issue_date: "2024-02-01",
-        expiry_date: "2024-03-01",
-        total: 5240.00,
-        status: "sent",
-      },
-      {
-        id: 2,
-        quote_number: "QT-000002",
-        customer_name: "Sample Customer B",
-        issue_date: "2024-02-05",
-        expiry_date: "2024-03-05",
-        total: 12890.00,
-        status: "draft",
-      },
-    ],
-  };
+  const demoQuotes = await getDemoQuotes();
+
+  // Transform to match the Quote interface
+  const quotes: Quote[] = demoQuotes.map((q) => ({
+    id: q.id,
+    quote_number: q.quote_number,
+    customer_name: q.customer,
+    issue_date: q.date,
+    expiry_date: q.valid_until,
+    total: q.amount,
+    status: q.status,
+  }));
+
+  return { quotes };
 }
 
 export default function QuotesPage(): ReactElement {
@@ -135,24 +126,6 @@ export default function QuotesPage(): ReactElement {
         return <StatusBadge status={statusMap[statusValue] || "info"} label={statusValue} showDot />;
       },
     },
-    {
-      key: "actions",
-      label: "",
-      render: (_value: unknown, row: Quote): JSX.Element => (
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={(e): void => {
-              e.stopPropagation();
-              void navigate(`/sales/quotes/${row.id}`);
-            }}
-          >
-            View
-          </Button>
-        </div>
-      ),
-    },
   ];
 
   return (
@@ -163,16 +136,8 @@ export default function QuotesPage(): ReactElement {
       ]}
     >
       <PageHeader
-        title="Quotes"
+        title="Quotes (Demo Data)"
         description="Create and manage sales quotations for your customers."
-        actions={
-          <Button variant="primary" onClick={() => navigate("/sales/quotes/new")}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            New Quote
-          </Button>
-        }
       />
 
       {/* Filters */}
@@ -213,14 +178,7 @@ export default function QuotesPage(): ReactElement {
           description={
             searchQuery || statusFilter !== "all"
               ? "Try adjusting your filters"
-              : "Get started by creating your first quote"
-          }
-          action={
-            !searchQuery && statusFilter === "all" ? (
-              <Button variant="primary" onClick={() => navigate("/sales/quotes/new")}>
-                Create Your First Quote
-              </Button>
-            ) : undefined
+              : "Demo template - Quote creation not implemented"
           }
         />
       ) : (
@@ -228,7 +186,6 @@ export default function QuotesPage(): ReactElement {
           columns={columns}
           data={filteredQuotes}
           keyExtractor={(row) => row.id.toString()}
-          onRowClick={(row) => void navigate(`/sales/quotes/${String(row.id)}`)}
         />
       )}
 

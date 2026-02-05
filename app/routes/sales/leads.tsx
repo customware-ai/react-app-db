@@ -25,6 +25,7 @@ import { PageHeader } from "../../components/layout/PageHeader";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { EmptyState } from "../../components/ui/EmptyState";
+import { getDemoLeads } from "../../services/erp";
 
 interface Lead {
   id: number;
@@ -47,18 +48,19 @@ export async function loader({ request: _request }: LoaderFunctionArgs): Promise
     lost: Lead[];
   };
 }> {
-  // TODO: Implement getLeads function in erp service
-  // For now, return mock data structure
-  return {
-    leadsByStatus: {
-      new: [],
-      contacted: [],
-      qualified: [],
-      proposal: [],
-      won: [],
-      lost: [],
-    },
+  const leads = await getDemoLeads();
+
+  // Group leads by status
+  const leadsByStatus = {
+    new: leads.filter(l => l.stage === "new"),
+    contacted: leads.filter(l => l.stage === "contacted"),
+    qualified: leads.filter(l => l.stage === "qualified"),
+    proposal: leads.filter(l => l.stage === "proposal"),
+    won: leads.filter(l => l.stage === "won"),
+    lost: leads.filter(l => l.stage === "negotiation"), // Using negotiation as lost for demo
   };
+
+  return { leadsByStatus };
 }
 
 /**
@@ -89,11 +91,6 @@ function KanbanColumn({
               {count}
             </span>
           </div>
-          <button className="p-1 hover:bg-surface-200 rounded">
-            <svg className="w-4 h-4 text-surface-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
         </div>
 
         {/* Lead Cards */}
@@ -144,44 +141,34 @@ export default function LeadsPage(): ReactElement {
       ]}
     >
       <PageHeader
-        title="Leads"
+        title="Leads (Demo Data)"
         description="Manage your sales pipeline and track lead progress."
         actions={
-          <div className="flex items-center gap-2">
-            {/* View Mode Toggle */}
-            <div className="flex items-center gap-1 bg-surface-100 p-1 rounded-lg">
-              <button
-                onClick={() => setViewMode("kanban")}
-                className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-                  viewMode === "kanban"
-                    ? "bg-white text-surface-900 shadow-sm"
-                    : "text-surface-600 hover:text-surface-900"
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                </svg>
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-                  viewMode === "list"
-                    ? "bg-white text-surface-900 shadow-sm"
-                    : "text-surface-600 hover:text-surface-900"
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
-              </button>
-            </div>
-
-            <Button variant="primary">
+          <div className="flex items-center gap-1 bg-surface-100 p-1 rounded-lg">
+            <button
+              onClick={() => setViewMode("kanban")}
+              className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
+                viewMode === "kanban"
+                  ? "bg-white text-surface-900 shadow-sm"
+                  : "text-surface-600 hover:text-surface-900"
+              }`}
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
               </svg>
-              New Lead
-            </Button>
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
+                viewMode === "list"
+                  ? "bg-white text-surface-900 shadow-sm"
+                  : "text-surface-600 hover:text-surface-900"
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+            </button>
           </div>
         }
       />

@@ -12,10 +12,9 @@
 import type { ReactElement } from "react";
 import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData } from "react-router";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { PageHeader } from "../../components/layout/PageHeader";
-import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Tabs } from "../../components/ui/Tabs";
 import { StatusBadge } from "../../components/ui/StatusBadge";
@@ -42,7 +41,6 @@ export async function loader({ params }: LoaderFunctionArgs): Promise<{
 
 export default function CustomerDetailPage(): ReactElement {
   const { customer } = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
 
   if (!customer) {

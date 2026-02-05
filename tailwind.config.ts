@@ -84,6 +84,13 @@ export default {
         'fade-in': 'fadeIn 0.3s ease-out',
         'slide-up': 'slideUp 0.3s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
+        // Landing page animations (TEMPLATE DEMO ONLY - remove when building actual app)
+        'float': 'float 6s ease-in-out infinite',
+        'pulse-dot': 'pulseDot 1.5s ease-in-out infinite',
+        'progress-loop': 'progressLoop 2s ease-in-out infinite',
+        'shine': 'shine 3s ease-in-out infinite',
+        'fade-up': 'fadeUp 0.6s ease-out forwards',
+        'stripe-move': 'stripeMove 2s linear infinite',
       },
       keyframes: {
         fadeIn: {
@@ -97,6 +104,31 @@ export default {
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.95)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        // Landing page keyframes (TEMPLATE DEMO ONLY - remove when building actual app)
+        float: {
+          '0%, 100%': { transform: 'translateY(0) scale(1)', opacity: '0.4' },
+          '50%': { transform: 'translateY(-20px) scale(1.1)', opacity: '0.8' },
+        },
+        pulseDot: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.3' },
+          '50%': { transform: 'scale(1.5)', opacity: '1' },
+        },
+        progressLoop: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(400%)' },
+        },
+        shine: {
+          from: { transform: 'translateX(-100%) skewX(-15deg)' },
+          to: { transform: 'translateX(200%) skewX(-15deg)' },
+        },
+        fadeUp: {
+          from: { opacity: '0', transform: 'translateY(30px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        stripeMove: {
+          from: { transform: 'translateX(-50%)' },
+          to: { transform: 'translateX(0%)' },
         },
       },
     },

@@ -19,8 +19,22 @@ import {
 } from "@react-router/dev/routes";
 
 export default [
-  // Main dashboard
-  index("routes/dashboard.tsx"),
+  /**
+   * ⚠️ TEMPLATE DEMO ONLY - Landing Page
+   *
+   * This landing page route is ONLY for the demo/template version.
+   * Remove this route when building your actual application.
+   *
+   * For production apps:
+   * 1. Delete this index route
+   * 2. Delete the routes/landing.tsx file
+   * 3. Make your dashboard or login page the index route
+   * 4. Remove landing page animations from tailwind.config.ts
+   */
+  index("routes/landing.tsx"),
+
+  // Main dashboard (make this your index route for production apps)
+  route("dashboard", "routes/dashboard.tsx"),
 
   // Sales & CRM routes
   ...prefix("sales", [
@@ -39,8 +53,6 @@ export default [
     route("reports", "routes/accounting/reports.tsx"),
   ]),
 
-  // Demo route
-  route("demo", "routes/home.tsx"),
 
   // API routes
   ...prefix("api", [

@@ -1,31 +1,94 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
-:root {
-  --page-bg: #f8fafc;
-  --text-color: #0f172a;
-  --muted-text: #64748b;
-  --border-color: #e2e8f0;
-  --card-bg: #ffffff;
-  --link-color: #047857;
-  --link-hover-color: #059669;
-  --link-bg-hover: rgba(5, 150, 105, 0.08);
-  --primary: #10b981;
-  --primary-hover: #059669;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --page-bg: #020617;
-    --text-color: #e2e8f0;
-    --muted-text: #94a3b8;
-    --border-color: #334155;
-    --card-bg: #0f172a;
-    --link-color: #34d399;
-    --link-hover-color: #6ee7b7;
-    --link-bg-hover: rgba(52, 211, 153, 0.12);
+    /* Tailwind v4 zinc palette (OKLCH) */
+    --zinc-50: oklch(98.5% 0 0);
+    --zinc-100: oklch(96.7% 0.001 286.375);
+    --zinc-200: oklch(92% 0.004 286.32);
+    --zinc-300: oklch(87.1% 0.006 286.286);
+    --zinc-400: oklch(70.5% 0.015 286.067);
+    --zinc-500: oklch(55.2% 0.016 285.938);
+    --zinc-600: oklch(44.2% 0.017 285.786);
+    --zinc-700: oklch(37% 0.013 285.805);
+    --zinc-800: oklch(27.4% 0.006 286.033);
+    --zinc-900: oklch(21% 0.006 285.885);
+    --zinc-950: oklch(14.1% 0.005 285.823);
+
+    /* Light mode */
+    color-scheme: light;
+
+    /* Base */
+    --color-base-100: var(--zinc-50);
+    --color-base-200: var(--zinc-100);
+    --color-base-300: var(--zinc-200);
+    --color-base-content: #000;
+
+    /* Primary: black in light mode */
+    --color-primary: #000;
+    --color-primary-content: #fff;
+
+    /* Secondary + Accent: zinc */
+    --color-secondary: var(--zinc-200);
+    --color-secondary-content: #000;
+    --color-accent: var(--zinc-700);
+    --color-accent-content: #fff;
+
+    /* Legacy variables for compatibility */
+    --page-bg: var(--zinc-100);
+    --text-color: #000;
+    --muted-text: var(--zinc-500);
+    --border-color: var(--zinc-200);
+    --card-bg: var(--zinc-50);
+    --link-color: #047857;
+    --link-hover-color: #059669;
+    --link-bg-hover: rgba(5, 150, 105, 0.08);
     --primary: #10b981;
-    --primary-hover: #34d399;
+    --primary-hover: #059669;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+
+      /* Base */
+      --color-base-100: var(--zinc-950);
+      --color-base-200: color-mix(in oklab, var(--zinc-900) 82%, var(--zinc-950));
+      --color-base-300: var(--zinc-800);
+      --color-base-content: #fff;
+
+      /* Primary: white in dark mode */
+      --color-primary: #fff;
+      --color-primary-content: #000;
+
+      /* Secondary + Accent: zinc */
+      --color-secondary: var(--zinc-800);
+      --color-secondary-content: #fff;
+      --color-accent: var(--zinc-200);
+      --color-accent-content: #000;
+
+      /* Legacy variables for compatibility */
+      --page-bg: var(--zinc-950);
+      --text-color: #fff;
+      --muted-text: var(--zinc-400);
+      --border-color: var(--zinc-800);
+      --card-bg: var(--zinc-900);
+      --link-color: #34d399;
+      --link-hover-color: #6ee7b7;
+      --link-bg-hover: rgba(52, 211, 153, 0.12);
+      --primary: #10b981;
+      --primary-hover: #34d399;
+    }
+  }
+
+  body {
+    background-color: var(--color-base-200);
+    color: var(--color-base-content);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-base-content) 18%, transparent);
   }
 }
 

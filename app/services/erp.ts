@@ -601,7 +601,7 @@ export async function getAccountsByType(
 }
 
 // Demo data functions
-export async function getDemoLeads() {
+export async function getDemoLeads(): Promise<Array<{ id: number; company_name: string; contact_name: string; estimated_value: number; probability: number; stage: string; created_at: string }>> {
   const stages = ["new", "contacted", "qualified", "proposal", "negotiation", "won"];
   return stages.map((stage, index) => ({
     id: index + 1,
@@ -614,7 +614,7 @@ export async function getDemoLeads() {
   }));
 }
 
-export async function getDemoQuotes() {
+export async function getDemoQuotes(): Promise<Array<{ id: number; quote_number: string; customer: string; amount: number; status: string; date: string; valid_until: string }>> {
   const statuses = ["draft", "sent", "approved", "rejected", "expired"];
   return Array.from({ length: 5 }, (_, index) => ({
     id: index + 1,
@@ -627,7 +627,7 @@ export async function getDemoQuotes() {
   }));
 }
 
-export async function getDemoPayments() {
+export async function getDemoPayments(): Promise<Array<{ id: number; payment_number: string; customer: string; invoice_number: string; amount: number; payment_method: string; payment_date: string; reference: string }>> {
   const methods = ["bank_transfer", "credit_card", "check"];
   return Array.from({ length: 3 }, (_, index) => ({
     id: index + 1,

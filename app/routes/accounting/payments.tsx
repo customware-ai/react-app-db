@@ -13,10 +13,9 @@
 import type { ReactElement } from "react";
 import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData } from "react-router";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { PageHeader } from "../../components/layout/PageHeader";
-import { Button } from "../../components/ui/Button";
 import { Table } from "../../components/ui/Table";
 import type { Column } from "../../components/ui/Table";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -59,7 +58,6 @@ export async function loader({ request: _request }: LoaderFunctionArgs): Promise
 
 export default function PaymentsPage(): ReactElement {
   const { payments } = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter payments

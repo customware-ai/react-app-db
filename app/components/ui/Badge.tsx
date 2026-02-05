@@ -14,12 +14,12 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: 'bg-surface-100 text-surface-700',
-  primary: 'bg-primary-100 text-primary-700',
-  success: 'bg-success-light text-success-dark',
-  warning: 'bg-warning-light text-warning-dark',
-  danger: 'bg-danger-light text-danger-dark',
-  info: 'bg-info-light text-info-dark',
+  default: 'bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300',
+  primary: 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400',
+  success: 'bg-success-light dark:bg-green-900/30 text-success-dark dark:text-green-400',
+  warning: 'bg-warning-light dark:bg-amber-900/30 text-warning-dark dark:text-amber-400',
+  danger: 'bg-danger-light dark:bg-red-900/30 text-danger-dark dark:text-red-400',
+  info: 'bg-info-light dark:bg-blue-900/30 text-info-dark dark:text-blue-400',
 };
 
 export function Badge({

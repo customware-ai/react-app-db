@@ -20,7 +20,7 @@ export function LoadingSkeleton({
         {skeletons.map((i) => (
           <div
             key={i}
-            className={clsx("h-4 bg-surface-200 rounded animate-pulse", className)}
+            className={clsx("h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse", className)}
             style={{ width: `${Math.random() * 30 + 70}%` }}
           />
         ))}
@@ -34,7 +34,7 @@ export function LoadingSkeleton({
         {skeletons.map((i) => (
           <div
             key={i}
-            className={clsx("w-12 h-12 bg-surface-200 rounded-full animate-pulse", className)}
+            className={clsx("w-12 h-12 bg-surface-200 dark:bg-surface-700 rounded-full animate-pulse", className)}
           />
         ))}
       </>
@@ -45,18 +45,18 @@ export function LoadingSkeleton({
     return (
       <>
         {skeletons.map((i) => (
-          <tr key={i} className="border-b border-surface-100">
+          <tr key={i} className="border-b border-surface-100 dark:border-surface-700">
             <td className="px-6 py-4">
-              <div className="h-4 bg-surface-200 rounded animate-pulse w-3/4" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-3/4" />
             </td>
             <td className="px-6 py-4">
-              <div className="h-4 bg-surface-200 rounded animate-pulse w-1/2" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-1/2" />
             </td>
             <td className="px-6 py-4">
-              <div className="h-4 bg-surface-200 rounded animate-pulse w-2/3" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-2/3" />
             </td>
             <td className="px-6 py-4">
-              <div className="h-4 bg-surface-200 rounded animate-pulse w-1/3" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-1/3" />
             </td>
           </tr>
         ))}
@@ -70,24 +70,24 @@ export function LoadingSkeleton({
       {skeletons.map((i) => (
         <div
           key={i}
-          className={clsx("bg-white border border-surface-200 rounded-xl p-6", className)}
+          className={clsx("bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-6", className)}
         >
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-surface-200 rounded-full animate-pulse" />
+              <div className="w-12 h-12 bg-surface-200 dark:bg-surface-700 rounded-full animate-pulse" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-surface-200 rounded animate-pulse w-1/3" />
-                <div className="h-3 bg-surface-200 rounded animate-pulse w-1/2" />
+                <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-1/3" />
+                <div className="h-3 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-1/2" />
               </div>
             </div>
             <div className="space-y-2">
-              <div className="h-4 bg-surface-200 rounded animate-pulse" />
-              <div className="h-4 bg-surface-200 rounded animate-pulse w-5/6" />
-              <div className="h-4 bg-surface-200 rounded animate-pulse w-4/6" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-5/6" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-4/6" />
             </div>
             <div className="flex gap-2">
-              <div className="h-8 bg-surface-200 rounded-lg animate-pulse w-20" />
-              <div className="h-8 bg-surface-200 rounded-lg animate-pulse w-24" />
+              <div className="h-8 bg-surface-200 dark:bg-surface-700 rounded-lg animate-pulse w-20" />
+              <div className="h-8 bg-surface-200 dark:bg-surface-700 rounded-lg animate-pulse w-24" />
             </div>
           </div>
         </div>
@@ -111,21 +111,21 @@ export function TextSkeleton({ lines = 3 }: { lines?: number }): ReactElement {
 
 export function TableSkeleton({ rows = 5 }: { rows?: number }): ReactElement {
   return (
-    <div className="bg-white rounded-xl border border-surface-200 overflow-hidden">
+    <div className="bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden">
       <table className="w-full">
-        <thead className="bg-surface-50 border-b border-surface-200">
+        <thead className="bg-surface-50 dark:bg-surface-800/50 border-b border-surface-200 dark:border-surface-700">
           <tr>
             <th className="px-6 py-4 text-left">
-              <div className="h-4 bg-surface-200 rounded animate-pulse w-24" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-24" />
             </th>
             <th className="px-6 py-4 text-left">
-              <div className="h-4 bg-surface-200 rounded animate-pulse w-32" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-32" />
             </th>
             <th className="px-6 py-4 text-left">
-              <div className="h-4 bg-surface-200 rounded animate-pulse w-28" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-28" />
             </th>
             <th className="px-6 py-4 text-left">
-              <div className="h-4 bg-surface-200 rounded animate-pulse w-20" />
+              <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-20" />
             </th>
           </tr>
         </thead>

@@ -29,11 +29,11 @@ export function PageHeader({
       {/* Title and Actions */}
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h1 className="text-3xl font-bold text-surface-900 tracking-tight mb-1">
+          <h1 className="text-3xl font-bold text-surface-900 dark:text-surface-100 tracking-tight mb-1">
             {title}
           </h1>
           {description && (
-            <p className="text-surface-600 text-base max-w-2xl">
+            <p className="text-surface-600 dark:text-surface-400 text-base max-w-2xl">
               {description}
             </p>
           )}
@@ -47,7 +47,7 @@ export function PageHeader({
 
       {/* Tabs */}
       {tabs && tabs.length > 0 && (
-        <div className="border-b border-surface-200">
+        <div className="border-b border-surface-200 dark:border-surface-700">
           <nav className="flex gap-8" role="tablist">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.value;
@@ -60,8 +60,8 @@ export function PageHeader({
                   className={clsx(
                     "relative pb-4 px-1 text-sm font-semibold transition-colors",
                     isActive
-                      ? "text-primary-600"
-                      : "text-surface-600 hover:text-surface-900"
+                      ? "text-primary-600 dark:text-primary-400"
+                      : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"
                   )}
                 >
                   <span className="flex items-center gap-2">
@@ -70,15 +70,15 @@ export function PageHeader({
                       <span className={clsx(
                         "px-2 py-0.5 text-xs font-medium rounded-full",
                         isActive
-                          ? "bg-primary-100 text-primary-700"
-                          : "bg-surface-100 text-surface-600"
+                          ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
+                          : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400"
                       )}>
                         {tab.count}
                       </span>
                     )}
                   </span>
                   {isActive && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-full" />
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 dark:bg-primary-500 rounded-full" />
                   )}
                 </button>
               );

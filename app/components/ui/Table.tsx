@@ -81,24 +81,24 @@ export function Table<T extends Record<string, unknown>>({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-surface-200 overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-surface-50 border-b border-surface-200">
+            <thead className="bg-surface-50 dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700">
               <tr>
                 {columns.map((column) => (
                   <th key={column.key} className="px-6 py-4 text-left">
-                    <div className="h-4 bg-surface-200 rounded animate-pulse w-24" />
+                    <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-24" />
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {[...Array(5)].map((_, i) => (
-                <tr key={`skeleton-row-${i}`} className="border-b border-surface-100">
+                <tr key={`skeleton-row-${i}`} className="border-b border-surface-100 dark:border-surface-700">
                   {columns.map((column) => (
                     <td key={column.key} className="px-6 py-4">
-                      <div className="h-4 bg-surface-100 rounded animate-pulse" />
+                      <div className="h-4 bg-surface-100 dark:bg-surface-700 rounded animate-pulse" />
                     </td>
                   ))}
                 </tr>
@@ -116,10 +116,10 @@ export function Table<T extends Record<string, unknown>>({
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-xl border border-surface-200 overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-surface-50 border-b border-surface-200">
+            <thead className="bg-surface-50 dark:bg-surface-800/50 border-b border-surface-200 dark:border-surface-700">
               <tr>
                 {selectable && (
                   <th className="px-6 py-4 w-12">
@@ -127,7 +127,7 @@ export function Table<T extends Record<string, unknown>>({
                       type="checkbox"
                       checked={selectedRows.size === data.length && data.length > 0}
                       onChange={handleSelectAll}
-                      className="w-4 h-4 text-primary-600 border-surface-300 rounded focus:ring-primary-500"
+                      className="w-4 h-4 text-primary-600 border-surface-300 dark:border-surface-600 rounded focus:ring-primary-500"
                     />
                   </th>
                 )}
@@ -135,8 +135,8 @@ export function Table<T extends Record<string, unknown>>({
                   <th
                     key={column.key}
                     className={clsx(
-                      "px-6 py-4 text-left text-xs font-semibold text-surface-600 uppercase tracking-wider",
-                      column.sortable && "cursor-pointer select-none hover:text-surface-900",
+                      "px-6 py-4 text-left text-xs font-semibold text-surface-600 dark:text-surface-400 uppercase tracking-wider",
+                      column.sortable && "cursor-pointer select-none hover:text-surface-900 dark:hover:text-surface-200",
                       column.className
                     )}
                     onClick={() => column.sortable && handleSort(column.key)}
@@ -167,7 +167,7 @@ export function Table<T extends Record<string, unknown>>({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-surface-100">
+            <tbody className="divide-y divide-surface-100 dark:divide-surface-700">
               {data.map((row) => {
                 const rowKey = keyExtractor(row);
                 const isSelected = selectedRows.has(rowKey);
@@ -177,8 +177,8 @@ export function Table<T extends Record<string, unknown>>({
                     onClick={() => onRowClick?.(row)}
                     className={clsx(
                       "transition-colors",
-                      onRowClick && "cursor-pointer hover:bg-surface-50",
-                      isSelected && "bg-primary-50"
+                      onRowClick && "cursor-pointer hover:bg-surface-50 dark:hover:bg-surface-800/50",
+                      isSelected && "bg-primary-50 dark:bg-primary-900/20"
                     )}
                   >
                     {selectable && (
@@ -188,14 +188,14 @@ export function Table<T extends Record<string, unknown>>({
                           checked={isSelected}
                           onChange={() => handleSelectRow(rowKey)}
                           onClick={(e) => e.stopPropagation()}
-                          className="w-4 h-4 text-primary-600 border-surface-300 rounded focus:ring-primary-500"
+                          className="w-4 h-4 text-primary-600 border-surface-300 dark:border-surface-600 rounded focus:ring-primary-500"
                         />
                       </td>
                     )}
                     {columns.map((column) => (
                       <td
                         key={column.key}
-                        className={clsx("px-6 py-4 text-sm text-surface-900", column.className)}
+                        className={clsx("px-6 py-4 text-sm text-surface-900 dark:text-surface-100", column.className)}
                       >
                         {column.render
                           ? column.render(row[column.key], row)
@@ -213,7 +213,7 @@ export function Table<T extends Record<string, unknown>>({
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between px-6">
-          <div className="text-sm text-surface-600">
+          <div className="text-sm text-surface-600 dark:text-surface-400">
             Showing {(pagination.currentPage - 1) * pagination.pageSize + 1} to{" "}
             {Math.min(pagination.currentPage * pagination.pageSize, pagination.totalItems)} of{" "}
             {pagination.totalItems} results
@@ -222,7 +222,7 @@ export function Table<T extends Record<string, unknown>>({
             <button
               onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
-              className="px-3 py-2 text-sm font-medium text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 text-sm font-medium text-surface-700 dark:text-surface-300 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
@@ -243,7 +243,7 @@ export function Table<T extends Record<string, unknown>>({
                         "px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                         isCurrent
                           ? "bg-primary-600 text-white"
-                          : "text-surface-700 bg-white border border-surface-300 hover:bg-surface-50"
+                          : "text-surface-700 dark:text-surface-300 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 hover:bg-surface-50 dark:hover:bg-surface-700"
                       )}
                     >
                       {page}
@@ -252,7 +252,7 @@ export function Table<T extends Record<string, unknown>>({
                 }
                 if (page === pagination.currentPage - 2 || page === pagination.currentPage + 2) {
                   return (
-                    <span key={page} className="px-2 text-surface-500">
+                    <span key={page} className="px-2 text-surface-500 dark:text-surface-400">
                       ...
                     </span>
                   );
@@ -263,7 +263,7 @@ export function Table<T extends Record<string, unknown>>({
             <button
               onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
               disabled={pagination.currentPage === pagination.totalPages}
-              className="px-3 py-2 text-sm font-medium text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 text-sm font-medium text-surface-700 dark:text-surface-300 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>

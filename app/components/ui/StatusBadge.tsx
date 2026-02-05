@@ -25,53 +25,53 @@ const statusStyles: Record<
   { bg: string; text: string; dot: string }
 > = {
   draft: {
-    bg: "bg-surface-100",
-    text: "text-surface-700",
+    bg: "bg-surface-100 dark:bg-surface-700",
+    text: "text-surface-700 dark:text-surface-300",
     dot: "bg-surface-500",
   },
   sent: {
-    bg: "bg-blue-100",
-    text: "text-blue-700",
+    bg: "bg-blue-100 dark:bg-blue-900/30",
+    text: "text-blue-700 dark:text-blue-400",
     dot: "bg-blue-500",
   },
   paid: {
-    bg: "bg-primary-100",
-    text: "text-primary-700",
+    bg: "bg-primary-100 dark:bg-primary-900/30",
+    text: "text-primary-700 dark:text-primary-400",
     dot: "bg-primary-500",
   },
   pending: {
-    bg: "bg-amber-100",
-    text: "text-amber-700",
+    bg: "bg-amber-100 dark:bg-amber-900/30",
+    text: "text-amber-700 dark:text-amber-400",
     dot: "bg-amber-500",
   },
   active: {
-    bg: "bg-primary-100",
-    text: "text-primary-700",
+    bg: "bg-primary-100 dark:bg-primary-900/30",
+    text: "text-primary-700 dark:text-primary-400",
     dot: "bg-primary-500",
   },
   inactive: {
-    bg: "bg-surface-100",
-    text: "text-surface-600",
+    bg: "bg-surface-100 dark:bg-surface-700",
+    text: "text-surface-600 dark:text-surface-400",
     dot: "bg-surface-400",
   },
   success: {
-    bg: "bg-primary-100",
-    text: "text-primary-700",
+    bg: "bg-primary-100 dark:bg-primary-900/30",
+    text: "text-primary-700 dark:text-primary-400",
     dot: "bg-primary-500",
   },
   warning: {
-    bg: "bg-amber-100",
-    text: "text-amber-700",
+    bg: "bg-amber-100 dark:bg-amber-900/30",
+    text: "text-amber-700 dark:text-amber-400",
     dot: "bg-amber-500",
   },
   danger: {
-    bg: "bg-red-100",
-    text: "text-red-700",
+    bg: "bg-red-100 dark:bg-red-900/30",
+    text: "text-red-700 dark:text-red-400",
     dot: "bg-red-500",
   },
   info: {
-    bg: "bg-blue-100",
-    text: "text-blue-700",
+    bg: "bg-blue-100 dark:bg-blue-900/30",
+    text: "text-blue-700 dark:text-blue-400",
     dot: "bg-blue-500",
   },
 };

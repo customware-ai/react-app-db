@@ -14,9 +14,9 @@ interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles: Record<CardVariant, string> = {
-  default: 'bg-white border border-surface-200',
-  elevated: 'bg-white shadow-soft',
-  outlined: 'bg-transparent border border-surface-300',
+  default: 'bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700',
+  elevated: 'bg-white dark:bg-surface-800 shadow-soft',
+  outlined: 'bg-transparent border border-surface-300 dark:border-surface-600',
 };
 
 export function Card({
@@ -44,15 +44,15 @@ export function CardHeader({
 }: CardHeaderProps): ReactElement {
   return (
     <div
-      className={clsx("flex items-start justify-between mb-4 pb-3 border-b border-surface-100", className)}
+      className={clsx("flex items-start justify-between mb-4 pb-3 border-b border-surface-100 dark:border-surface-700", className)}
       {...props}
     >
       <div>
         {title && (
-          <h3 className="text-lg font-semibold text-surface-800">{title}</h3>
+          <h3 className="text-lg font-semibold text-surface-800 dark:text-surface-100">{title}</h3>
         )}
         {description && (
-          <p className="text-sm text-surface-500 mt-0.5">{description}</p>
+          <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5">{description}</p>
         )}
         {children}
       </div>

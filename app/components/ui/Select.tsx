@@ -74,7 +74,7 @@ export function Select({
   return (
     <div className="relative" ref={containerRef}>
       {label && (
-        <label className="block text-sm font-semibold text-surface-700 mb-2">
+        <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300 mb-2">
           {label}
         </label>
       )}
@@ -84,16 +84,16 @@ export function Select({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={clsx(
-          "w-full flex items-center justify-between px-4 py-2.5 bg-white border rounded-lg text-left transition-all",
+          "w-full flex items-center justify-between px-4 py-2.5 bg-white dark:bg-surface-800 border rounded-lg text-left transition-all",
           error
             ? "border-danger focus:ring-2 focus:ring-danger/20"
-            : "border-surface-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20",
+            : "border-surface-300 dark:border-surface-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20",
           disabled
-            ? "bg-surface-50 text-surface-400 cursor-not-allowed"
-            : "hover:border-surface-400"
+            ? "bg-surface-50 dark:bg-surface-900 text-surface-400 cursor-not-allowed"
+            : "hover:border-surface-400 dark:hover:border-surface-500"
         )}
       >
-        <span className={selectedOption ? "text-surface-900" : "text-surface-500"}>
+        <span className={selectedOption ? "text-surface-900 dark:text-surface-100" : "text-surface-500 dark:text-surface-400"}>
           {selectedOption?.label || placeholder}
         </span>
         <svg
@@ -117,23 +117,23 @@ export function Select({
       {error && <p className="mt-1 text-sm text-danger">{error}</p>}
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-surface-200 rounded-lg shadow-strong animate-scale-in overflow-hidden">
+        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg shadow-strong animate-scale-in overflow-hidden">
           {searchable && (
-            <div className="p-2 border-b border-surface-200">
+            <div className="p-2 border-b border-surface-200 dark:border-surface-700">
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="w-full px-3 py-2 bg-surface-50 border border-surface-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 bg-surface-50 dark:bg-surface-900 border border-surface-200 dark:border-surface-600 rounded-lg text-sm text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
           )}
 
           <div className="max-h-60 overflow-y-auto py-1">
             {filteredOptions.length === 0 ? (
-              <div className="px-4 py-3 text-sm text-surface-500 text-center">
+              <div className="px-4 py-3 text-sm text-surface-500 dark:text-surface-400 text-center">
                 No options found
               </div>
             ) : (
@@ -146,8 +146,8 @@ export function Select({
                   className={clsx(
                     "w-full text-left px-4 py-2.5 text-sm transition-colors",
                     option.value === value
-                      ? "bg-primary-50 text-primary-700 font-medium"
-                      : "text-surface-900 hover:bg-surface-50",
+                      ? "bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-medium"
+                      : "text-surface-900 dark:text-surface-100 hover:bg-surface-50 dark:hover:bg-surface-700",
                     option.disabled && "opacity-50 cursor-not-allowed"
                   )}
                 >

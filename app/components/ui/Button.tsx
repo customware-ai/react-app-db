@@ -14,10 +14,10 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary:
     'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
   secondary:
-    'bg-surface-200 text-surface-800 hover:bg-surface-300 focus:ring-surface-400',
+    'bg-surface-200 dark:bg-surface-700 text-surface-800 dark:text-surface-200 hover:bg-surface-300 dark:hover:bg-surface-600 focus:ring-surface-400',
   outline:
-    'border border-surface-300 text-surface-700 hover:bg-surface-100 focus:ring-surface-400',
-  ghost: 'text-surface-600 hover:bg-surface-100 focus:ring-surface-400',
+    'border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 focus:ring-surface-400',
+  ghost: 'text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 focus:ring-surface-400',
   danger: 'bg-danger text-white hover:bg-danger-dark focus:ring-danger',
 };
 

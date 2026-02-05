@@ -56,16 +56,16 @@ export function Modal({
 
       {/* Modal */}
       <div
-        className={clsx("relative bg-white rounded-2xl shadow-strong w-full animate-scale-in", sizeClasses[size])}
+        className={clsx("relative bg-white dark:bg-surface-800 rounded-2xl shadow-strong w-full animate-scale-in", sizeClasses[size])}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-6 py-5 border-b border-surface-200">
-            <h2 className="text-xl font-bold text-surface-900">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-5 border-b border-surface-200 dark:border-surface-700">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-100">{title}</h2>
             <button
               onClick={onClose}
-              className="p-2 text-surface-400 hover:text-surface-600 hover:bg-surface-100 rounded-lg transition-colors"
+              className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition-colors"
               aria-label="Close modal"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +87,7 @@ export function Modal({
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-surface-200 bg-surface-50 rounded-b-2xl">
+          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 rounded-b-2xl">
             {footer}
           </div>
         )}

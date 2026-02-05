@@ -55,16 +55,16 @@ function Gear({
 function ProgressBar(): ReactElement {
   return (
     <div className="w-full max-w-[300px] animate-fade-up [animation-delay:0.2s] [animation-fill-mode:both]">
-      {/* Track - sharp edges, greyscale */}
-      <div className="h-1 bg-zinc-800 overflow-hidden">
-        <div className="h-full w-1/4 bg-gradient-to-r from-zinc-400 to-zinc-300 animate-progress-loop" />
+      {/* Track */}
+      <div className="h-1 bg-surface-200 dark:bg-zinc-800 overflow-hidden">
+        <div className="h-full w-1/4 bg-gradient-to-r from-surface-500 to-surface-400 dark:from-zinc-400 dark:to-zinc-300 animate-progress-loop" />
       </div>
       {/* Dots */}
       <div className="flex justify-center gap-2 mt-4">
         {[0, 1, 2, 3, 4].map((i) => (
           <div
             key={`dot-${i}`}
-            className="w-1.5 h-1.5 bg-zinc-700 animate-pulse-dot"
+            className="w-1.5 h-1.5 bg-surface-400 dark:bg-zinc-700 animate-pulse-dot"
             style={{ animationDelay: `${i * 0.15}s` }}
           />
         ))}
@@ -83,7 +83,7 @@ function FloatingParticles(): ReactElement {
       {[...Array(12)].map((_, i) => (
         <div
           key={`particle-${i}`}
-          className="absolute w-1 h-1 bg-zinc-500 animate-float"
+          className="absolute w-1 h-1 bg-surface-400 dark:bg-zinc-500 animate-float"
           style={{
             left: `${10 + ((i * 7) % 80)}%`,
             top: `${15 + ((i * 11) % 70)}%`,
@@ -115,10 +115,26 @@ function FloatingParticles(): ReactElement {
  */
 export default function LandingPage(): ReactElement {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-zinc-950">
-      {/* Background Grid Pattern - greyscale */}
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-surface-50 dark:bg-zinc-950 transition-colors">
+      {/* Background Grid Pattern - light mode */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 dark:hidden"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px)
+          `,
+          backgroundSize: "60px 60px",
+          maskImage:
+            "radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)",
+        }}
+        aria-hidden="true"
+      />
+      {/* Background Grid Pattern - dark mode */}
+      <div
+        className="absolute inset-0 hidden dark:block"
         style={{
           backgroundImage: `
             linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
@@ -136,29 +152,29 @@ export default function LandingPage(): ReactElement {
       {/* Floating Particles */}
       <FloatingParticles />
 
-      {/* Decorative Gears - greyscale */}
+      {/* Decorative Gears */}
       <div
         className="absolute inset-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
       >
         <Gear
           size={120}
-          className="absolute top-[10%] left-[5%] text-zinc-700/30"
+          className="absolute top-[10%] left-[5%] text-surface-300 dark:text-zinc-700/30"
         />
         <Gear
           size={80}
-          className="absolute top-[15%] right-[8%] text-zinc-700/30"
+          className="absolute top-[15%] right-[8%] text-surface-300 dark:text-zinc-700/30"
           reverse
           delay={0.5}
         />
         <Gear
           size={60}
-          className="absolute bottom-[20%] left-[10%] text-zinc-700/30"
+          className="absolute bottom-[20%] left-[10%] text-surface-300 dark:text-zinc-700/30"
           delay={1}
         />
         <Gear
           size={100}
-          className="absolute bottom-[15%] right-[5%] text-zinc-700/30"
+          className="absolute bottom-[15%] right-[5%] text-surface-300 dark:text-zinc-700/30"
           reverse
           delay={0.3}
         />
@@ -166,18 +182,18 @@ export default function LandingPage(): ReactElement {
 
       {/* Main Content */}
       <main className="relative z-10 flex flex-col items-center text-center px-6 max-w-2xl">
-        {/* Status Badge - sharp edges, greyscale */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm font-medium tracking-wide animate-fade-up transition-shadow hover:shadow-[0_0_15px_0_rgba(255,255,255,0.1)]">
-          <span className="w-2 h-2 bg-zinc-400 animate-pulse-dot" />
+        {/* Status Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-surface-200 dark:bg-zinc-800 border border-surface-300 dark:border-zinc-700 text-surface-700 dark:text-zinc-300 text-sm font-medium tracking-wide animate-fade-up transition-shadow hover:shadow-[0_0_15px_0_rgba(0,0,0,0.1)] dark:hover:shadow-[0_0_15px_0_rgba(255,255,255,0.1)]">
+          <span className="w-2 h-2 bg-surface-500 dark:bg-zinc-400 animate-pulse-dot" />
           <span>Building in Progress</span>
         </div>
 
-        {/* Main Heading - greyscale */}
+        {/* Main Heading */}
         <h1 className="mt-8 flex flex-col gap-1 animate-fade-up [animation-delay:0.1s] [animation-fill-mode:both]">
-          <span className="text-4xl sm:text-5xl font-semibold text-zinc-400 tracking-tight">
+          <span className="text-4xl sm:text-5xl font-semibold text-surface-500 dark:text-zinc-400 tracking-tight">
             Sit tight
           </span>
-          <span className="text-5xl sm:text-6xl font-bold text-white tracking-tight">
+          <span className="text-5xl sm:text-6xl font-bold text-surface-900 dark:text-white tracking-tight">
             We&apos;re building your app
           </span>
         </h1>
@@ -187,18 +203,18 @@ export default function LandingPage(): ReactElement {
           <ProgressBar />
         </div>
 
-        {/* Description - greyscale */}
-        <p className="mt-8 text-lg text-zinc-500 leading-relaxed animate-fade-up [animation-delay:0.3s] [animation-fill-mode:both]">
+        {/* Description */}
+        <p className="mt-8 text-lg text-surface-600 dark:text-zinc-500 leading-relaxed animate-fade-up [animation-delay:0.3s] [animation-fill-mode:both]">
           In the meanwhile, you can explore a demo application
           <br className="hidden sm:block" /> that{" "}
-          <strong className="text-white font-semibold">Customware AI</strong>{" "}
+          <strong className="text-surface-900 dark:text-white font-semibold">Customware AI</strong>{" "}
           has built.
         </p>
 
-        {/* CTA Button - sharp edges, greyscale brutalist style */}
+        {/* CTA Button */}
         <Link
           to="/dashboard"
-          className="group relative inline-flex items-center gap-3 mt-10 px-8 py-4 bg-white text-zinc-950 text-lg font-semibold overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-200 hover:shadow-[0_8px_25px_rgba(255,255,255,0.2)] shadow-[0_4px_15px_rgba(255,255,255,0.1)] animate-fade-up [animation-delay:0.4s] [animation-fill-mode:both]"
+          className="group relative inline-flex items-center gap-3 mt-10 px-8 py-4 bg-surface-900 dark:bg-white text-white dark:text-zinc-950 text-lg font-semibold overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:bg-surface-800 dark:hover:bg-zinc-200 hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_8px_25px_rgba(255,255,255,0.2)] shadow-[0_4px_15px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_15px_rgba(255,255,255,0.1)] animate-fade-up [animation-delay:0.4s] [animation-fill-mode:both]"
         >
           <span className="relative z-10">Explore Demo</span>
           <span className="relative z-10 flex transition-transform duration-200 group-hover:translate-x-1">
@@ -217,20 +233,47 @@ export default function LandingPage(): ReactElement {
           </span>
           {/* Shine effect */}
           <span
-            className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-zinc-400/30 to-transparent -skew-x-12 animate-shine"
+            className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-surface-400/30 dark:via-zinc-400/30 to-transparent -skew-x-12 animate-shine"
             aria-hidden="true"
           />
         </Link>
 
         {/* Footer Note */}
-        <p className="mt-12 text-sm text-zinc-700 uppercase tracking-widest animate-fade-up [animation-delay:0.5s] [animation-fill-mode:both]">
+        <p className="mt-12 text-sm text-surface-500 dark:text-zinc-700 uppercase tracking-widest animate-fade-up [animation-delay:0.5s] [animation-fill-mode:both]">
           Powered by industrial-grade engineering
         </p>
       </main>
 
-      {/* Bottom Decoration - Industrial Stripes, greyscale */}
+      {/* Bottom Decoration - Industrial Stripes - Light Mode */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-1 flex overflow-hidden"
+        className="absolute bottom-0 left-0 right-0 h-1 flex overflow-hidden dark:hidden"
+        aria-hidden="true"
+      >
+        <div
+          className="flex-1 animate-stripe-move"
+          style={{
+            background:
+              "repeating-linear-gradient(90deg, #1e293b 0px, #1e293b 20px, #f8fafc 20px, #f8fafc 40px)",
+          }}
+        />
+        <div
+          className="flex-1 animate-stripe-move [animation-delay:-0.5s]"
+          style={{
+            background:
+              "repeating-linear-gradient(90deg, #64748b 0px, #64748b 20px, #f8fafc 20px, #f8fafc 40px)",
+          }}
+        />
+        <div
+          className="flex-1 animate-stripe-move [animation-delay:-1s]"
+          style={{
+            background:
+              "repeating-linear-gradient(90deg, #1e293b 0px, #1e293b 20px, #f8fafc 20px, #f8fafc 40px)",
+          }}
+        />
+      </div>
+      {/* Bottom Decoration - Industrial Stripes - Dark Mode */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-1 hidden dark:flex overflow-hidden"
         aria-hidden="true"
       >
         <div

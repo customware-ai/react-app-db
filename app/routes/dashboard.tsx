@@ -78,7 +78,7 @@ const invoiceColumns: Column<InvoiceData>[] = [
     key: "id",
     label: "Invoice",
     sortable: true,
-    render: (value: unknown): ReactElement => <span className="font-mono font-semibold text-surface-900">{value as string}</span>,
+    render: (value: unknown): ReactElement => <span className="font-mono font-semibold text-surface-900 dark:text-surface-100">{value as string}</span>,
   },
   {
     key: "customer",
@@ -125,24 +125,28 @@ export default function Dashboard(): ReactElement {
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {metrics.map((metric) => (
-          <Card key={metric.label} className="relative overflow-hidden">
+        {metrics.map((metric, index) => (
+          <Card
+            key={metric.label}
+            className="relative overflow-hidden hover:shadow-medium hover:-translate-y-0.5 transition-all duration-200 animate-fade-up"
+            style={{ animationDelay: `${0.1 + index * 0.05}s`, animationFillMode: 'both' }}
+          >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-surface-600 mb-1">{metric.label}</p>
-                <p className="text-3xl font-bold text-surface-900 mb-2">{metric.value}</p>
+                <p className="text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">{metric.label}</p>
+                <p className="text-3xl font-bold text-surface-900 dark:text-surface-100 tracking-tight mb-2">{metric.value}</p>
                 <div className="flex items-center gap-1">
                   <span
                     className={`text-sm font-semibold ${
-                      metric.trend === "up" ? "text-primary-600" : "text-red-600"
+                      metric.trend === "up" ? "text-primary-600 dark:text-primary-400" : "text-red-600 dark:text-red-400"
                     }`}
                   >
                     {metric.change}
                   </span>
-                  <span className="text-xs text-surface-500">vs last month</span>
+                  <span className="text-xs text-surface-500 dark:text-surface-400">vs last month</span>
                 </div>
               </div>
-              <div className="p-3 bg-primary-50 rounded-lg text-primary-600">
+              <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg text-primary-600 dark:text-primary-400">
                 {metric.icon}
               </div>
             </div>
@@ -153,33 +157,33 @@ export default function Dashboard(): ReactElement {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Revenue Chart Placeholder */}
-        <Card>
+        <Card className="animate-fade-up" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-surface-900">Revenue Overview (Demo)</h3>
-              <p className="text-sm text-surface-600">Last 12 months performance</p>
+              <h3 className="text-lg font-bold text-surface-900 dark:text-surface-100 tracking-tight">Revenue Overview (Demo)</h3>
+              <p className="text-sm text-surface-600 dark:text-surface-400">Last 12 months performance</p>
             </div>
             <Button variant="outline" size="sm" onClick={() => navigate("/accounting/reports")}>
               View Report
             </Button>
           </div>
-          <div className="h-64 flex items-center justify-center bg-surface-50 rounded-lg border-2 border-dashed border-surface-200">
+          <div className="h-64 flex items-center justify-center bg-surface-50 dark:bg-surface-900/50 rounded-lg border-2 border-dashed border-surface-200 dark:border-surface-700">
             <div className="text-center">
-              <svg className="w-16 h-16 text-surface-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-16 h-16 text-surface-300 dark:text-surface-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
-              <p className="text-surface-500 font-medium">Chart component will be added</p>
-              <p className="text-sm text-surface-400">Using Recharts library</p>
+              <p className="text-surface-500 dark:text-surface-400 font-medium">Chart component will be added</p>
+              <p className="text-sm text-surface-400 dark:text-surface-500">Using Recharts library</p>
             </div>
           </div>
         </Card>
 
         {/* Sales Pipeline Placeholder */}
-        <Card>
+        <Card className="animate-fade-up" style={{ animationDelay: '0.35s', animationFillMode: 'both' }}>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-surface-900">Sales Pipeline (Demo)</h3>
-              <p className="text-sm text-surface-600">Current opportunities by stage</p>
+              <h3 className="text-lg font-bold text-surface-900 dark:text-surface-100 tracking-tight">Sales Pipeline (Demo)</h3>
+              <p className="text-sm text-surface-600 dark:text-surface-400">Current opportunities by stage</p>
             </div>
             <Button variant="outline" size="sm" onClick={() => navigate("/sales/leads")}>
               View All
@@ -194,10 +198,10 @@ export default function Dashboard(): ReactElement {
             ].map((stage) => (
               <div key={stage.stage}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold text-surface-700">{stage.stage}</span>
-                  <span className="text-sm text-surface-600">{stage.count} deals · {stage.value}</span>
+                  <span className="text-sm font-semibold text-surface-700 dark:text-surface-300">{stage.stage}</span>
+                  <span className="text-sm text-surface-600 dark:text-surface-400">{stage.count} deals · {stage.value}</span>
                 </div>
-                <div className="w-full bg-surface-100 rounded-full h-2">
+                <div className="w-full bg-surface-100 dark:bg-surface-700 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full ${stage.color}`}
                     style={{ width: `${(stage.count / 40) * 100}%` }}
@@ -210,11 +214,11 @@ export default function Dashboard(): ReactElement {
       </div>
 
       {/* Recent Invoices Table */}
-      <Card>
+      <Card className="animate-fade-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold text-surface-900">Recent Invoices (Demo)</h3>
-            <p className="text-sm text-surface-600">Your latest billing activity</p>
+            <h3 className="text-lg font-bold text-surface-900 dark:text-surface-100 tracking-tight">Recent Invoices (Demo)</h3>
+            <p className="text-sm text-surface-600 dark:text-surface-400">Your latest billing activity</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => navigate("/accounting/invoices")}>
             View All Invoices
@@ -230,44 +234,55 @@ export default function Dashboard(): ReactElement {
 
       {/* Quick Actions */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="hover:shadow-medium transition-shadow cursor-pointer" onClick={() => navigate("/sales/customers/new")}>
+        <Card
+          className="hover:shadow-medium hover:-translate-y-0.5 transition-all duration-200 cursor-pointer animate-fade-up"
+          style={{ animationDelay: '0.45s', animationFillMode: 'both' }}
+          onClick={() => navigate("/sales/customers/new")}
+        >
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-primary-50 rounded-lg text-primary-600">
+            <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg text-primary-600 dark:text-primary-400">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-surface-900 mb-1">Add Customer</h4>
-              <p className="text-sm text-surface-600">Create a new customer record</p>
+              <h4 className="font-semibold text-surface-900 dark:text-surface-100 mb-1">Add Customer</h4>
+              <p className="text-sm text-surface-600 dark:text-surface-400">Create a new customer record</p>
             </div>
           </div>
         </Card>
 
-        <Card>
+        <Card
+          className="hover:shadow-medium hover:-translate-y-0.5 transition-all duration-200 animate-fade-up"
+          style={{ animationDelay: '0.5s', animationFillMode: 'both' }}
+        >
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-primary-50 rounded-lg text-primary-600">
+            <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg text-primary-600 dark:text-primary-400">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
               </svg>
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-surface-900 mb-1">Create Quote</h4>
-              <p className="text-sm text-surface-600">Generate a new quotation</p>
+              <h4 className="font-semibold text-surface-900 dark:text-surface-100 mb-1">Create Quote</h4>
+              <p className="text-sm text-surface-600 dark:text-surface-400">Generate a new quotation</p>
             </div>
           </div>
         </Card>
 
-        <Card className="hover:shadow-medium transition-shadow cursor-pointer" onClick={() => navigate("/accounting/reports")}>
+        <Card
+          className="hover:shadow-medium hover:-translate-y-0.5 transition-all duration-200 cursor-pointer animate-fade-up"
+          style={{ animationDelay: '0.55s', animationFillMode: 'both' }}
+          onClick={() => navigate("/accounting/reports")}
+        >
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-primary-50 rounded-lg text-primary-600">
+            <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg text-primary-600 dark:text-primary-400">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-surface-900 mb-1">View Reports</h4>
-              <p className="text-sm text-surface-600">Access financial reports</p>
+              <h4 className="font-semibold text-surface-900 dark:text-surface-100 mb-1">View Reports</h4>
+              <p className="text-sm text-surface-600 dark:text-surface-400">Access financial reports</p>
             </div>
           </div>
         </Card>

@@ -27,7 +27,7 @@ export function Tabs({
   if (variant === "pills") {
     return (
       <div className="space-y-6">
-        <div className="flex gap-2 p-1 bg-surface-100 rounded-lg">
+        <div className="flex gap-2 p-1 bg-surface-100 dark:bg-surface-800 rounded-lg">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.value;
             return (
@@ -37,8 +37,8 @@ export function Tabs({
                 className={clsx(
                   "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all",
                   isActive
-                    ? "bg-white text-surface-900 shadow-sm"
-                    : "text-surface-600 hover:text-surface-900"
+                    ? "bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 shadow-sm"
+                    : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"
                 )}
               >
                 {tab.icon}
@@ -48,8 +48,8 @@ export function Tabs({
                     className={clsx(
                       "px-2 py-0.5 text-xs font-semibold rounded-full",
                       isActive
-                        ? "bg-primary-100 text-primary-700"
-                        : "bg-surface-200 text-surface-600"
+                        ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
+                        : "bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400"
                     )}
                   >
                     {tab.badge}
@@ -66,7 +66,7 @@ export function Tabs({
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-surface-200">
+      <div className="border-b border-surface-200 dark:border-surface-700">
         <nav className="flex gap-8" role="tablist">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.value;
@@ -79,8 +79,8 @@ export function Tabs({
                 className={clsx(
                   "relative flex items-center gap-2 pb-4 px-1 text-sm font-semibold transition-colors",
                   isActive
-                    ? "text-primary-600"
-                    : "text-surface-600 hover:text-surface-900"
+                    ? "text-primary-600 dark:text-primary-400"
+                    : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"
                 )}
               >
                 {tab.icon}
@@ -90,15 +90,15 @@ export function Tabs({
                     className={clsx(
                       "px-2 py-0.5 text-xs font-medium rounded-full",
                       isActive
-                        ? "bg-primary-100 text-primary-700"
-                        : "bg-surface-100 text-surface-600"
+                        ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
+                        : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400"
                     )}
                   >
                     {tab.badge}
                   </span>
                 )}
                 {isActive && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-full" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 dark:bg-primary-500 rounded-full" />
                 )}
               </button>
             );

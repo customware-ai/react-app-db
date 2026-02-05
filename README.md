@@ -1,19 +1,65 @@
 # Template for React Router App with Tailwind CSS and SQLite
 
-This is a template with coding patterns and styles for a production app. It demos a production app professional Enterprise Resource Planning (ERP) system built with React Router v7, TypeScript, Tailwind CSS, and sql.js. Features Sales & CRM and Accounting modules with industrial, modern design.
+**This is a code style and architecture template repository.** Use this as a reference for coding patterns, project structure, and development standards when building production applications. The template demonstrates best practices through an ERP-style application structure built with React Router v7, TypeScript, Tailwind CSS, and sql.js.
+
+> **⚠️ Important**: This is a **template repository** showcasing code patterns and styles, not a functional application. Use it to understand the coding standards, architectural patterns, and file organization for your own projects.
 
 > **Required reading**: Review [AGENTS.md](./AGENTS.md) before development for coding patterns, commands, and project conventions.
 
-## Features
+## 📋 What This Template Provides
 
-- React Router v7.13 with server-side rendering
-- Vite 8 beta for fast development and builds
-- SQLite database with file persistence (`database.db`)
-- Type-safe error handling with neverthrow
-- Schema validation with Zod v4
-- Tailwind CSS v4 with custom professional theme
-- Type-aware linting with oxlint
-- Full TypeScript support with strict mode
+### ✅ Use This Template For:
+
+- **Code Style Reference** - See how to structure TypeScript, React, and Tailwind code
+- **Architecture Patterns** - Learn proper separation of concerns (db → services → routes → components)
+- **Type Safety Examples** - Understand neverthrow Result pattern and Zod validation
+- **UI Component Library** - Reusable, tested components with consistent styling
+- **Database Patterns** - Migration system, CRUD operations, proper abstraction
+- **Project Organization** - File structure for scalable applications
+
+### ❌ This Template Does NOT Provide:
+
+- A working, feature-complete application
+- Production-ready business logic (focus is on code patterns, not business features)
+- A starter project to deploy as-is (adapt patterns to your own requirements)
+
+### 💡 How to Use This Template:
+
+1. **Study the code patterns** in components, services, and routes
+2. **Copy the architectural structure** for your own project
+3. **Adapt the UI components** to your design system
+4. **Follow the coding standards** demonstrated throughout
+5. **Reference AGENTS.md** for development commands and conventions
+
+## 🔍 What's Working vs What's a Pattern
+
+### ✅ Fully Functional (Study These):
+
+- **Customer CRUD** - Complete create, read, update, delete operations
+- **Database Layer** - Full migration system and persistence
+- **Component Library** - All UI components are functional and tested
+- **Type Safety** - Complete Zod schemas and Result patterns
+- **Layout System** - Sidebar navigation, responsive design
+
+### 📐 Pattern Examples Only (Non-Functional):
+
+- **Most Action Buttons** - Demonstrate UI patterns, not actual features
+- **Leads, Quotes, Orders** - Show data display patterns with demo data
+- **Invoices, Payments** - Illustrate accounting UI patterns
+- **Reports, Charts** - Template for report generation interfaces
+
+> **Key Insight**: The working Customer module shows the **complete pattern** from database to UI. Other modules show **UI patterns** you can implement following the same architectural approach.
+
+## Template Features & Patterns
+
+This template demonstrates:
+
+- **Modern Stack**: React Router v7.13 with SSR, Vite 8, TypeScript strict mode
+- **Type Safety**: Zod v4 schemas + neverthrow Result pattern for error handling
+- **Database Layer**: SQLite via sql.js with proper abstraction and migration system
+- **UI Patterns**: Tailwind CSS v4 with professional custom theme and reusable components
+- **Code Quality**: Type-aware linting (oxlint), comprehensive testing setup
+- **Architecture**: Clean separation of concerns (db, services, schemas, routes, components)
 
 ## Tech Stack
 
@@ -41,14 +87,14 @@ This is a template with coding patterns and styles for a production app. It demo
 # Install dependencies
 npm install
 
-# Run database migrations (creates ERP schema)
+# Run database migrations (demonstrates migration pattern)
 npm run migrate
 
-# Start development server
-npm run dev
+# Build production bundle
+npm run build
 ```
 
-Visit **http://localhost:5173** to see the application.
+> **Note**: Many UI buttons are intentionally non-functional - they exist to demonstrate component patterns and design system. Focus on the **code structure, patterns, and styling** rather than feature completeness.
 
 ## 📁 Project Structure
 
@@ -235,39 +281,45 @@ Tests cover:
 
 All tests use Vitest and React Testing Library.
 
-## 🏗️ ERP Modules
+## 🏗️ Template Structure Examples
 
-### Sales & CRM
+The template uses an ERP-style structure to demonstrate patterns for complex applications:
 
-- **Customers** - Manage customer records, contacts, and relationships
-- **Leads** - Track prospects through sales pipeline (Kanban view)
-- **Quotes** - Create quotations with line items and convert to orders
-- **Orders** - Confirmed sales orders with fulfillment tracking
+### Sales & CRM Module (Pattern Examples)
 
-### Accounting & Finance
+- **Customers** - Demonstrates full CRUD with form validation, table views, detail pages
+- **Leads** - Shows Kanban board pattern, state management, view toggles
+- **Quotes** - Illustrates list/filter patterns, status badges, empty states
+- **Orders** - Template for order/transaction workflows
 
-- **Chart of Accounts** - Hierarchical account structure (pre-seeded)
-- **Invoices** - Customer invoicing with payment tracking
-- **Payments** - Record and track customer payments
-- **Journal Entries** - Manual accounting entries (debits/credits)
-- **Ledger** - General ledger with transaction history
-- **Reports** - Balance sheet, income statement, aged receivables
+### Accounting & Finance Module (Pattern Examples)
 
-### Dashboard
+- **Chart of Accounts** - Hierarchical data display, tree navigation patterns
+- **Invoices** - List views with filtering, sorting, search patterns
+- **Payments** - Table patterns with data transformations
+- **Journal Entries** - Double-entry pattern example
+- **Ledger** - Transaction history display pattern
+- **Reports** - Report generation UI patterns
 
-- Revenue metrics and charts
-- Sales pipeline funnel
-- Outstanding invoices summary
-- Recent activity feed
+### Dashboard (Layout Pattern)
+
+- Metric card patterns with trends
+- Chart placeholder patterns
+- Summary table displays
+- Quick action card patterns
 
 ## 🔒 Important Rules
 
-1. **db.ts is the ONLY file that writes to filesystem**
-2. **Use Result pattern** - No throwing exceptions in business logic
-3. **Validate with Zod** - Before database operations
-4. **Type everything** - Full TypeScript with strict mode
-5. **Comment your code** - Explain the "why", not the "what"
-6. **Test your code** - Write tests for business logic and components
+These rules are demonstrated throughout the codebase. Follow them in your own projects:
+
+1. **Single Responsibility** - db.ts is the ONLY file that writes to filesystem
+2. **Error Handling** - Use Result pattern, no throwing exceptions in business logic
+3. **Input Validation** - Validate with Zod before database operations
+4. **Type Safety** - Full TypeScript with strict mode, explicit return types
+5. **Code Documentation** - Comment the "why", not the "what"
+6. **Test Coverage** - Write tests for business logic and components
+7. **Component Patterns** - Reusable, composable UI components
+8. **Consistent Styling** - Follow the Tailwind patterns demonstrated
 
 ## 📖 Documentation
 
@@ -288,4 +340,6 @@ Run `npm run check` to verify all checks pass before committing.
 
 ---
 
-**Built with industrial precision** 🏭
+**A template for building with industrial precision** 🏭
+
+> Remember: This is a **code pattern reference**, not a working application. Study the patterns, adapt the architecture, and build your own production-ready features following these standards.

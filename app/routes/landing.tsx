@@ -54,10 +54,10 @@ function Gear({
  */
 function ProgressBar(): ReactElement {
   return (
-    <div className="w-full max-w-[300px] animate-fade-up [animation-delay:0.2s] [animation-fill-mode:both]">
+    <div className="w-full max-w-75 animate-fade-up [animation-delay:0.2s] [animation-fill-mode:both]">
       {/* Track */}
       <div className="h-1 bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
-        <div className="h-full w-1/4 bg-gradient-to-r from-zinc-600 to-zinc-500 dark:from-zinc-400 dark:to-zinc-300 animate-progress-loop" />
+        <div className="h-full w-1/4 bg-linear-to-r from-zinc-600 to-zinc-500 dark:from-zinc-400 dark:to-zinc-300 animate-progress-loop" />
       </div>
       {/* Dots */}
       <div className="flex justify-center gap-2 mt-4">
@@ -229,15 +229,10 @@ export default function LandingPage(): ReactElement {
           </span>
           {/* Shine effect */}
           <span
-            className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shine"
+            className="absolute top-0 left-0 w-1/2 h-full bg-linear-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shine"
             aria-hidden="true"
           />
         </Link>
-
-        {/* Footer Note */}
-        <p className="mt-12 text-sm text-zinc-500 dark:text-zinc-700 uppercase tracking-widest animate-fade-up [animation-delay:0.5s] [animation-fill-mode:both]">
-          Powered by industrial-grade engineering
-        </p>
       </main>
 
       {/* Bottom Decoration - Industrial Stripes - Light Mode */}

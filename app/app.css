@@ -2,30 +2,32 @@
 @config "../tailwind.config.ts";
 
 :root {
-  --page-bg: #f4f4f5;
-  --text-color: #18181b;
-  --muted-text: #71717a;
-  --border-color: #e4e4e7;
-  --card-bg: #fafafa;
-  --link-color: #047857;
-  --link-hover-color: #059669;
-  --link-bg-hover: rgba(5, 150, 105, 0.08);
-  --primary: #10b981;
-  --primary-hover: #059669;
+  /* Light Theme - Clean Slate & Ocean Blue */
+  --page-bg: #f8fafc; /* Slate 50 */
+  --text-color: #0f172a; /* Slate 900 */
+  --muted-text: #64748b; /* Slate 500 */
+  --border-color: #e2e8f0; /* Slate 200 */
+  --card-bg: #ffffff; /* White for card on slate bg */
+  --link-color: #0284c7; /* Primary 600 */
+  --link-hover-color: #0369a1; /* Primary 700 */
+  --link-bg-hover: rgba(14, 165, 233, 0.08); /* Primary 500 with opacity */
+  --primary: #0284c7; /* Primary 600 */
+  --primary-hover: #0369a1; /* Primary 700 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --page-bg: #09090b;
-    --text-color: #fafafa;
-    --muted-text: #a1a1aa;
-    --border-color: #27272a;
-    --card-bg: #18181b;
-    --link-color: #34d399;
-    --link-hover-color: #6ee7b7;
-    --link-bg-hover: rgba(52, 211, 153, 0.12);
-    --primary: #10b981;
-    --primary-hover: #34d399;
+    /* Dark Theme - Neutral Zinc (No Blue Tint) */
+    --page-bg: #09090b; /* Zinc 950 */
+    --text-color: #fafafa; /* Zinc 50 */
+    --muted-text: #a1a1aa; /* Zinc 400 */
+    --border-color: #27272a; /* Zinc 800 */
+    --card-bg: #18181b; /* Zinc 900 */
+    --link-color: #38bdf8; /* Primary 400 */
+    --link-hover-color: #7dd3fc; /* Primary 300 */
+    --link-bg-hover: rgba(56, 189, 248, 0.12); /* Primary 400 with opacity */
+    --primary: #0ea5e9; /* Primary 500 */
+    --primary-hover: #38bdf8; /* Primary 400 */
   }
 }
 
@@ -41,6 +43,7 @@ body {
   background: var(--page-bg);
   color: var(--text-color);
   font-family:
+    "Inter",
     "Work Sans",
     system-ui,
     -apple-system,
@@ -95,12 +98,13 @@ body {
 
 .resource-card {
   border: 1px solid var(--border-color);
-  border-radius: 3rem;
+  border-radius: 1rem; /* More standard radius */
   padding: 1.5rem;
   background: var(--card-bg);
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .resource-prompt {
@@ -125,12 +129,13 @@ body {
   gap: 0.75rem;
   width: 100%;
   padding: 0.75rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   color: var(--link-color);
   text-decoration: none;
   transition:
     background 0.2s ease,
     color 0.2s ease;
+  font-weight: 500;
 }
 
 .resource-link:hover {
@@ -139,8 +144,8 @@ body {
 }
 
 .resource-icon {
-  min-width: 24px;
-  min-height: 24px;
+  min-width: 20px;
+  min-height: 20px;
   flex-shrink: 0;
   display: block;
 }
@@ -160,14 +165,11 @@ body {
   padding: 1rem;
   margin: 1rem 0 0;
   border-radius: 0.5rem;
-  background: rgba(148, 163, 184, 0.25);
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid var(--border-color);
   overflow-x: auto;
-}
-
-@media (prefers-color-scheme: dark) {
-  .error-stack {
-    background: rgba(148, 163, 184, 0.15);
-  }
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
 }
 
 @keyframes spin {

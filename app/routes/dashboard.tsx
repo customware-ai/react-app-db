@@ -42,6 +42,99 @@ const metrics = [
   },
 ];
 
+const revenueData = [
+  { month: "Jan", value: 35000 },
+  { month: "Feb", value: 42000 },
+  { month: "Mar", value: 38000 },
+  { month: "Apr", value: 55000 },
+  { month: "May", value: 48000 },
+  { month: "Jun", value: 62000 },
+];
+
+function RevenueGraph(): ReactElement {
+  const max = 70000;
+  return (
+    <div className="relative h-64 w-full mt-6">
+      {/* Y-Axis Grid Lines */}
+      <div className="absolute inset-0 flex flex-col justify-between text-xs text-surface-400 dark:text-surface-500 pointer-events-none z-0">
+        {[70, 52.5, 35, 17.5, 0].map((val, i) => (
+          <div key={i} className="flex items-center w-full">
+            <span className="w-8 text-right mr-3 opacity-60">${Math.round(val)}k</span>
+            <div className="flex-1 h-px bg-surface-100 dark:bg-surface-800/60 dashed" />
+          </div>
+        ))}
+      </div>
+      
+      {/* Chart Area */}
+      <div className="absolute inset-0 ml-11 mb-6 z-10">
+        <svg
+          viewBox="0 0 100 100"
+          className="w-full h-full overflow-visible"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="currentColor" className="text-primary-500" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="currentColor" className="text-primary-500" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          
+          <path
+            d={`M0,100 ${revenueData.map((d, i) => {
+              const x = (i / (revenueData.length - 1)) * 100;
+              const y = 100 - (d.value / max) * 100;
+              return `L${x},${y}`;
+            }).join(" ")} L100,100 Z`}
+            fill="url(#chartGradient)"
+            className="transition-all duration-500 ease-out"
+          />
+          
+          <polyline
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            points={revenueData.map((d, i) => {
+              const x = (i / (revenueData.length - 1)) * 100;
+              const y = 100 - (d.value / max) * 100;
+              return `${x},${y}`;
+            }).join(" ")}
+            className="text-primary-500 transition-all duration-500 ease-out vector-effect-non-scaling-stroke"
+          />
+        </svg>
+
+        {/* HTML Overlay for Dots (Prevents distortion) */}
+        <div className="absolute inset-0 pointer-events-none">
+          {revenueData.map((d, i) => {
+            const x = (i / (revenueData.length - 1)) * 100;
+            const y = 100 - (d.value / max) * 100;
+            return (
+              <div 
+                key={i}
+                className="absolute w-3 h-3 bg-white dark:bg-surface-900 border-2 border-primary-500 rounded-full transform -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition-transform cursor-pointer pointer-events-auto group"
+                style={{ left: `${x}%`, top: `${y}%` }}
+              >
+                 {/* Tooltip */}
+                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-surface-900 text-white text-[10px] py-1 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
+                    ${(d.value / 1000).toFixed(1)}k
+                 </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* X-Axis Labels */}
+      <div className="absolute bottom-0 left-11 right-0 flex justify-between z-0">
+        {revenueData.map((d) => (
+          <span key={d.month} className="text-xs text-surface-500 dark:text-surface-400 font-medium translate-x-[-50%] last:translate-x-[-100%] first:translate-x-0 w-8 text-center">
+            {d.month}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard(): ReactElement {
   const navigate = useNavigate();
 
@@ -85,6 +178,25 @@ export default function Dashboard(): ReactElement {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Revenue Chart */}
+        <Card className="animate-fade-up flex flex-col" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h3 className="text-lg font-bold text-surface-900 dark:text-surface-100 tracking-tight">Revenue Trend</h3>
+              <p className="text-sm text-surface-600 dark:text-surface-400">Monthly revenue performance</p>
+            </div>
+            <div className="flex gap-2">
+               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium border border-green-100 dark:border-green-800">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                  +12.5%
+               </span>
+            </div>
+          </div>
+          <div className="flex-1 min-h-0">
+             <RevenueGraph />
+          </div>
+        </Card>
+
         {/* Sales Pipeline Placeholder */}
         <Card className="animate-fade-up" style={{ animationDelay: '0.35s', animationFillMode: 'both' }}>
           <div className="flex items-center justify-between mb-6">

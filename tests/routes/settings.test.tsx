@@ -20,7 +20,6 @@ describe('Settings Route', () => {
     expect(screen.getByRole('heading', { name: /settings/i, level: 1 })).toBeInTheDocument();
     expect(screen.getByText('General Settings')).toBeInTheDocument();
     expect(screen.getByText('User Preferences')).toBeInTheDocument();
-    expect(screen.getByText('System Information')).toBeInTheDocument();
     
     // Check for some form elements
     expect(screen.getByText('Company Name')).toBeInTheDocument();

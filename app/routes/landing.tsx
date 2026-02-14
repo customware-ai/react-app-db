@@ -44,15 +44,6 @@ export default function LandingPage(): ReactElement {
             }
           `}</style>
         </div>
-
-        {/* Description */}
-        <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-10 max-w-lg mx-auto">
-          In the meanwhile, you can explore a demo application that{" "}
-          <strong className="font-semibold text-slate-900 dark:text-white">
-            Customware AI
-          </strong>{" "}
-          has built.
-        </p>
       </main>
 
       {/* Footer */}

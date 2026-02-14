@@ -202,7 +202,7 @@ export default function CustomersPage(): ReactElement {
 
 ### Code Style Requirements
 
-- **Comments**: Explain the "why", not the "what"
+- **Comments**: Always write detailed comments for all code. Use doc tag comments (JSDoc `/** */`) before functions, classes, and logic blocks. Use regular `//` comments inside logic to explain steps. Focus on the "why", not the "what"
 - **Naming**: Clear, descriptive names for functions and variables
 - **Functions**: Keep small and focused (single responsibility)
 - **Imports**: Use `~/` path alias for app imports

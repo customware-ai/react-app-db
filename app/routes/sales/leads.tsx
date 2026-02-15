@@ -16,17 +16,18 @@
  * - Convert to customer action
  */
 
-import type { ReactElement } from "react";
 import { useState } from "react";
+import type { ReactElement } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { LayoutGrid, List } from "lucide-react";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { PageHeader } from "../../components/layout/PageHeader";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { getDemoLeads } from "../../services/erp";
+import { leadQueries } from "../../queries/sales";
+import { getQueryClient } from "../../query-client";
 
 interface Lead {
   id: number;
@@ -34,35 +35,19 @@ interface Lead {
   contact_name: string;
   estimated_value: number;
   probability: number;
+  stage: string;
 }
 
 /**
- * Loader - will fetch leads grouped by status
+ * Client Loader - fetches leads
  */
-export async function loader({ request: _request }: LoaderFunctionArgs): Promise<{
-  leadsByStatus: {
-    new: Lead[];
-    contacted: Lead[];
-    qualified: Lead[];
-    proposal: Lead[];
-    won: Lead[];
-    lost: Lead[];
-  };
-}> {
-  const leads = await getDemoLeads();
-
-  // Group leads by status
-  const leadsByStatus = {
-    new: leads.filter(l => l.stage === "new"),
-    contacted: leads.filter(l => l.stage === "contacted"),
-    qualified: leads.filter(l => l.stage === "qualified"),
-    proposal: leads.filter(l => l.stage === "proposal"),
-    won: leads.filter(l => l.stage === "won"),
-    lost: leads.filter(l => l.stage === "negotiation"), // Using negotiation as lost for demo
-  };
-
-  return { leadsByStatus };
+export async function clientLoader({ request: _request }: LoaderFunctionArgs): Promise<void> {
+  const queryClient = getQueryClient();
+  await queryClient.ensureQueryData(leadQueries.list());
+  return;
 }
+
+clientLoader.hydrate = true;
 
 /**
  * Kanban column component
@@ -121,8 +106,18 @@ function KanbanColumn({
 }
 
 export default function LeadsPage(): ReactElement {
-  const { leadsByStatus } = useLoaderData<typeof loader>();
+  const { data: leads = [] } = useQuery(leadQueries.list());
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
+
+  // Group leads by status
+  const leadsByStatus = {
+    new: leads.filter(l => l.stage === "new"),
+    contacted: leads.filter(l => l.stage === "contacted"),
+    qualified: leads.filter(l => l.stage === "qualified"),
+    proposal: leads.filter(l => l.stage === "proposal"),
+    won: leads.filter(l => l.stage === "won"),
+    lost: leads.filter(l => l.stage === "negotiation"), // Using negotiation as lost for demo
+  };
 
   // Define kanban columns
   const columns = [

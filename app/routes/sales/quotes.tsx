@@ -13,7 +13,7 @@
 import type { ReactElement, JSX } from "react";
 import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { FileText } from "lucide-react";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { PageHeader } from "../../components/layout/PageHeader";
@@ -24,7 +24,8 @@ import type { Status } from "../../components/ui/StatusBadge";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Select } from "../../components/ui/Select";
 import { Input } from "../../components/ui/Input";
-import { getDemoQuotes } from "../../services/erp";
+import { quoteQueries } from "../../queries/sales";
+import { getQueryClient } from "../../query-client";
 
 interface Quote extends Record<string, unknown> {
   id: number;
@@ -37,10 +38,20 @@ interface Quote extends Record<string, unknown> {
 }
 
 /**
- * Loader - fetches quotes from database
+ * Client Loader - fetches quotes
  */
-export async function loader({ request: _request }: LoaderFunctionArgs): Promise<{ quotes: Quote[] }> {
-  const demoQuotes = await getDemoQuotes();
+export async function clientLoader({ request: _request }: LoaderFunctionArgs): Promise<void> {
+  const queryClient = getQueryClient();
+  await queryClient.ensureQueryData(quoteQueries.list());
+  return;
+}
+
+clientLoader.hydrate = true;
+
+export default function QuotesPage(): ReactElement {
+  const { data: demoQuotes = [] } = useQuery(quoteQueries.list());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   // Transform to match the Quote interface
   const quotes: Quote[] = demoQuotes.map((q) => ({
@@ -52,14 +63,6 @@ export async function loader({ request: _request }: LoaderFunctionArgs): Promise
     total: q.amount,
     status: q.status,
   }));
-
-  return { quotes };
-}
-
-export default function QuotesPage(): ReactElement {
-  const { quotes } = useLoaderData<typeof loader>();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   // Filter quotes
   const filteredQuotes = quotes.filter((quote: Quote): boolean => {

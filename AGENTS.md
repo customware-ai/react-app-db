@@ -76,13 +76,13 @@ The application follows a strict layered architecture with clear data flow, util
 ```
 User Request
     ↓
-Route Loader (SSR Prefetch)  OR  Client Interaction (React Query)
-    ↓                                   ↓
-Service Layer (Direct Call)      API Route (/api/...)
-    ↓                                   ↓
-    ↓                            Service Layer
-    ↓                                   ↓
-Schema Validation (Zod) ←---------------
+Route ClientLoader (SSR Prefetch/Hydrate)  OR  Client Interaction (React Query)
+    ↓                                               ↓
+    ↓                                      API Route (/api/...)
+    ↓                                               ↓
+    ↓                                        Service Layer
+    ↓                                               ↓
+Schema Validation (Zod) ←---------------------------
     ↓
 Database Layer (db.ts)
     ↓
@@ -91,7 +91,7 @@ SQLite (sql.js)
 
 **Key Rules:**
 
-1. **Routes (Loaders)** create a `QueryClient`, prefetch data via **services** (direct call), and dehydrate state for hydration.
+1. **Routes (ClientLoaders)** create a `QueryClient`, prefetch data via **API routes** (or services during SSR), and ensure data availability for hydration.
 2. **Client Components** use `useQuery` / `useMutation` hooks.
 3. **API Routes** expose endpoints for client-side fetching/mutations, calling **services**.
 4. **Services** validate with **schemas**, then call **database**.
@@ -140,31 +140,17 @@ export const customerQueries = {
   })
 };
 
-// 5. Route Loader Prefetches (routes/customers.tsx)
-export async function loader() {
-  const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: ['customers', 'list'],
-    queryFn: async () => {
-       const result = await getCustomers(); // Direct service call for SSR
-       if (result.isErr()) throw result.error;
-       return result.value;
-    }
-  });
-  return { dehydratedState: dehydrate(queryClient) };
+// 5. Route ClientLoader Prefetches (routes/customers.tsx)
+export async function clientLoader() {
+  const queryClient = getQueryClient();
+  await queryClient.ensureQueryData(customerQueries.list());
+  return;
 }
+
+clientLoader.hydrate = true; // Enable hydration
 
 // 6. Component Uses Query
 export default function CustomersPage() {
-  const { dehydratedState } = useLoaderData<typeof loader>();
-  return (
-    <HydrationBoundary state={dehydratedState}>
-      <CustomersList />
-    </HydrationBoundary>
-  );
-}
-
-function CustomersList() {
   const { data } = useQuery(customerQueries.list());
   // data is Customer[], fully typed
 }
@@ -232,27 +218,34 @@ function CustomersList() {
 
 ### Key Patterns
 
-#### React Query & SSR
+#### React Query & SSR with Client Loaders
 
-**Loader Pattern (SSR Prefetching):**
+**Client Loader Pattern (Fast Initial Load):**
 
 ```typescript
-export async function loader({ request }: LoaderFunctionArgs) {
-  const queryClient = new QueryClient(); // New client per request
-  await queryClient.prefetchQuery({
-    queryKey: ['key'],
-    queryFn: async () => {
-      // Direct service call on server
-      const result = await getData();
-      if (result.isErr()) throw result.error;
-      return result.value;
-    }
-  });
-  return { dehydratedState: dehydrate(queryClient) };
+// routes/users.tsx
+import { clientLoader } from "./+types/users";
+import { getQueryClient } from "~/query-client";
+import { userQueries } from "~/queries/users";
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  const queryClient = getQueryClient();
+  // Ensure data is fetched on the client (or hydrated)
+  await queryClient.ensureQueryData(userQueries.list());
+  return;
+}
+
+// Run on hydration to avoid waterfall
+clientLoader.hydrate = true;
+
+// Component uses cached data
+export default function UsersPage() {
+  const { data } = useQuery(userQueries.list());
+  return <UserTable users={data} />;
 }
 ```
 
-**API Route Pattern (Client Fetching):**
+**API Route Pattern (Data Source):**
 
 ```typescript
 // app/routes/api/resource.ts

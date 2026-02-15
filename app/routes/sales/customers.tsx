@@ -14,8 +14,8 @@
 
 import { useState, type ReactElement, type JSX } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData, useNavigate } from "react-router";
-import { dehydrate, HydrationBoundary, QueryClient, useQuery, type DehydratedState } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Plus, Users } from "lucide-react";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { PageHeader } from "../../components/layout/PageHeader";
@@ -26,53 +26,31 @@ import { StatusBadge } from "../../components/ui/StatusBadge";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
-import { getCustomers } from "../../services/erp";
-import { customerQueries, customerKeys } from "../../queries/sales";
+import { customerQueries } from "../../queries/sales";
 import type { Customer } from "../../schemas";
+import { getQueryClient } from "../../query-client";
 
 /**
- * Loader function - fetches customers from database
- * Runs on the server before rendering the page
+ * Client Loader - fetches customers on the client side
  */
-export async function loader({ request }: LoaderFunctionArgs): Promise<{ dehydratedState: DehydratedState }> {
+export async function clientLoader({ request }: LoaderFunctionArgs): Promise<void> {
   // Get query parameters from URL for filtering
   const url = new URL(request.url);
   const search = url.searchParams.get("search") || undefined;
   const status = (url.searchParams.get("status") as "active" | "inactive") || undefined;
 
-  // Use a fresh QueryClient for SSR to avoid cache pollution
-  const queryClient = new QueryClient();
-
-  // Prefetch data using the service directly (no fetch/http call needed on server)
-  await queryClient.prefetchQuery({
-    queryKey: customerKeys.list({ search, status }),
-    queryFn: async () => {
-      const result = await getCustomers({ search, status });
-      if (result.isErr()) {
-        throw result.error;
-      }
-      return result.value;
-    },
-  });
-
-  return {
-    dehydratedState: dehydrate(queryClient),
-  };
+  const queryClient = getQueryClient();
+  
+  // Prefetch data on client transition
+  await queryClient.ensureQueryData(customerQueries.list({ search, status }));
+  
+  return;
 }
+
+// Enable client loader to run on hydration
+clientLoader.hydrate = true;
 
 export default function CustomersPage(): ReactElement {
-  const { dehydratedState } = useLoaderData<typeof loader>();
-  
-  return (
-    <HydrationBoundary state={dehydratedState}>
-      <CustomersContent />
-    </HydrationBoundary>
-  );
-}
-
-function CustomersContent(): ReactElement {
-  const navigate = useNavigate();
-
   // Local state for filters (client-side filtering for demo)
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -84,6 +62,42 @@ function CustomersContent(): ReactElement {
   };
 
   const { data: customers = [], error } = useQuery(customerQueries.list(filters));
+
+  return (
+    <PageLayout
+      breadcrumbs={[
+        { label: "Sales & CRM", href: "/sales" },
+        { label: "Customers" },
+      ]}
+    >
+      <CustomersContent 
+        customers={customers} 
+        error={error} 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery} 
+        statusFilter={statusFilter} 
+        setStatusFilter={setStatusFilter} 
+      />
+    </PageLayout>
+  );
+}
+
+function CustomersContent({ 
+  customers, 
+  error, 
+  searchQuery, 
+  setSearchQuery, 
+  statusFilter, 
+  setStatusFilter 
+}: { 
+  customers: Customer[], 
+  error: Error | null, 
+  searchQuery: string, 
+  setSearchQuery: (v: string) => void, 
+  statusFilter: string, 
+  setStatusFilter: (v: string) => void 
+}): ReactElement {
+  const navigate = useNavigate();
 
   // No longer need client-side filtering as the query handles it (via API)
   const filteredCustomers = customers;
@@ -156,12 +170,7 @@ function CustomersContent(): ReactElement {
   ];
 
   return (
-    <PageLayout
-      breadcrumbs={[
-        { label: "Sales & CRM", href: "/sales" },
-        { label: "Customers" },
-      ]}
-    >
+    <>
       <PageHeader
         title="Customers"
         description="Manage your customer relationships and contact information."
@@ -260,6 +269,6 @@ function CustomersContent(): ReactElement {
           </div>
         </div>
       )}
-    </PageLayout>
+    </>
   );
 }

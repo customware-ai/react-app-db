@@ -9,46 +9,55 @@
  * - Activities: CRM activity timeline
  */
 
-import type { ReactElement } from "react";
 import { useState } from "react";
+import type { ReactElement } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData } from "react-router";
+import { useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ShoppingBag, DollarSign, Activity, FileText, Users } from "lucide-react";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { PageHeader } from "../../components/layout/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Tabs } from "../../components/ui/Tabs";
 import { StatusBadge } from "../../components/ui/StatusBadge";
-import { getCustomerById } from "../../services/erp";
-import type { Customer } from "../../schemas";
+import { customerQueries } from "../../queries/sales";
+import { getQueryClient } from "../../query-client";
 
 /**
- * Loader - fetches customer details
+ * Client Loader - fetches customer details on the client
  */
-export async function loader({ params }: LoaderFunctionArgs): Promise<{
-  customer: Customer;
-}> {
+export async function clientLoader({ params }: LoaderFunctionArgs): Promise<void> {
   const id = parseInt(params.id!);
-  const result = await getCustomerById(id);
-
-  if (result.isErr() || !result.value) {
-    throw new Response("Customer not found", { status: 404 });
-  }
-
-  return {
-    customer: result.value,
-  };
+  const queryClient = getQueryClient();
+  await queryClient.ensureQueryData(customerQueries.detail(id));
+  return;
 }
 
+clientLoader.hydrate = true;
+
 export default function CustomerDetailPage(): ReactElement {
-  const { customer } = useLoaderData<typeof loader>();
+  const params = useParams();
+  const id = parseInt(params.id!);
+  const { data: customer, isLoading, error } = useQuery(customerQueries.detail(id));
   const [activeTab, setActiveTab] = useState("overview");
 
-  if (!customer) {
+  if (isLoading) {
     return (
       <PageLayout>
         <Card>
-          <p className="text-center text-surface-600 py-8">Customer not found</p>
+          <p className="text-center text-surface-600 py-8">Loading customer...</p>
+        </Card>
+      </PageLayout>
+    );
+  }
+
+  if (error || !customer) {
+    return (
+      <PageLayout>
+        <Card>
+          <p className="text-center text-surface-600 py-8">
+            {error ? `Error: ${error.message}` : "Customer not found"}
+          </p>
         </Card>
       </PageLayout>
     );

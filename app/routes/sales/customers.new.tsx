@@ -19,7 +19,7 @@ import { PageHeader } from "../../components/layout/PageHeader";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Input, Textarea } from "../../components/ui/Input";
-import { CreateCustomerSchema, type CreateCustomer } from "../../schemas";
+import { CreateCustomerSchema } from "../../schemas";
 import { createCustomerMutation, customerKeys } from "../../queries/sales";
 
 export default function NewCustomerPage(): ReactElement {

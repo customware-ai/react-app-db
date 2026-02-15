@@ -52,5 +52,8 @@ export default [
     route("users", "routes/api/users.ts"),
     route("sales/customers", "routes/api/sales.customers.ts"),
     route("customers", "routes/api/customers.ts"),
+    route("customers/:id", "routes/api/customers.$id.ts"),
+    route("leads", "routes/api/leads.ts"),
+    route("quotes", "routes/api/quotes.ts"),
   ]),
 ] satisfies RouteConfig;

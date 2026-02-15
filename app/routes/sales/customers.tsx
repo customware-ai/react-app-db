@@ -12,10 +12,10 @@
  * @template-code Sample route demonstrating loader/action patterns
  */
 
-import type { ReactElement, JSX } from "react";
-import { useState } from "react";
+import { useState, type ReactElement, type JSX } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useNavigate } from "react-router";
+import { dehydrate, HydrationBoundary, QueryClient, useQuery, type DehydratedState } from "@tanstack/react-query";
 import { Plus, Users } from "lucide-react";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { PageHeader } from "../../components/layout/PageHeader";
@@ -27,54 +27,66 @@ import { EmptyState } from "../../components/ui/EmptyState";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
 import { getCustomers } from "../../services/erp";
+import { customerQueries, customerKeys } from "../../queries/sales";
 import type { Customer } from "../../schemas";
 
 /**
  * Loader function - fetches customers from database
  * Runs on the server before rendering the page
  */
-export async function loader({ request }: LoaderFunctionArgs): Promise<{ customers: Customer[]; error: string | null }> {
+export async function loader({ request }: LoaderFunctionArgs): Promise<{ dehydratedState: DehydratedState }> {
   // Get query parameters from URL for filtering
   const url = new URL(request.url);
   const search = url.searchParams.get("search") || undefined;
   const status = (url.searchParams.get("status") as "active" | "inactive") || undefined;
 
-  // Fetch customers with filters
-  const result = await getCustomers({ search, status });
+  // Use a fresh QueryClient for SSR to avoid cache pollution
+  const queryClient = new QueryClient();
 
-  if (result.isErr()) {
-    return {
-      customers: [],
-      error: result.error.message,
-    };
-  }
+  // Prefetch data using the service directly (no fetch/http call needed on server)
+  await queryClient.prefetchQuery({
+    queryKey: customerKeys.list({ search, status }),
+    queryFn: async () => {
+      const result = await getCustomers({ search, status });
+      if (result.isErr()) {
+        throw result.error;
+      }
+      return result.value;
+    },
+  });
 
   return {
-    customers: result.value,
-    error: null,
+    dehydratedState: dehydrate(queryClient),
   };
 }
 
 export default function CustomersPage(): ReactElement {
-  const { customers, error } = useLoaderData<typeof loader>();
+  const { dehydratedState } = useLoaderData<typeof loader>();
+  
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <CustomersContent />
+    </HydrationBoundary>
+  );
+}
+
+function CustomersContent(): ReactElement {
   const navigate = useNavigate();
 
   // Local state for filters (client-side filtering for demo)
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // Filter customers based on local state
-  const filteredCustomers = customers.filter((customer: Customer) => {
-    const matchesSearch =
-      !searchQuery ||
-      customer.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.contact_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.email?.toLowerCase().includes(searchQuery.toLowerCase());
+  // Query options based on filters
+  const filters = {
+    search: searchQuery || undefined,
+    status: (statusFilter === "all" ? undefined : statusFilter) as "active" | "inactive" | undefined,
+  };
 
-    const matchesStatus = statusFilter === "all" || customer.status === statusFilter;
+  const { data: customers = [], error } = useQuery(customerQueries.list(filters));
 
-    return matchesSearch && matchesStatus;
-  });
+  // No longer need client-side filtering as the query handles it (via API)
+  const filteredCustomers = customers;
 
   // Define table columns
   const columns: Column<Customer>[] = [
@@ -167,7 +179,7 @@ export default function CustomersPage(): ReactElement {
       {/* Error Alert */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          <strong>Error:</strong> {error}
+          <strong>Error:</strong> {error.message}
         </div>
       )}
 

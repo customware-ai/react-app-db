@@ -10,75 +10,65 @@
  * - Redirects to customer list after successful creation
  */
 
-import type { ReactElement } from "react";
 import { useState } from "react";
-import type { ActionFunctionArgs } from "react-router";
-import { Form, useNavigate, useActionData } from "react-router";
+import type { ReactElement, FormEvent } from "react";
+import { useNavigate } from "react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PageLayout } from "../../components/layout/PageLayout";
 import { PageHeader } from "../../components/layout/PageHeader";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Input, Textarea } from "../../components/ui/Input";
-import { createCustomer } from "../../services/erp";
-import { CreateCustomerSchema } from "../../schemas";
-import { redirect } from "react-router";
-
-/**
- * Action function - handles form submission
- * Validates data and creates customer in database
- */
-export async function action({ request }: ActionFunctionArgs): Promise<Response | {
-  error: string;
-  fieldErrors: Record<string, string[]>;
-}> {
-  const formData = await request.formData();
-
-  // Extract form data
-  const data = {
-    company_name: formData.get("company_name") as string,
-    contact_name: formData.get("contact_name") as string || null,
-    email: formData.get("email") as string || null,
-    phone: formData.get("phone") as string || null,
-    address: formData.get("address") as string || null,
-    city: formData.get("city") as string || null,
-    state: formData.get("state") as string || null,
-    postal_code: formData.get("postal_code") as string || null,
-    country: formData.get("country") as string || "USA",
-    tax_id: formData.get("tax_id") as string || null,
-    payment_terms: parseInt(formData.get("payment_terms") as string) || 30,
-    credit_limit: parseFloat(formData.get("credit_limit") as string) || 0,
-    status: (formData.get("status") as string) || "active",
-    notes: formData.get("notes") as string || null,
-  };
-
-  // Validate with Zod schema
-  const validation = CreateCustomerSchema.safeParse(data);
-
-  if (!validation.success) {
-    return {
-      error: "Validation failed",
-      fieldErrors: validation.error.flatten().fieldErrors,
-    };
-  }
-
-  // Create customer in database
-  const result = await createCustomer(validation.data);
-
-  if (result.isErr()) {
-    return {
-      error: result.error.message,
-      fieldErrors: {},
-    };
-  }
-
-  // Redirect to customers list on success
-  return redirect("/sales/customers");
-}
+import { CreateCustomerSchema, type CreateCustomer } from "../../schemas";
+import { createCustomerMutation, customerKeys } from "../../queries/sales";
 
 export default function NewCustomerPage(): ReactElement {
   const navigate = useNavigate();
-  const actionData = useActionData<typeof action>();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+
+  const mutation = useMutation({
+    ...createCustomerMutation,
+    onSuccess: () => {
+      // Invalidate cache and redirect
+      void queryClient.invalidateQueries({ queryKey: customerKeys.all });
+      void navigate("/sales/customers");
+    },
+  });
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+    setFieldErrors({});
+
+    const formData = new FormData(e.currentTarget);
+    
+    const data = {
+      company_name: formData.get("company_name") as string,
+      contact_name: (formData.get("contact_name") as string) || null,
+      email: (formData.get("email") as string) || null,
+      phone: (formData.get("phone") as string) || null,
+      address: (formData.get("address") as string) || null,
+      city: (formData.get("city") as string) || null,
+      state: (formData.get("state") as string) || null,
+      postal_code: (formData.get("postal_code") as string) || null,
+      country: (formData.get("country") as string) || "USA",
+      tax_id: (formData.get("tax_id") as string) || null,
+      payment_terms: parseInt((formData.get("payment_terms") as string) || "30"),
+      credit_limit: parseFloat((formData.get("credit_limit") as string) || "0"),
+      status: (formData.get("status") as "active" | "inactive") || "active",
+      notes: (formData.get("notes") as string) || null,
+    };
+
+    // Client-side validation
+    const validation = CreateCustomerSchema.safeParse(data);
+
+    if (!validation.success) {
+      setFieldErrors(validation.error.flatten().fieldErrors);
+      return;
+    }
+
+    mutation.mutate(validation.data);
+  };
 
   return (
     <PageLayout
@@ -94,14 +84,14 @@ export default function NewCustomerPage(): ReactElement {
       />
 
       {/* Error Alert */}
-      {actionData?.error && (
+      {mutation.error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          <strong>Error:</strong> {actionData.error}
+          <strong>Error:</strong> {mutation.error.message}
         </div>
       )}
 
       <Card>
-        <Form method="post" onSubmit={() => setIsSubmitting(true)}>
+        <form onSubmit={handleSubmit}>
           <div className="space-y-8">
             {/* Company Information */}
             <div>
@@ -119,9 +109,9 @@ export default function NewCustomerPage(): ReactElement {
                     required
                     placeholder="Sample Company Inc"
                   />
-                  {actionData?.fieldErrors?.company_name && (
+                  {fieldErrors.company_name && (
                     <p className="mt-1 text-sm text-red-600">
-                      {actionData.fieldErrors.company_name[0]}
+                      {fieldErrors.company_name[0]}
                     </p>
                   )}
                 </div>
@@ -165,6 +155,11 @@ export default function NewCustomerPage(): ReactElement {
                     type="email"
                     placeholder="contact@sample-company.com"
                   />
+                   {fieldErrors.email && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {fieldErrors.email[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -318,21 +313,21 @@ export default function NewCustomerPage(): ReactElement {
                 type="button"
                 variant="outline"
                 onClick={() => navigate("/sales/customers")}
-                disabled={isSubmitting}
+                disabled={mutation.isPending}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 variant="primary"
-                disabled={isSubmitting}
-                loading={isSubmitting}
+                disabled={mutation.isPending}
+                loading={mutation.isPending}
               >
                 Create Customer
               </Button>
             </div>
           </div>
-        </Form>
+        </form>
       </Card>
     </PageLayout>
   );

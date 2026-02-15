@@ -15,12 +15,14 @@ This codebase follows strict architectural patterns and coding standards:
 - Use Zod schemas for runtime validation, derive TypeScript types from schemas
 - Full type checking must pass before committing
 
-### 2. **Clean Architecture**
+### 2. **Clean Architecture & React Query**
 
 - **db.ts** - Database & filesystem operations ONLY (single source of truth)
 - **services/** - Business logic & CRUD operations (uses Result pattern)
 - **schemas/** - Zod validation schemas (source of truth for types)
-- **routes/** - Page components with loaders/actions (no business logic)
+- **queries/** - TanStack Query definitions (query options and mutation configs)
+- **routes/api/** - API endpoints for client-side data fetching/mutations
+- **routes/** - Page components with loaders for SSR prefetching (no direct data fetching logic)
 - **components/** - UI components only (no data fetching or business logic)
 - **utils/** - Pure utility functions
 
@@ -65,20 +67,22 @@ npx vitest run tests/db/db.test.ts
 
 ## Architecture
 
-This is a full-stack React Router v7 application with SQLite (sql.js) persistence.
+This is a full-stack React Router v7 application with SQLite (sql.js) persistence, using TanStack Query for data management.
 
 ### Architectural Flow
 
-The application follows a strict layered architecture with clear data flow:
+The application follows a strict layered architecture with clear data flow, utilizing both SSR (prefetching) and CSR (client-side fetching):
 
 ```
 User Request
     ↓
-Route (loader/action)
-    ↓
-Service Layer (erp.ts)
-    ↓
-Schema Validation (Zod)
+Route Loader (SSR Prefetch)  OR  Client Interaction (React Query)
+    ↓                                   ↓
+Service Layer (Direct Call)      API Route (/api/...)
+    ↓                                   ↓
+    ↓                            Service Layer
+    ↓                                   ↓
+Schema Validation (Zod) ←---------------
     ↓
 Database Layer (db.ts)
     ↓
@@ -87,11 +91,12 @@ SQLite (sql.js)
 
 **Key Rules:**
 
-1. **Routes** call **services**, never database directly
-2. **Services** validate with **schemas**, then call **database**
-3. **Database (db.ts)** is the ONLY file that touches filesystem
-4. **Components** receive data via props, never fetch directly
-5. All data flows through the Result pattern for type-safe error handling
+1. **Routes (Loaders)** create a `QueryClient`, prefetch data via **services** (direct call), and dehydrate state for hydration.
+2. **Client Components** use `useQuery` / `useMutation` hooks.
+3. **API Routes** expose endpoints for client-side fetching/mutations, calling **services**.
+4. **Services** validate with **schemas**, then call **database**.
+5. **Database (db.ts)** is the ONLY file that touches filesystem.
+6. All data flows through the Result pattern for type-safe error handling.
 
 ### Type Safety Flow
 
@@ -120,31 +125,48 @@ export async function createCustomer(
 
   // Database operation
   const result = await insertCustomer(validation.data);
-  if (result.isErr()) {
-    return err(result.error);
-  }
-
-  return ok(result.value);
+  return result;
 }
 
-// 4. Route loader uses typed result (routes/customers.tsx)
-export async function loader(): Promise<{
-  customers: Customer[];
-  error: string | null;
-}> {
-  const result = await getCustomers();
+// 4. Define Query Options (queries/sales.ts)
+export const customerQueries = {
+  list: () => queryOptions({
+    queryKey: ['customers', 'list'],
+    queryFn: async () => {
+      const response = await fetch('/api/customers');
+      if (!response.ok) throw new Error("Failed to fetch");
+      return (await response.json()) as Customer[];
+    }
+  })
+};
 
-  if (result.isErr()) {
-    return { customers: [], error: result.error.message };
-  }
-
-  return { customers: result.value, error: null };
+// 5. Route Loader Prefetches (routes/customers.tsx)
+export async function loader() {
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ['customers', 'list'],
+    queryFn: async () => {
+       const result = await getCustomers(); // Direct service call for SSR
+       if (result.isErr()) throw result.error;
+       return result.value;
+    }
+  });
+  return { dehydratedState: dehydrate(queryClient) };
 }
 
-// 5. Component receives typed data
-export default function CustomersPage(): ReactElement {
-  const { customers, error } = useLoaderData<typeof loader>();
-  // customers is Customer[], fully typed
+// 6. Component Uses Query
+export default function CustomersPage() {
+  const { dehydratedState } = useLoaderData<typeof loader>();
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <CustomersList />
+    </HydrationBoundary>
+  );
+}
+
+function CustomersList() {
+  const { data } = useQuery(customerQueries.list());
+  // data is Customer[], fully typed
 }
 ```
 
@@ -210,6 +232,54 @@ export default function CustomersPage(): ReactElement {
 
 ### Key Patterns
 
+#### React Query & SSR
+
+**Loader Pattern (SSR Prefetching):**
+
+```typescript
+export async function loader({ request }: LoaderFunctionArgs) {
+  const queryClient = new QueryClient(); // New client per request
+  await queryClient.prefetchQuery({
+    queryKey: ['key'],
+    queryFn: async () => {
+      // Direct service call on server
+      const result = await getData();
+      if (result.isErr()) throw result.error;
+      return result.value;
+    }
+  });
+  return { dehydratedState: dehydrate(queryClient) };
+}
+```
+
+**API Route Pattern (Client Fetching):**
+
+```typescript
+// app/routes/api/resource.ts
+export async function loader() {
+  const result = await getData();
+  if (result.isErr()) throw new Response(result.error.message, { status: 500 });
+  return result.value;
+}
+```
+
+**Query Options Pattern:**
+
+```typescript
+// app/queries/resource.ts
+export const resourceQueries = {
+  list: () => queryOptions({
+    queryKey: ['resource'],
+    queryFn: async () => {
+      // Fetch from API on client
+      const res = await fetch('/api/resource');
+      if (!res.ok) throw new Error("Failed");
+      return await res.json();
+    }
+  })
+};
+```
+
 #### Error Handling with neverthrow
 
 All database operations in `app/db.ts` return `Result<T, E>` types from neverthrow. Check results with `.isErr()` / `.isOk()` before accessing values. Error types are defined in `app/types/errors.ts`.
@@ -233,13 +303,6 @@ export async function getRecords(): Promise<
     });
   }
 }
-
-// Usage in loaders
-const result = await getRecords();
-if (result.isErr()) {
-  return { data: [], error: result.error.message };
-}
-return { data: result.value };
 ```
 
 #### Schema Validation with Zod
@@ -329,6 +392,7 @@ When creating a new migration:
    - Check `database.db` file was updated
    - Verify tables/columns were created correctly
    - Write/update tests for any new database operations
+   - Verify `QueryClient` invalidation logic in affected mutations
 
 ```bash
 # After creating a migration file:
@@ -383,18 +447,22 @@ app/
 │   ├── ui/              # Reusable UI components (Button, Card, Input, etc.)
 │   └── [feature]/       # Feature-specific components
 ├── routes/
+│   ├── api/             # API routes for client fetching
 │   ├── dashboard.tsx    # Main dashboard/home route
 │   └── [feature]/       # Feature module routes (nested)
 ├── services/
 │   └── [service].ts     # Business logic & CRUD operations
 ├── schemas/
 │   └── [entity].ts      # Entity validation schemas (Zod)
+├── queries/
+│   └── [domain].ts      # React Query options & mutation configs
 ├── db-migrations/
 │   ├── migrate.ts       # Migration system
 │   └── 00X-*.ts         # Numbered database migrations
 ├── utils/
 │   └── [utility].ts     # Pure utility functions
 ├── db.ts                # Database layer (ONLY file for filesystem)
+├── query-client.ts      # QueryClient configuration
 ├── types/               # TypeScript type definitions
 └── root.tsx             # Root layout component
 
@@ -407,7 +475,7 @@ tests/                   # Test files mirror app/ structure
 **Structure Principles:**
 
 - Group by feature/domain (feature folders)
-- Separate concerns by layer (db → services → schemas → routes → components)
+- Separate concerns by layer (db → services → schemas → queries → routes → components)
 - One file per entity/service/component
 - Tests mirror the source structure
 - Clear naming conventions
@@ -477,39 +545,44 @@ export function Button({
 }
 ```
 
-**Route Component Pattern:**
+**Route Component Pattern (with React Query):**
 
 ```typescript
 // routes/users.tsx
-import type { ReactElement } from "react";
 import { useLoaderData } from "react-router";
-import type { LoaderFunctionArgs } from "react-router";
+import { dehydrate, HydrationBoundary, QueryClient, useQuery } from "@tanstack/react-query";
+import { userQueries } from "~/queries/users";
 import { getUsers } from "~/services/users";
 
-// Loader - fetch data before rendering
-export async function loader({
-  request,
-}: LoaderFunctionArgs): Promise<{
-  users: User[];
-  error: string | null;
-}> {
-  const result = await getUsers();
-
-  if (result.isErr()) {
-    return { users: [], error: result.error.message };
-  }
-
-  return { users: result.value, error: null };
+// Loader - SSR Prefetch
+export async function loader() {
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: userQueries.list().queryKey,
+    queryFn: async () => {
+       const result = await getUsers();
+       if (result.isErr()) throw result.error;
+       return result.value;
+    }
+  });
+  return { dehydratedState: dehydrate(queryClient) };
 }
 
-// Component - render with typed data
-export default function UsersPage(): ReactElement {
-  const { users, error } = useLoaderData<typeof loader>();
+// Component - Hydrate & Render
+export default function UsersPage() {
+  const { dehydratedState } = useLoaderData<typeof loader>();
+  
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <UsersContent />
+    </HydrationBoundary>
+  );
+}
 
-  if (error) {
-    return <ErrorDisplay message={error} />;
-  }
-
+function UsersContent() {
+  const { data: users, error } = useQuery(userQueries.list());
+  
+  if (error) return <ErrorDisplay message={error.message} />;
   return <UserTable users={users} />;
 }
 ```
@@ -521,6 +594,8 @@ export default function UsersPage(): ReactElement {
 - Props interfaces for all components
 - Use composition over prop drilling
 - Keep components focused and small
+- **Data Fetching:** Use `useQuery` for reads, `useMutation` for writes
+- **SSR:** Use `HydrationBoundary` and `dehydratedState`
 
 ### Linting Rules
 
@@ -741,6 +816,7 @@ export async function loader() {
 ```
 
 ##### 2. Future Flags (now default in v7)
+
 
 These were opt-in flags in v6, now default behavior:
 

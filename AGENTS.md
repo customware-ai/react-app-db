@@ -2,7 +2,7 @@
 
 This file provides guidance to LLMs when working with code in this repository.
 
-> **For project overview**: See [README.md](./README.md) for features, architecture details, and documentation.
+> **For project overview**: See [README.md](./README.md) for features and documentation.
 
 ## 🎯 Core Principles
 
@@ -30,6 +30,7 @@ This codebase follows strict architectural patterns and coding standards:
 - Never throw exceptions in business logic
 - Check `.isErr()` / `.isOk()` before accessing values
 - Provide meaningful error messages
+- **See [Error Handling UX](#error-handling-ux-mandatory) for user-facing error patterns**
 
 ### 4. **Testing Requirements**
 
@@ -45,6 +46,19 @@ This codebase follows strict architectural patterns and coding standards:
 - Comment the "why", not the "what"
 - Follow the single responsibility principle
 - Keep functions small and focused
+
+### 6. **User Experience (UX) Standards** ⭐ NEW
+
+**All user-facing code MUST implement proper UX patterns.** Poor UX is a bug.
+
+- **Loading States**: Every data fetch MUST show loading UI (skeletons, spinners)
+- **Pending UI**: Every form submission MUST show pending state
+- **Optimistic Updates**: Mutations should update UI immediately where feasible
+- **Error Feedback**: Errors must be user-friendly, actionable, and recoverable
+- **Responsive Design**: All UI must work on mobile, tablet, and desktop
+- **Motion**: Use purposeful animation for feedback and guidance
+
+> **CRITICAL**: See [UX Requirements](#-user-experience-ux-requirements) for detailed patterns and [React Router v7 Reference Guide](#react-router-v7-reference-guide) for implementation details.
 
 ## Commands
 
@@ -440,6 +454,1366 @@ tests/                   # Test files mirror app/ structure
 - `Sidebar` - Left navigation
 - `TopBar` - Top navigation and user menu
 
+---
+
+## 🎨 User Experience (UX) Requirements
+
+**CRITICAL**: This section defines mandatory UX patterns for all user-facing code. Every route, form, and interactive element MUST implement these patterns. Poor UX is a bug - treat it with the same severity as broken functionality.
+
+> **Important**: All UX patterns in this section integrate with React Router v7. See the [React Router v7 Reference Guide](#react-router-v7-reference-guide) section for implementation details on `useNavigation`, `useFetcher`, optimistic UI, and pending states.
+
+---
+
+### Loading States (MANDATORY)
+
+**Every data fetch and action MUST have a corresponding loading state.** Users should never stare at a blank screen or wonder if their action was registered.
+
+#### 1. Skeleton Loaders
+
+Use skeleton loaders for initial page loads and data fetching to maintain layout structure and reduce perceived wait time.
+
+**When to use:**
+
+- Initial page/route loads
+- List/table data fetching
+- Card or panel content loading
+- Images and media loading
+
+**Available Components:** Import from `~/components/ui/LoadingSkeleton`
+
+| Component         | Use Case                         | Props                                              |
+| ----------------- | -------------------------------- | -------------------------------------------------- |
+| `LoadingSkeleton` | Base component, custom layouts   | `variant`, `count`, `className`, `width`, `height` |
+| `Spinner`         | Inline loading, buttons, actions | `size` (xs/sm/md/lg), `className`, `label`         |
+| `TableSkeleton`   | Table loading states             | `rows`, `columns`, `className`                     |
+| `CardSkeleton`    | Card grid loading                | `count`, `className`                               |
+| `TextSkeleton`    | Text content loading             | `lines`, `className`                               |
+| `FormSkeleton`    | Form loading states              | `fields`, `showSubmitButton`, `className`          |
+| `PageSkeleton`    | Full page loading                | `showHeader`, `contentType`, `itemCount`           |
+
+**Usage Examples:**
+
+```typescript
+import {
+  TableSkeleton,
+  CardSkeleton,
+  TextSkeleton,
+  FormSkeleton,
+  PageSkeleton,
+  Spinner,
+  LoadingSkeleton,
+} from "~/components/ui/LoadingSkeleton";
+
+// HydrateFallback for a table page (React Router v7 pattern)
+export function HydrateFallback(): ReactElement {
+  return (
+    <PageLayout>
+      <PageSkeleton showHeader contentType="table" itemCount={10} />
+    </PageLayout>
+  );
+}
+
+// HydrateFallback for a card grid page
+export function HydrateFallback(): ReactElement {
+  return (
+    <PageLayout>
+      <div className="space-y-4">
+        <LoadingSkeleton variant="rectangular" className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <CardSkeleton count={6} />
+        </div>
+      </div>
+    </PageLayout>
+  );
+}
+
+// HydrateFallback for a form page
+export function HydrateFallback(): ReactElement {
+  return (
+    <PageLayout>
+      <div className="max-w-md">
+        <LoadingSkeleton variant="rectangular" className="h-8 w-32 mb-6" />
+        <FormSkeleton fields={5} showSubmitButton />
+      </div>
+    </PageLayout>
+  );
+}
+
+// Table with custom columns
+<TableSkeleton rows={8} columns={5} />
+
+// Text content
+<TextSkeleton lines={4} />
+```
+
+#### 2. Spinners & Progress Indicators
+
+Use spinners for actions and operations where layout structure isn't preserved.
+
+**When to use:**
+
+- Form submissions
+- Button actions
+- Inline operations
+- Modal/dialog loading
+
+**Available Components:**
+
+| Component               | Location                          | Props                                        |
+| ----------------------- | --------------------------------- | -------------------------------------------- |
+| `Spinner`               | `~/components/ui/LoadingSkeleton` | `size` (xs/sm/md/lg), `className`, `label`   |
+| `Button` with `loading` | `~/components/ui/Button`          | `loading={true}` shows spinner automatically |
+
+**Usage Examples:**
+
+```typescript
+import { Spinner } from "~/components/ui/LoadingSkeleton";
+import { Button } from "~/components/ui/Button";
+
+// Standalone spinner
+<Spinner size="lg" />
+
+// Button with built-in loading state (preferred)
+<Button loading={isSubmitting} disabled={isSubmitting}>
+  {isSubmitting ? "Saving..." : "Save"}
+</Button>
+
+// Custom button with spinner (when you need more control)
+<Button disabled={isLoading}>
+  {isLoading && <Spinner size="sm" className="mr-2" />}
+  {isLoading ? "Processing..." : "Submit"}
+</Button>
+
+// Inline spinner with fetcher (React Router v7 pattern)
+function SubmitButton(): ReactElement {
+  const fetcher = useFetcher();
+  const isSubmitting = fetcher.state !== "idle";
+
+  return (
+    <Button type="submit" loading={isSubmitting}>
+      {isSubmitting ? "Creating..." : "Create"}
+    </Button>
+  );
+}
+```
+
+#### 3. Optimistic Updates (REQUIRED for mutations)
+
+**All form submissions and mutations MUST implement optimistic UI.** This is a non-negotiable UX requirement that makes the app feel instant and responsive.
+
+> **Implementation**: See [React Router v7 Reference Guide > Optimistic UI Patterns](#optimistic-ui-patterns-required) for the definitive implementation guide using `useFetcher.formData`.
+
+**Core Principle:** Predict the final state based on form submission data and display it immediately, while the actual request processes in the background.
+
+**Pattern:**
+
+```typescript
+// Optimistic toggle example (React Router v7 pattern)
+function TaskItem({ task }: { task: Task }): ReactElement {
+  const fetcher = useFetcher();
+
+  // Optimistically determine state from pending form data
+  let isComplete = task.status === "complete";
+  if (fetcher.formData) {
+    isComplete = fetcher.formData.get("status") === "complete";
+  }
+
+  return (
+    <div className={clsx(
+      "flex items-center gap-3 p-3 rounded-lg transition-colors",
+      isComplete && "bg-green-50 dark:bg-green-900/20"
+    )}>
+      <fetcher.Form method="post" action={`/tasks/${task.id}/toggle`}>
+        <input type="hidden" name="status" value={isComplete ? "incomplete" : "complete"} />
+        <button
+          type="submit"
+          className={clsx(
+            "w-5 h-5 rounded border-2 transition-colors",
+            isComplete
+              ? "bg-green-500 border-green-500"
+              : "border-surface-300 hover:border-green-400"
+          )}
+          aria-label={isComplete ? "Mark incomplete" : "Mark complete"}
+        >
+          {isComplete && <CheckIcon className="w-3 h-3 text-white" />}
+        </button>
+      </fetcher.Form>
+      <span className={clsx(isComplete && "line-through text-surface-500")}>
+        {task.title}
+      </span>
+    </div>
+  );
+}
+```
+
+**Optimistic List Operations:**
+
+```typescript
+// Optimistic delete with immediate removal
+function ItemList({ items }: { items: Item[] }): ReactElement {
+  const fetcher = useFetcher();
+
+  // Filter out items being deleted
+  const visibleItems = items.filter((item) => {
+    if (fetcher.formData && fetcher.formData.get("intent") === "delete") {
+      return item.id !== Number(fetcher.formData.get("itemId"));
+    }
+    return true;
+  });
+
+  return (
+    <ul>
+      {visibleItems.map((item) => (
+        <li key={item.id} className="flex items-center justify-between">
+          <span>{item.name}</span>
+          <fetcher.Form method="post">
+            <input type="hidden" name="intent" value="delete" />
+            <input type="hidden" name="itemId" value={item.id} />
+            <button type="submit" className="text-red-500 hover:text-red-700">
+              Delete
+            </button>
+          </fetcher.Form>
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+#### 4. Progressive Disclosure
+
+Load and reveal content progressively to improve perceived performance and reduce cognitive load.
+
+**When to use:**
+
+- Complex forms with multiple sections
+- Long lists (virtualization + pagination)
+- Expandable content areas
+- Wizard/multi-step flows
+
+**Pattern:**
+
+```typescript
+// Progressive form sections
+function CustomerForm(): ReactElement {
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  return (
+    <Form method="post" className="space-y-6">
+      {/* Primary fields always visible */}
+      <section className="space-y-4">
+        <h3 className="text-lg font-semibold">Basic Information</h3>
+        <Input name="company_name" label="Company Name" required />
+        <Input name="email" label="Email" type="email" />
+      </section>
+
+      {/* Advanced fields progressively disclosed */}
+      <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+        <CollapsibleTrigger className="flex items-center gap-2 text-sm text-primary-600">
+          <ChevronIcon className={clsx("transition-transform", showAdvanced && "rotate-90")} />
+          {showAdvanced ? "Hide" : "Show"} Advanced Options
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4 space-y-4">
+          <Input name="tax_id" label="Tax ID" />
+          <Input name="website" label="Website" type="url" />
+          <Textarea name="notes" label="Notes" rows={3} />
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Button type="submit">Save Customer</Button>
+    </Form>
+  );
+}
+```
+
+---
+
+### Error Handling UX (MANDATORY)
+
+**Every error state MUST be user-friendly, actionable, and recoverable.** Technical errors should never be shown directly to users. All error handling integrates with React Router v7's error boundary system.
+
+> **Implementation**: See [React Router v7 Reference Guide > Error Handling](#error-handling) for error boundary patterns and the `useRouteError` hook.
+
+#### 1. User-Friendly Error Messages
+
+**NEVER show raw error messages to users.** Always translate technical errors into helpful, human-readable messages.
+
+**Error Message Guidelines:**
+
+- Explain what happened in plain language
+- Tell the user what they can do about it
+- Never blame the user
+- Avoid technical jargon
+- Provide specific, actionable guidance
+
+**Pattern:**
+
+```typescript
+// utils/error-messages.ts
+const ERROR_MESSAGES: Record<
+  string,
+  { title: string; description: string; action?: string }
+> = {
+  NETWORK_ERROR: {
+    title: "Connection Problem",
+    description:
+      "We couldn't reach our servers. Please check your internet connection and try again.",
+    action: "Retry",
+  },
+  VALIDATION_ERROR: {
+    title: "Please Check Your Input",
+    description:
+      "Some information needs to be corrected before we can continue.",
+  },
+  NOT_FOUND: {
+    title: "Not Found",
+    description:
+      "The item you're looking for doesn't exist or may have been removed.",
+    action: "Go Back",
+  },
+  PERMISSION_DENIED: {
+    title: "Access Denied",
+    description:
+      "You don't have permission to perform this action. Contact your administrator if you need access.",
+  },
+  SERVER_ERROR: {
+    title: "Something Went Wrong",
+    description:
+      "We encountered an unexpected problem. Our team has been notified and is working on it.",
+    action: "Try Again",
+  },
+  DATABASE_ERROR: {
+    title: "Data Error",
+    description:
+      "We had trouble saving or retrieving your data. Please try again in a moment.",
+    action: "Retry",
+  },
+};
+
+export function getUserFriendlyError(
+  errorType: string,
+  fallback?: string,
+): { title: string; description: string; action?: string } {
+  return (
+    ERROR_MESSAGES[errorType] || {
+      title: "Oops!",
+      description:
+        fallback || "Something unexpected happened. Please try again.",
+      action: "Try Again",
+    }
+  );
+}
+```
+
+**Error Display Component:**
+
+```typescript
+// components/ui/ErrorDisplay.tsx
+interface ErrorDisplayProps {
+  error: {
+    type?: string;
+    message: string;
+  };
+  onRetry?: () => void;
+  onDismiss?: () => void;
+  variant?: "inline" | "page" | "toast";
+}
+
+export function ErrorDisplay({
+  error,
+  onRetry,
+  onDismiss,
+  variant = "inline",
+}: ErrorDisplayProps): ReactElement {
+  const { title, description, action } = getUserFriendlyError(
+    error.type || "UNKNOWN",
+    error.message
+  );
+
+  if (variant === "page") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8">
+        <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+          <AlertCircleIcon className="w-8 h-8 text-red-500" />
+        </div>
+        <h2 className="text-xl font-semibold text-surface-900 dark:text-surface-100 mb-2">
+          {title}
+        </h2>
+        <p className="text-surface-600 dark:text-surface-400 max-w-md mb-6">
+          {description}
+        </p>
+        {onRetry && action && (
+          <Button onClick={onRetry} variant="primary">
+            {action}
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  if (variant === "inline") {
+    return (
+      <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+        <AlertCircleIcon className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+        <div className="flex-1 min-w-0">
+          <h4 className="text-sm font-medium text-red-800 dark:text-red-200">{title}</h4>
+          <p className="text-sm text-red-700 dark:text-red-300 mt-1">{description}</p>
+        </div>
+        <div className="flex gap-2">
+          {onRetry && (
+            <button
+              onClick={onRetry}
+              className="text-sm font-medium text-red-600 hover:text-red-800"
+            >
+              {action || "Retry"}
+            </button>
+          )}
+          {onDismiss && (
+            <button onClick={onDismiss} className="text-red-400 hover:text-red-600">
+              <XIcon className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Toast variant handled by toast system
+  return null;
+}
+```
+
+#### 2. Retry Patterns
+
+**All recoverable errors MUST offer retry functionality.** Make it easy for users to try again without navigating away or losing their work.
+
+**Pattern:**
+
+```typescript
+// hooks/useRetry.ts
+interface UseRetryOptions {
+  maxAttempts?: number;
+  backoffMs?: number;
+  onMaxAttemptsReached?: () => void;
+}
+
+export function useRetry<T>(
+  asyncFn: () => Promise<T>,
+  options: UseRetryOptions = {}
+): {
+  execute: () => Promise<T | null>;
+  isLoading: boolean;
+  error: Error | null;
+  attempts: number;
+  reset: () => void;
+} {
+  const { maxAttempts = 3, backoffMs = 1000, onMaxAttemptsReached } = options;
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [attempts, setAttempts] = useState(0);
+
+  const execute = async (): Promise<T | null> => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await asyncFn();
+      setAttempts(0);
+      return result;
+    } catch (err) {
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+      setError(err instanceof Error ? err : new Error("Unknown error"));
+
+      if (newAttempts >= maxAttempts) {
+        onMaxAttemptsReached?.();
+      }
+
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const reset = (): void => {
+    setAttempts(0);
+    setError(null);
+  };
+
+  return { execute, isLoading, error, attempts, reset };
+}
+
+// Usage in component
+function DataLoader(): ReactElement {
+  const { execute, isLoading, error, attempts } = useRetry(
+    () => fetchData(),
+    { maxAttempts: 3 }
+  );
+
+  useEffect(() => {
+    execute();
+  }, []);
+
+  if (error) {
+    return (
+      <ErrorDisplay
+        error={{ message: error.message }}
+        onRetry={execute}
+        variant="page"
+      />
+    );
+  }
+
+  if (isLoading) {
+    return <LoadingSkeleton variant="rectangular" className="h-48 w-full" />;
+  }
+
+  return <DataContent />;
+}
+```
+
+**Form Submission Retry:**
+
+```typescript
+// Retry pattern with fetcher (React Router v7)
+function SubmitWithRetry(): ReactElement {
+  const fetcher = useFetcher();
+  const [retryCount, setRetryCount] = useState(0);
+
+  const isError = fetcher.data?.error;
+  const isSubmitting = fetcher.state !== "idle";
+
+  const handleRetry = (): void => {
+    setRetryCount((c) => c + 1);
+    // Re-submit the form
+    fetcher.submit(fetcher.formData, { method: "post" });
+  };
+
+  return (
+    <div>
+      <fetcher.Form method="post">
+        <Input name="email" label="Email" />
+        <Button type="submit" loading={isSubmitting}>
+          {isSubmitting ? "Subscribing..." : "Subscribe"}
+        </Button>
+      </fetcher.Form>
+
+      {isError && !isSubmitting && (
+        <ErrorDisplay
+          error={fetcher.data.error}
+          onRetry={handleRetry}
+          variant="inline"
+        />
+      )}
+    </div>
+  );
+}
+```
+
+#### 3. Graceful Degradation
+
+**When features fail, the app MUST remain usable.** Implement fallbacks that allow users to continue working.
+
+**Principles:**
+
+- Show cached/stale data when fresh data fails to load
+- Disable affected features rather than crashing
+- Provide alternative paths to accomplish goals
+- Maintain core functionality even when enhancements fail
+
+**Pattern:**
+
+```typescript
+// Route with graceful degradation
+export async function loader(): Promise<{
+  customers: Customer[];
+  error: string | null;
+  isStale: boolean;
+}> {
+  const result = await getCustomers();
+
+  if (result.isErr()) {
+    // Try to get cached data
+    const cachedData = getCachedCustomers();
+    if (cachedData) {
+      return {
+        customers: cachedData,
+        error: "Using cached data. Some information may be outdated.",
+        isStale: true,
+      };
+    }
+
+    return {
+      customers: [],
+      error: result.error.message,
+      isStale: false,
+    };
+  }
+
+  // Update cache on success
+  setCachedCustomers(result.value);
+
+  return {
+    customers: result.value,
+    error: null,
+    isStale: false,
+  };
+}
+
+// Component with degraded state handling
+export default function CustomersPage(): ReactElement {
+  const { customers, error, isStale } = useLoaderData<typeof loader>();
+
+  return (
+    <PageLayout>
+      {/* Show warning banner for stale data, but still show content */}
+      {isStale && (
+        <Banner variant="warning" className="mb-4">
+          <p>You're viewing cached data. Some information may be outdated.</p>
+          <button onClick={() => location.reload()} className="underline">
+            Refresh
+          </button>
+        </Banner>
+      )}
+
+      {/* Full error only when no data available */}
+      {error && customers.length === 0 && (
+        <ErrorDisplay error={{ message: error }} variant="page" />
+      )}
+
+      {/* Show data when available, even if stale */}
+      {customers.length > 0 && <CustomerTable customers={customers} />}
+    </PageLayout>
+  );
+}
+```
+
+**Feature Toggle Degradation:**
+
+```typescript
+// Gracefully disable features that fail
+function AdvancedSearch({ enabled }: { enabled: boolean }): ReactElement | null {
+  const [hasError, setHasError] = useState(false);
+
+  if (!enabled || hasError) {
+    return (
+      <div className="text-sm text-surface-500">
+        Advanced search is temporarily unavailable.{" "}
+        <Link to="/search" className="text-primary-600 hover:underline">
+          Use basic search
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <ErrorBoundary onError={() => setHasError(true)}>
+      <AdvancedSearchForm />
+    </ErrorBoundary>
+  );
+}
+```
+
+#### 4. Route Error Boundaries (React Router v7)
+
+**Every route MUST have appropriate error handling.** Use React Router v7's error boundary system.
+
+```typescript
+// routes/customers.tsx
+import { useRouteError, isRouteErrorResponse } from "react-router";
+
+export function ErrorBoundary(): ReactElement {
+  const error = useRouteError();
+
+  // Handle known route errors (4xx, 5xx responses)
+  if (isRouteErrorResponse(error)) {
+    if (error.status === 404) {
+      return (
+        <ErrorDisplay
+          error={{ type: "NOT_FOUND", message: "Customer not found" }}
+          variant="page"
+        />
+      );
+    }
+
+    if (error.status === 403) {
+      return (
+        <ErrorDisplay
+          error={{ type: "PERMISSION_DENIED", message: "Access denied" }}
+          variant="page"
+        />
+      );
+    }
+  }
+
+  // Handle unexpected errors
+  return (
+    <ErrorDisplay
+      error={{ type: "SERVER_ERROR", message: "Unexpected error" }}
+      variant="page"
+    />
+  );
+}
+
+// The route component
+export default function CustomersPage(): ReactElement {
+  // ... component implementation
+}
+```
+
+---
+
+### Responsive Design (MANDATORY)
+
+**All UI MUST be fully responsive and work flawlessly on all screen sizes.** Mobile-first design is required - start with mobile layouts and enhance for larger screens.
+
+#### 1. Mobile-First Patterns
+
+**Always write mobile styles first, then add breakpoint modifiers for larger screens.**
+
+**Breakpoint System (Tailwind CSS v4):**
+
+```
+sm: 640px   - Small tablets, large phones in landscape
+md: 768px   - Tablets
+lg: 1024px  - Small laptops, tablets in landscape
+xl: 1280px  - Desktops
+2xl: 1536px - Large desktops
+```
+
+**Pattern:**
+
+```typescript
+// ✅ CORRECT - Mobile-first approach
+<div className="
+  flex flex-col gap-4
+  md:flex-row md:gap-6
+  lg:gap-8
+">
+  {/* Stack on mobile, row on tablet+ */}
+</div>
+
+// ❌ WRONG - Desktop-first (requires overrides for mobile)
+<div className="flex flex-row gap-8 max-md:flex-col max-md:gap-4">
+```
+
+**Responsive Component Example:**
+
+```typescript
+// components/layout/ResponsiveGrid.tsx
+interface ResponsiveGridProps {
+  children: ReactNode;
+  columns?: {
+    default: number;
+    sm?: number;
+    md?: number;
+    lg?: number;
+    xl?: number;
+  };
+  gap?: "sm" | "md" | "lg";
+}
+
+export function ResponsiveGrid({
+  children,
+  columns = { default: 1, sm: 2, lg: 3, xl: 4 },
+  gap = "md",
+}: ResponsiveGridProps): ReactElement {
+  const gapClasses = {
+    sm: "gap-2 sm:gap-3",
+    md: "gap-4 sm:gap-6",
+    lg: "gap-6 sm:gap-8",
+  };
+
+  return (
+    <div
+      className={clsx(
+        "grid",
+        gapClasses[gap],
+        `grid-cols-${columns.default}`,
+        columns.sm && `sm:grid-cols-${columns.sm}`,
+        columns.md && `md:grid-cols-${columns.md}`,
+        columns.lg && `lg:grid-cols-${columns.lg}`,
+        columns.xl && `xl:grid-cols-${columns.xl}`
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+```
+
+**Responsive Table Pattern:**
+
+```typescript
+// Tables become card lists on mobile
+function ResponsiveDataDisplay({ data }: { data: Item[] }): ReactElement {
+  return (
+    <>
+      {/* Card view for mobile */}
+      <div className="block md:hidden space-y-4">
+        {data.map((item) => (
+          <Card key={item.id} className="p-4">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="font-medium">{item.name}</h3>
+              <Badge>{item.status}</Badge>
+            </div>
+            <dl className="text-sm space-y-1 text-surface-600">
+              <div className="flex justify-between">
+                <dt>Date:</dt>
+                <dd>{formatDate(item.date)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt>Amount:</dt>
+                <dd>{formatCurrency(item.amount)}</dd>
+              </div>
+            </dl>
+          </Card>
+        ))}
+      </div>
+
+      {/* Table view for tablet+ */}
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.name}</TableCell>
+                <TableCell><Badge>{item.status}</Badge></TableCell>
+                <TableCell>{formatDate(item.date)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(item.amount)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </>
+  );
+}
+```
+
+#### 2. Touch-Friendly Targets
+
+**All interactive elements MUST meet minimum touch target sizes for accessibility and usability.**
+
+**Requirements:**
+
+- Minimum touch target: 44x44 CSS pixels (WCAG 2.1 AAA)
+- Minimum acceptable: 24x24 CSS pixels with adequate spacing (WCAG 2.1 AA)
+- Adequate spacing between targets to prevent mis-taps
+
+**Pattern:**
+
+```typescript
+// Touch-friendly button sizes
+interface ButtonProps {
+  size?: "sm" | "md" | "lg";
+  // ...
+}
+
+const sizeClasses = {
+  // Even "sm" meets 44px touch target on mobile
+  sm: "h-9 px-3 text-sm min-w-[44px]",
+  md: "h-11 px-4 text-base min-w-[44px]",
+  lg: "h-12 px-6 text-lg min-w-[44px]",
+};
+
+// Touch-friendly icon buttons
+function IconButton({ icon: Icon, label, ...props }: IconButtonProps): ReactElement {
+  return (
+    <button
+      {...props}
+      className={clsx(
+        // Minimum 44x44 touch target
+        "w-11 h-11 flex items-center justify-center",
+        "rounded-full hover:bg-surface-100",
+        "active:bg-surface-200", // Visual feedback on touch
+        props.className
+      )}
+      aria-label={label}
+    >
+      <Icon className="w-5 h-5" />
+    </button>
+  );
+}
+
+// Touch-friendly list items
+function TouchableListItem({
+  onClick,
+  children,
+}: {
+  onClick: () => void;
+  children: ReactNode;
+}): ReactElement {
+  return (
+    <button
+      onClick={onClick}
+      className={clsx(
+        "w-full text-left",
+        "min-h-[48px] py-3 px-4", // Exceeds minimum touch target
+        "flex items-center gap-3",
+        "hover:bg-surface-50 active:bg-surface-100",
+        "transition-colors"
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+```
+
+**Spacing for Touch:**
+
+```typescript
+// Adequate spacing between touch targets
+function ActionButtonGroup({ actions }: { actions: Action[] }): ReactElement {
+  return (
+    <div className="flex gap-2 sm:gap-3">
+      {actions.map((action) => (
+        <Button
+          key={action.id}
+          onClick={action.onClick}
+          size="md" // Ensures minimum touch target
+          className="flex-shrink-0" // Prevents squishing
+        >
+          {action.label}
+        </Button>
+      ))}
+    </div>
+  );
+}
+```
+
+#### 3. Responsive Navigation
+
+**Navigation MUST adapt appropriately to screen size.**
+
+```typescript
+// Responsive navigation pattern
+function Navigation(): ReactElement {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  return (
+    <>
+      {/* Desktop sidebar - hidden on mobile */}
+      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
+        <Sidebar />
+      </aside>
+
+      {/* Mobile header with hamburger */}
+      <header className="lg:hidden fixed top-0 inset-x-0 h-16 bg-white border-b z-40">
+        <div className="flex items-center justify-between h-full px-4">
+          <Logo />
+          <IconButton
+            icon={isMobileMenuOpen ? XIcon : MenuIcon}
+            label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          />
+        </div>
+      </header>
+
+      {/* Mobile menu overlay */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-30">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <nav className="absolute left-0 top-16 bottom-0 w-64 bg-white overflow-y-auto">
+            <MobileNavLinks onNavigate={() => setIsMobileMenuOpen(false)} />
+          </nav>
+        </div>
+      )}
+
+      {/* Main content area */}
+      <main className="lg:pl-64 pt-16 lg:pt-0">
+        <Outlet />
+      </main>
+    </>
+  );
+}
+```
+
+---
+
+### Animation & Motion (MANDATORY)
+
+**Thoughtful animation improves UX by providing feedback, guiding attention, and creating continuity.** However, animations must be purposeful - never add animation purely for decoration.
+
+> **React Router v7 Integration**: Use `viewTransition` for page transitions. See [React Router v7 Reference Guide](#react-router-v7-reference-guide) for implementation details.
+
+#### 1. Micro-Interactions
+
+Small animations that provide immediate feedback for user actions.
+
+**When to use:**
+
+- Button hover/active states
+- Form input focus
+- Toggle switches
+- Checkbox/radio changes
+- Icon state changes
+
+**Pattern:**
+
+```typescript
+// Button with micro-interactions
+export function Button({
+  children,
+  variant = "primary",
+  ...props
+}: ButtonProps): ReactElement {
+  return (
+    <button
+      {...props}
+      className={clsx(
+        "relative overflow-hidden",
+        // Smooth color transition
+        "transition-colors duration-150 ease-in-out",
+        // Scale on press for tactile feedback
+        "active:scale-[0.98] transition-transform",
+        variantClasses[variant]
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+// Toggle switch with animation
+function Toggle({
+  checked,
+  onChange,
+  label,
+}: ToggleProps): ReactElement {
+  return (
+    <label className="flex items-center gap-3 cursor-pointer">
+      <button
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={clsx(
+          "relative w-11 h-6 rounded-full transition-colors duration-200",
+          checked ? "bg-primary-500" : "bg-surface-300"
+        )}
+      >
+        <span
+          className={clsx(
+            "absolute top-1 w-4 h-4 rounded-full bg-white shadow",
+            // Smooth slide animation
+            "transition-transform duration-200 ease-in-out",
+            checked ? "translate-x-6" : "translate-x-1"
+          )}
+        />
+      </button>
+      <span className="text-sm">{label}</span>
+    </label>
+  );
+}
+
+// Animated checkbox
+function Checkbox({
+  checked,
+  onChange,
+  label,
+}: CheckboxProps): ReactElement {
+  return (
+    <label className="flex items-center gap-3 cursor-pointer group">
+      <div
+        className={clsx(
+          "w-5 h-5 rounded border-2 flex items-center justify-center",
+          "transition-all duration-150",
+          checked
+            ? "bg-primary-500 border-primary-500"
+            : "border-surface-300 group-hover:border-primary-400"
+        )}
+      >
+        <CheckIcon
+          className={clsx(
+            "w-3 h-3 text-white",
+            // Scale animation for check mark
+            "transition-transform duration-150",
+            checked ? "scale-100" : "scale-0"
+          )}
+        />
+      </div>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="sr-only"
+      />
+      <span className="text-sm">{label}</span>
+    </label>
+  );
+}
+```
+
+#### 2. Page Transitions
+
+Smooth transitions between routes create continuity and context.
+
+**React Router v7 View Transitions:**
+
+```typescript
+// Enable view transitions in navigation
+import { Link, useViewTransitionState } from "react-router";
+
+function NavLink({ to, children }: { to: string; children: ReactNode }): ReactElement {
+  const isTransitioning = useViewTransitionState(to);
+
+  return (
+    <Link
+      to={to}
+      viewTransition // Enable view transition API
+      className={clsx(
+        "px-4 py-2 rounded-lg transition-colors",
+        isTransitioning && "opacity-50"
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
+
+// CSS for view transitions (add to global styles)
+// @view-transition {
+//   navigation: auto;
+// }
+//
+// ::view-transition-old(root),
+// ::view-transition-new(root) {
+//   animation-duration: 200ms;
+// }
+```
+
+**Page Enter/Exit Animations:**
+
+```typescript
+// Animated page wrapper
+function AnimatedPage({ children }: { children: ReactNode }): ReactElement {
+  return (
+    <div
+      className={clsx(
+        "animate-in fade-in slide-in-from-bottom-4",
+        "duration-300 ease-out"
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Usage in route
+export default function CustomersPage(): ReactElement {
+  const { customers } = useLoaderData<typeof loader>();
+
+  return (
+    <AnimatedPage>
+      <PageLayout>
+        <CustomerTable customers={customers} />
+      </PageLayout>
+    </AnimatedPage>
+  );
+}
+```
+
+#### 3. Attention Guidance
+
+Use animation to guide user attention to important elements.
+
+**When to use:**
+
+- New content appearing
+- Notifications/toasts
+- Validation errors
+- Success confirmations
+- Call-to-action highlights
+
+**Pattern:**
+
+```typescript
+// Toast notification with attention animation
+function Toast({
+  message,
+  variant,
+  onDismiss,
+}: ToastProps): ReactElement {
+  return (
+    <div
+      role="alert"
+      className={clsx(
+        "flex items-center gap-3 p-4 rounded-lg shadow-lg",
+        // Entrance animation
+        "animate-in slide-in-from-right-full fade-in",
+        "duration-300 ease-out",
+        variantClasses[variant]
+      )}
+    >
+      <VariantIcon variant={variant} className="w-5 h-5 flex-shrink-0" />
+      <p className="flex-1 text-sm">{message}</p>
+      <button
+        onClick={onDismiss}
+        className="text-current opacity-70 hover:opacity-100 transition-opacity"
+      >
+        <XIcon className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
+// Highlight animation for validation errors
+function FormField({
+  name,
+  label,
+  error,
+  children,
+}: FormFieldProps): ReactElement {
+  return (
+    <div className="space-y-1">
+      <label htmlFor={name} className="text-sm font-medium">
+        {label}
+      </label>
+      {children}
+      {error && (
+        <p
+          className={clsx(
+            "text-sm text-red-600",
+            // Subtle shake animation to draw attention
+            "animate-in shake duration-300"
+          )}
+        >
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// Pulse animation for important actions
+function PrimaryActionButton({
+  children,
+  highlight,
+  ...props
+}: PrimaryActionButtonProps): ReactElement {
+  return (
+    <Button
+      {...props}
+      className={clsx(
+        highlight && "animate-pulse ring-2 ring-primary-400 ring-offset-2"
+      )}
+    >
+      {children}
+    </Button>
+  );
+}
+```
+
+#### 4. Loading Animations
+
+**Animated loading states feel faster than static ones.**
+
+```typescript
+// Animated skeleton with shimmer effect
+function ShimmerSkeleton({ className }: { className?: string }): ReactElement {
+  return (
+    <div
+      className={clsx(
+        "relative overflow-hidden bg-surface-200 dark:bg-surface-700",
+        className
+      )}
+    >
+      <div
+        className={clsx(
+          "absolute inset-0",
+          "bg-gradient-to-r from-transparent via-white/20 to-transparent",
+          "animate-shimmer"
+        )}
+      />
+    </div>
+  );
+}
+
+// Add to tailwind config:
+// animation: { shimmer: "shimmer 2s infinite" }
+// keyframes: { shimmer: { "0%": { transform: "translateX(-100%)" }, "100%": { transform: "translateX(100%)" } } }
+
+// Staggered list loading animation
+function AnimatedList({ children }: { children: ReactNode[] }): ReactElement {
+  return (
+    <ul className="space-y-2">
+      {children.map((child, index) => (
+        <li
+          key={index}
+          className="animate-in fade-in slide-in-from-left-4"
+          style={{ animationDelay: `${index * 50}ms` }}
+        >
+          {child}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+#### 5. Motion Accessibility
+
+**CRITICAL: Always respect user motion preferences.**
+
+```typescript
+// Respect prefers-reduced-motion
+// In CSS/Tailwind:
+// @media (prefers-reduced-motion: reduce) {
+//   *, ::before, ::after {
+//     animation-duration: 0.01ms !important;
+//     animation-iteration-count: 1 !important;
+//     transition-duration: 0.01ms !important;
+//   }
+// }
+
+// In components, check preference:
+function useReducedMotion(): boolean {
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mediaQuery.matches);
+
+    const handler = (e: MediaQueryListEvent): void => setReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  return reducedMotion;
+}
+
+// Usage
+function AnimatedComponent(): ReactElement {
+  const reducedMotion = useReducedMotion();
+
+  return (
+    <div
+      className={clsx(
+        reducedMotion
+          ? "opacity-100" // No animation
+          : "animate-in fade-in duration-300"
+      )}
+    >
+      Content
+    </div>
+  );
+}
+```
+
+---
+
 ### React Component Patterns
 
 **Component Structure:**
@@ -479,17 +1853,17 @@ export function Button({
 
 **Route Component Pattern:**
 
+> **IMPORTANT**: All routes MUST implement pending UI, error handling, and loading states. See [React Router v7 Reference Guide](#react-router-v7-reference-guide) for comprehensive patterns.
+
 ```typescript
 // routes/users.tsx
 import type { ReactElement } from "react";
-import { useLoaderData } from "react-router";
-import type { LoaderFunctionArgs } from "react-router";
-import { getUsers } from "~/services/users";
+import type { Route } from "./+types/users";
+import { useLoaderData, useFetcher, useNavigation } from "react-router";
+import { getUsers, deleteUser } from "~/services/users";
 
-// Loader - fetch data before rendering
-export async function loader({
-  request,
-}: LoaderFunctionArgs): Promise<{
+// 1. Loader - fetch data before rendering (REQUIRED)
+export async function loader(): Promise<{
   users: User[];
   error: string | null;
 }> {
@@ -502,15 +1876,76 @@ export async function loader({
   return { users: result.value, error: null };
 }
 
-// Component - render with typed data
-export default function UsersPage(): ReactElement {
-  const { users, error } = useLoaderData<typeof loader>();
+// 2. Action - handle mutations (REQUIRED for forms)
+export async function action({
+  request,
+}: Route.ActionArgs): Promise<{ success: boolean; error?: string }> {
+  const formData = await request.formData();
+  const userId = Number(formData.get("userId"));
 
-  if (error) {
-    return <ErrorDisplay message={error} />;
+  const result = await deleteUser(userId);
+
+  if (result.isErr()) {
+    return { success: false, error: result.error.message };
   }
 
-  return <UserTable users={users} />;
+  return { success: true };
+}
+
+// 3. Error Boundary (REQUIRED)
+export function ErrorBoundary(): ReactElement {
+  const error = useRouteError();
+  return <ErrorDisplay error={{ message: String(error) }} variant="page" />;
+}
+
+// 4. HydrateFallback - loading skeleton (REQUIRED if using clientLoader)
+export function HydrateFallback(): ReactElement {
+  return (
+    <PageLayout>
+      <TableSkeleton rows={5} columns={4} />
+    </PageLayout>
+  );
+}
+
+// 5. Component - render with typed data
+export default function UsersPage(): ReactElement {
+  const { users, error } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher<typeof action>();
+  const navigation = useNavigation();
+
+  // Global loading state for page navigation
+  const isNavigating = Boolean(navigation.location);
+
+  // Optimistic UI: filter out users being deleted
+  const visibleUsers = users.filter((user) => {
+    if (fetcher.formData?.get("userId") === String(user.id)) {
+      return false; // Hide user being deleted
+    }
+    return true;
+  });
+
+  // Handle full error state
+  if (error && users.length === 0) {
+    return <ErrorDisplay error={{ message: error }} variant="page" />;
+  }
+
+  return (
+    <PageLayout>
+      {/* Warning banner for partial errors */}
+      {error && (
+        <Banner variant="warning" className="mb-4">{error}</Banner>
+      )}
+
+      {/* Data table with optimistic updates */}
+      <UserTable
+        users={visibleUsers}
+        onDelete={(userId) => {
+          fetcher.submit({ userId }, { method: "post" });
+        }}
+        isDeleting={fetcher.state !== "idle"}
+      />
+    </PageLayout>
+  );
 }
 ```
 
@@ -521,6 +1956,9 @@ export default function UsersPage(): ReactElement {
 - Props interfaces for all components
 - Use composition over prop drilling
 - Keep components focused and small
+- **Always implement pending UI for forms** (see [Form Submission with Pending UI](#form-submission-with-pending-ui-mandatory))
+- **Always implement optimistic UI for mutations** (see [Optimistic UI Patterns](#optimistic-ui-patterns-required))
+- **Always show loading skeletons** (see [Loading States](#loading-states-mandatory))
 
 ### Linting Rules
 
@@ -649,81 +2087,973 @@ Use `--status failed` if the task cannot be completed, with a summary explaining
 
 ## React Router v7 Reference Guide
 
+> **CRITICAL**: This section is the authoritative reference for all data loading and UI patterns in this codebase. All routes MUST implement the patterns described here. The [UX Requirements](#-user-experience-ux-requirements) section references these patterns - when implementing UX features, always refer back to this guide.
+
 ### Overview
 
-React Router v7 is essentially "Remix v3" - it brings Remix's framework features into React Router. The distinction between the two has become minimal.
+React Router v7 is essentially "Remix v3" - it brings Remix's framework features into React Router. The distinction between the two has become minimal. This framework provides powerful primitives for:
+
+- **Data Loading**: Fetch data before rendering with `loader` and `clientLoader`
+- **Mutations**: Handle form submissions with `action` functions
+- **Pending UI**: Show loading states during navigation and submissions
+- **Optimistic UI**: Update the UI immediately based on pending form data
+- **Error Handling**: Route-level error boundaries for graceful error handling
 
 ---
 
-### Common Features: React Router v7 & Remix
+### Data Loading (MANDATORY)
 
-#### Core Architecture
+**Every route that displays data MUST use loaders.** Never fetch data inside components with `useEffect` - this is an anti-pattern in React Router v7.
 
-- **Data Routers**: Function-based route definitions with `loader`/`action` functions
-- **Vite Plugin**: Both use Vite-based compilation for bundling and optimization
-- **Nested Routing**: Support nested routes with independent data loading
-- **SSR Support**: Built-in server-side rendering capabilities
-- **Code Splitting**: Automatic bundle splitting and optimization
+#### Server Data Loading with `loader`
 
-#### Data Loading & Mutations
+The `loader` function runs on the server for initial page loads and on the client for navigations (via automatic fetch). Server-only code is automatically stripped from client bundles.
 
-- **Loaders**: `async loader({ params, request, context })` - fetch data before rendering
-- **Actions**: `async action({ params, request, context })` - handle form submissions and mutations
-- **Form Component**: `<Form>` from react-router automatically handles navigation and calls actions
-- **Hooks**:
-  - `useLoaderData()` - access loader data
-  - `useActionData()` - access action results
-  - `useFetcher()` - non-navigational data fetching
-  - `useNavigation()` - navigation state
+```typescript
+// routes/products.$productId.tsx
+import type { Route } from "./+types/products.$productId";
+import { getProduct } from "~/services/products";
 
-#### Error Handling
+/**
+ * Server loader - runs on server for SSR and via fetch for client navigation.
+ * This code is stripped from client bundles - safe to use server-only APIs.
+ */
+export async function loader({ params }: Route.LoaderArgs): Promise<{
+  product: Product;
+  error: string | null;
+}> {
+  const result = await getProduct(params.productId);
 
-- **Route-level Error Boundaries**: `errorElement` property on routes
-- **Error Propagation**: Errors bubble up to nearest error boundary
-- **Granular Control**: Each route can have its own error handling
+  if (result.isErr()) {
+    // Return error in data, not thrown - allows graceful handling
+    return { product: null, error: result.error.message };
+  }
 
-#### React 18+ Integration
+  return { product: result.value, error: null };
+}
 
-- **Suspense**: Built-in integration with React Suspense
-- **Await Component**: `<Await>` for streaming/deferred data
-- **useTransition**: Uses React.useTransition for state updates
+export default function ProductPage({
+  loaderData,
+}: Route.ComponentProps): ReactElement {
+  const { product, error } = loaderData;
+
+  if (error) {
+    return <ErrorDisplay error={{ message: error }} variant="page" />;
+  }
+
+  return (
+    <PageLayout>
+      <h1>{product.name}</h1>
+      <p>{product.description}</p>
+    </PageLayout>
+  );
+}
+```
+
+#### Client Data Loading with `clientLoader`
+
+Use `clientLoader` for browser-only data fetching patterns. **MUST include `HydrateFallback` to show loading state.**
+
+```typescript
+// routes/dashboard.tsx
+import type { Route } from "./+types/dashboard";
+
+/**
+ * Client loader - runs only in the browser.
+ * Use for: browser APIs, localStorage, client-side caches.
+ */
+export async function clientLoader({
+  params,
+}: Route.ClientLoaderArgs): Promise<{ analytics: AnalyticsData }> {
+  const res = await fetch(`/api/analytics`);
+  const analytics = await res.json();
+  return { analytics };
+}
+
+/**
+ * HydrateFallback - REQUIRED when using clientLoader.
+ * Rendered while clientLoader is running. MUST show meaningful loading state.
+ * See: UX Requirements > Loading States for skeleton patterns.
+ */
+export function HydrateFallback(): ReactElement {
+  return (
+    <PageLayout>
+      <div className="space-y-4">
+        <LoadingSkeleton variant="rectangular" className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <LoadingSkeleton variant="rectangular" className="h-32" />
+          <LoadingSkeleton variant="rectangular" className="h-32" />
+          <LoadingSkeleton variant="rectangular" className="h-32" />
+        </div>
+        <LoadingSkeleton variant="rectangular" className="h-64" />
+      </div>
+    </PageLayout>
+  );
+}
+
+export default function Dashboard({
+  loaderData,
+}: Route.ComponentProps): ReactElement {
+  const { analytics } = loaderData;
+  return <AnalyticsDashboard data={analytics} />;
+}
+```
+
+#### Hybrid Loading (Server + Client)
+
+Combine both loaders for optimal SSR with client-side enhancements.
+
+```typescript
+// routes/products.tsx
+import type { Route } from "./+types/products";
+
+// Server loader for SSR
+export async function loader(): Promise<{ products: Product[] }> {
+  const result = await getProducts();
+  return { products: result.isOk() ? result.value : [] };
+}
+
+// Client loader augments server data
+export async function clientLoader({
+  serverLoader,
+}: Route.ClientLoaderArgs): Promise<{
+  products: Product[];
+  userFavorites: number[];
+}> {
+  const serverData = await serverLoader();
+  // Add client-only data (e.g., from localStorage)
+  const userFavorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+  return { ...serverData, userFavorites };
+}
+
+// Force client loader during hydration (optional)
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback(): ReactElement {
+  return <CardSkeleton count={6} />;
+}
+```
+
+#### Loader Return Type Safety
+
+**All loaders MUST have explicit return types.** The `loaderData` prop type is automatically inferred.
+
+```typescript
+// ✅ CORRECT - Explicit return type
+export async function loader({ params }: Route.LoaderArgs): Promise<{
+  customer: Customer | null;
+  orders: Order[];
+  error: string | null;
+}> {
+  // Implementation
+}
+
+// ❌ WRONG - Implicit return type
+export async function loader({ params }: Route.LoaderArgs) {
+  // No return type - violates type safety requirements
+}
+```
 
 ---
 
-### Differences: React Router v7 vs Remix
+### Pending UI Patterns (MANDATORY)
 
-#### Package & Branding
+**Every navigation and form submission MUST show appropriate pending UI.** Users should never wonder if their action was registered or if the page is loading.
 
-- **React Router v7**: Core package is `react-router` (unified)
-- **Remix**: Used separate packages (`@remix-run/node`, `@remix-run/cloudflare`, etc.)
-- **Migration Path**: Remix v2 → React Router v7 (just change imports)
+#### Global Navigation Pending State
 
-Remix was framework-only.
+Show a global loading indicator when navigating between routes.
 
-#### Configuration
+```typescript
+// root.tsx or layout component
+import { useNavigation, Outlet } from "react-router";
 
-- **React Router v7**: `react-router.config.ts` for framework config
-- **Remix**: Used `remix.config.js`
+export default function RootLayout(): ReactElement {
+  const navigation = useNavigation();
 
-#### File-Based Routing
+  // Check if any navigation is in progress
+  const isNavigating = Boolean(navigation.location);
 
-- **React Router v7**: Optional - use `routes.ts` for programmatic routes
-- **Remix**: File-based routing was the primary/default approach
+  return (
+    <html>
+      <body>
+        {/* Global loading bar at top of page */}
+        {isNavigating && (
+          <div className="fixed top-0 left-0 right-0 z-50">
+            <div className="h-1 bg-primary-500 animate-pulse" />
+          </div>
+        )}
 
-#### SSR Setup
+        {/* Or a spinner overlay */}
+        {isNavigating && (
+          <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-40">
+            <Spinner size="lg" />
+          </div>
+        )}
 
-- **React Router v7**: Built-in SSR out of box
-- **Remix/v7**: Built-in SSR and deployment pipelines
+        <Outlet />
+      </body>
+    </html>
+  );
+}
+```
+
+#### `useNavigation` Hook States
+
+The `useNavigation` hook provides detailed information about navigation state:
+
+```typescript
+import { useNavigation } from "react-router";
+
+function NavigationAwareComponent(): ReactElement {
+  const navigation = useNavigation();
+
+  // Navigation states:
+  // - navigation.state === "idle"       → No navigation in progress
+  // - navigation.state === "loading"    → Route loaders are running
+  // - navigation.state === "submitting" → Form action is running
+
+  // navigation.location exists when navigation is pending
+  const isNavigating = Boolean(navigation.location);
+
+  // Check for specific form submission
+  const isSubmittingToNewProject = navigation.formAction === "/projects/new";
+
+  // Get form data being submitted
+  const submittedData = navigation.formData;
+
+  return (
+    <div>
+      {navigation.state === "loading" && <p>Loading page...</p>}
+      {navigation.state === "submitting" && <p>Submitting form...</p>}
+    </div>
+  );
+}
+```
+
+#### Local Pending States with `NavLink`
+
+Show pending state on individual navigation links:
+
+```typescript
+import { NavLink } from "react-router";
+
+function Sidebar(): ReactElement {
+  return (
+    <nav className="space-y-1">
+      <NavLink
+        to="/dashboard"
+        viewTransition // Enable view transitions
+        className={({ isActive, isPending }) =>
+          clsx(
+            "flex items-center gap-3 px-4 py-2 rounded-lg transition-colors",
+            isActive && "bg-primary-100 text-primary-700",
+            isPending && "opacity-50 pointer-events-none"
+          )
+        }
+      >
+        {({ isPending }) => (
+          <>
+            <DashboardIcon className="w-5 h-5" />
+            <span>Dashboard</span>
+            {isPending && <Spinner size="sm" className="ml-auto" />}
+          </>
+        )}
+      </NavLink>
+
+      <NavLink
+        to="/customers"
+        viewTransition
+        style={({ isPending }) => ({
+          opacity: isPending ? 0.5 : 1,
+        })}
+      >
+        {({ isPending }) => (
+          <>
+            Customers
+            {isPending && <Spinner size="sm" />}
+          </>
+        )}
+      </NavLink>
+    </nav>
+  );
+}
+```
+
+---
+
+### Form Submission with Pending UI (MANDATORY)
+
+**Every form submission MUST show loading state.** Use `useFetcher` for in-page forms (no navigation) or `Form` with `useNavigation` for navigating forms.
+
+#### Using `useFetcher` (Recommended for In-Page Forms)
+
+`useFetcher` handles form submissions without causing page navigation. Each fetcher has its own independent state.
+
+```typescript
+import { useFetcher } from "react-router";
+
+/**
+ * Form that submits without navigating away.
+ * Uses fetcher for independent loading state.
+ */
+function CreateCustomerForm(): ReactElement {
+  const fetcher = useFetcher();
+
+  // Fetcher states:
+  // - fetcher.state === "idle"       → Not submitting
+  // - fetcher.state === "submitting" → POST/PUT/PATCH/DELETE in progress
+  // - fetcher.state === "loading"    → Revalidating after submission
+
+  const isSubmitting = fetcher.state !== "idle";
+  const isSuccess = fetcher.data?.success;
+  const error = fetcher.data?.error;
+
+  return (
+    <fetcher.Form method="post" action="/api/customers" className="space-y-4">
+      <Input
+        name="company_name"
+        label="Company Name"
+        required
+        disabled={isSubmitting}
+      />
+
+      <Input
+        name="email"
+        label="Email"
+        type="email"
+        disabled={isSubmitting}
+      />
+
+      {/* Show error from action response */}
+      {error && (
+        <ErrorDisplay error={{ message: error }} variant="inline" />
+      )}
+
+      {/* Show success message */}
+      {isSuccess && (
+        <div className="text-green-600">Customer created successfully!</div>
+      )}
+
+      {/* Button with loading state - REQUIRED */}
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? (
+          <>
+            <Spinner size="sm" className="mr-2" />
+            Creating...
+          </>
+        ) : (
+          "Create Customer"
+        )}
+      </Button>
+    </fetcher.Form>
+  );
+}
+```
+
+#### Using `Form` with `useNavigation` (For Navigating Forms)
+
+Use when the form submission should navigate to a new page:
+
+```typescript
+import { Form, useNavigation } from "react-router";
+
+function NewProjectForm(): ReactElement {
+  const navigation = useNavigation();
+
+  // Check if THIS specific form is being submitted
+  const isSubmitting = navigation.formAction === "/projects/new";
+
+  return (
+    <Form method="post" action="/projects/new" className="space-y-4">
+      <Input name="title" label="Project Title" required disabled={isSubmitting} />
+      <Textarea name="description" label="Description" disabled={isSubmitting} />
+
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? (
+          <>
+            <Spinner size="sm" className="mr-2" />
+            Creating Project...
+          </>
+        ) : (
+          "Create Project"
+        )}
+      </Button>
+    </Form>
+  );
+}
+```
+
+#### Multiple Forms on Same Page
+
+Use `useFetcher` for independent form states:
+
+```typescript
+function TaskList({ tasks }: { tasks: Task[] }): ReactElement {
+  return (
+    <ul className="space-y-2">
+      {tasks.map((task) => (
+        <TaskItem key={task.id} task={task} />
+      ))}
+    </ul>
+  );
+}
+
+function TaskItem({ task }: { task: Task }): ReactElement {
+  // Each task has its own fetcher - independent states
+  const deleteFetcher = useFetcher();
+  const toggleFetcher = useFetcher();
+
+  const isDeleting = deleteFetcher.state !== "idle";
+  const isToggling = toggleFetcher.state !== "idle";
+
+  return (
+    <li className={clsx("flex items-center gap-3 p-3", isDeleting && "opacity-50")}>
+      {/* Toggle completion */}
+      <toggleFetcher.Form method="post" action={`/tasks/${task.id}/toggle`}>
+        <button
+          type="submit"
+          disabled={isToggling}
+          className="w-6 h-6 rounded border flex items-center justify-center"
+        >
+          {isToggling ? <Spinner size="sm" /> : task.completed && <CheckIcon />}
+        </button>
+      </toggleFetcher.Form>
+
+      <span className={clsx(task.completed && "line-through")}>{task.title}</span>
+
+      {/* Delete button */}
+      <deleteFetcher.Form method="post" action={`/tasks/${task.id}/delete`}>
+        <button
+          type="submit"
+          disabled={isDeleting}
+          className="text-red-500 hover:text-red-700"
+        >
+          {isDeleting ? <Spinner size="sm" /> : <TrashIcon />}
+        </button>
+      </deleteFetcher.Form>
+    </li>
+  );
+}
+```
+
+---
+
+### Optimistic UI Patterns (REQUIRED)
+
+**All mutations MUST implement optimistic UI where feasible.** Optimistic UI makes the app feel instant by predicting the outcome based on form data.
+
+#### Core Concept
+
+When a form is submitted, `fetcher.formData` contains the pending form values. Use these to immediately update the UI while the request processes.
+
+```typescript
+import { useFetcher } from "react-router";
+
+function TaskItem({ task }: { task: Task }): ReactElement {
+  const fetcher = useFetcher();
+
+  // Optimistically determine completion state
+  let isComplete = task.status === "complete";
+
+  // If form is being submitted, use the pending value instead
+  if (fetcher.formData) {
+    isComplete = fetcher.formData.get("status") === "complete";
+  }
+
+  return (
+    <div className={clsx(
+      "flex items-center gap-3 p-3 rounded-lg transition-all",
+      isComplete && "bg-green-50"
+    )}>
+      <fetcher.Form method="post" action={`/tasks/${task.id}/toggle`}>
+        <input
+          type="hidden"
+          name="status"
+          value={isComplete ? "incomplete" : "complete"}
+        />
+        <button
+          type="submit"
+          className={clsx(
+            "w-6 h-6 rounded-full border-2 flex items-center justify-center",
+            "transition-colors",
+            isComplete
+              ? "bg-green-500 border-green-500 text-white"
+              : "border-surface-300 hover:border-green-400"
+          )}
+        >
+          {isComplete && <CheckIcon className="w-4 h-4" />}
+        </button>
+      </fetcher.Form>
+
+      <span className={clsx(
+        "transition-all",
+        isComplete && "line-through text-surface-500"
+      )}>
+        {task.title}
+      </span>
+    </div>
+  );
+}
+```
+
+#### Optimistic List Updates
+
+```typescript
+function ContactList({ contacts }: { contacts: Contact[] }): ReactElement {
+  const fetcher = useFetcher();
+
+  // Optimistically filter out deleted contacts
+  const visibleContacts = contacts.filter((contact) => {
+    // If this contact is being deleted, hide it immediately
+    if (
+      fetcher.formData &&
+      fetcher.formData.get("intent") === "delete" &&
+      fetcher.formData.get("contactId") === String(contact.id)
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  // Optimistically add new contacts
+  let pendingContact: Partial<Contact> | null = null;
+  if (
+    fetcher.formData &&
+    fetcher.formData.get("intent") === "create"
+  ) {
+    pendingContact = {
+      id: -1, // Temporary ID
+      name: fetcher.formData.get("name") as string,
+      email: fetcher.formData.get("email") as string,
+    };
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Add contact form */}
+      <fetcher.Form method="post" className="flex gap-2">
+        <input type="hidden" name="intent" value="create" />
+        <Input name="name" placeholder="Name" required />
+        <Input name="email" placeholder="Email" type="email" required />
+        <Button type="submit" disabled={fetcher.state !== "idle"}>
+          {fetcher.state !== "idle" ? <Spinner size="sm" /> : "Add"}
+        </Button>
+      </fetcher.Form>
+
+      {/* Contact list with optimistic updates */}
+      <ul className="space-y-2">
+        {/* Show pending contact at top with loading indicator */}
+        {pendingContact && (
+          <li className="flex items-center gap-3 p-3 bg-surface-50 animate-pulse">
+            <span>{pendingContact.name}</span>
+            <span className="text-surface-500">{pendingContact.email}</span>
+            <Spinner size="sm" className="ml-auto" />
+          </li>
+        )}
+
+        {visibleContacts.map((contact) => (
+          <li key={contact.id} className="flex items-center gap-3 p-3">
+            <span>{contact.name}</span>
+            <span className="text-surface-500">{contact.email}</span>
+
+            <fetcher.Form method="post" className="ml-auto">
+              <input type="hidden" name="intent" value="delete" />
+              <input type="hidden" name="contactId" value={contact.id} />
+              <button
+                type="submit"
+                className="text-red-500 hover:text-red-700"
+              >
+                Delete
+              </button>
+            </fetcher.Form>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+#### Optimistic Form Field Updates
+
+```typescript
+function EditableTitle({ item }: { item: Item }): ReactElement {
+  const fetcher = useFetcher();
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Optimistically show the new title
+  const displayTitle = fetcher.formData
+    ? (fetcher.formData.get("title") as string)
+    : item.title;
+
+  const isSaving = fetcher.state !== "idle";
+
+  if (isEditing) {
+    return (
+      <fetcher.Form
+        method="post"
+        action={`/items/${item.id}/update`}
+        onSubmit={() => setIsEditing(false)}
+        className="flex gap-2"
+      >
+        <Input
+          name="title"
+          defaultValue={item.title}
+          autoFocus
+          className="flex-1"
+        />
+        <Button type="submit" size="sm" disabled={isSaving}>
+          {isSaving ? <Spinner size="sm" /> : "Save"}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsEditing(false)}
+        >
+          Cancel
+        </Button>
+      </fetcher.Form>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 group">
+      <h2 className={clsx("text-xl font-semibold", isSaving && "opacity-50")}>
+        {displayTitle}
+      </h2>
+      {isSaving && <Spinner size="sm" />}
+      <button
+        onClick={() => setIsEditing(true)}
+        className="opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <PencilIcon className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
+### Actions (Form Handlers)
+
+**Every form MUST have a corresponding action handler.** Actions process form submissions and return data to the component.
+
+```typescript
+// routes/customers.new.tsx
+import type { Route } from "./+types/customers.new";
+import { redirect } from "react-router";
+import { createCustomer } from "~/services/customers";
+import { CustomerSchema } from "~/schemas/customer";
+
+/**
+ * Action handler for customer creation form.
+ * Validates input, calls service, and returns result.
+ */
+export async function action({
+  request,
+}: Route.ActionArgs): Promise<
+  { success: true; customerId: number } | { success: false; error: string }
+> {
+  const formData = await request.formData();
+
+  // Convert FormData to object for validation
+  const data = Object.fromEntries(formData);
+
+  // Validate with Zod schema
+  const validation = CustomerSchema.safeParse(data);
+  if (!validation.success) {
+    return {
+      success: false,
+      error: validation.error.errors[0]?.message || "Validation failed",
+    };
+  }
+
+  // Call service layer
+  const result = await createCustomer(validation.data);
+
+  if (result.isErr()) {
+    return { success: false, error: result.error.message };
+  }
+
+  // Option 1: Return success data (for fetcher forms)
+  return { success: true, customerId: result.value.id };
+
+  // Option 2: Redirect (for navigating forms)
+  // return redirect(`/customers/${result.value.id}`);
+}
+
+export default function NewCustomerPage(): ReactElement {
+  const fetcher = useFetcher<typeof action>();
+
+  const isSubmitting = fetcher.state !== "idle";
+  const error = fetcher.data?.success === false ? fetcher.data.error : null;
+
+  // Redirect on success
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      // Show success toast, redirect, etc.
+    }
+  }, [fetcher.data]);
+
+  return (
+    <PageLayout>
+      <fetcher.Form method="post" className="space-y-4 max-w-md">
+        <Input name="company_name" label="Company Name" required />
+        <Input name="email" label="Email" type="email" />
+        <Input name="phone" label="Phone" type="tel" />
+
+        {error && <ErrorDisplay error={{ message: error }} variant="inline" />}
+
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Spinner size="sm" className="mr-2" />
+              Creating...
+            </>
+          ) : (
+            "Create Customer"
+          )}
+        </Button>
+      </fetcher.Form>
+    </PageLayout>
+  );
+}
+```
+
+---
+
+### Error Handling
+
+Use React Router's error boundary system for route-level error handling.
+
+```typescript
+// routes/customers.$customerId.tsx
+import { useRouteError, isRouteErrorResponse } from "react-router";
+
+/**
+ * Error boundary for this route.
+ * Catches errors from loader, action, and component rendering.
+ */
+export function ErrorBoundary(): ReactElement {
+  const error = useRouteError();
+
+  // Handle HTTP error responses (4xx, 5xx)
+  if (isRouteErrorResponse(error)) {
+    return (
+      <PageLayout>
+        <ErrorDisplay
+          error={{
+            type: error.status === 404 ? "NOT_FOUND" : "SERVER_ERROR",
+            message: error.statusText || "An error occurred",
+          }}
+          variant="page"
+        />
+      </PageLayout>
+    );
+  }
+
+  // Handle thrown errors
+  const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+  return (
+    <PageLayout>
+      <ErrorDisplay
+        error={{ type: "SERVER_ERROR", message: errorMessage }}
+        variant="page"
+      />
+    </PageLayout>
+  );
+}
+
+export default function CustomerDetailPage(): ReactElement {
+  // Component implementation
+}
+```
+
+---
+
+### Essential Hooks Reference
+
+```typescript
+// Data access
+useLoaderData<typeof loader>(); // Access route loader data (typed)
+useActionData<typeof action>(); // Access route action results (typed)
+useFetcher<typeof action>(); // Independent fetch/submit (typed)
+
+// Navigation state
+useNavigation(); // Global navigation state
+useNavigation().state; // "idle" | "loading" | "submitting"
+useNavigation().location; // Pending location (if navigating)
+useNavigation().formData; // Pending form data (if submitting)
+useNavigation().formAction; // Action URL being submitted to
+
+// Fetcher state (per fetcher)
+fetcher.state; // "idle" | "loading" | "submitting"
+fetcher.data; // Response from last fetch/submit
+fetcher.formData; // Pending form data for optimistic UI
+fetcher.Form; // Form component bound to this fetcher
+
+// URL and routing
+useParams(); // URL parameters
+useSearchParams(); // Query string params
+useLocation(); // Current location object
+useNavigate(); // Programmatic navigation
+useMatches(); // All matched routes
+
+// Forms
+useSubmit(); // Programmatic form submission
+Form; // Declarative form (navigates)
+fetcher.Form; // Declarative form (no navigation)
+
+// Errors
+useRouteError(); // Error in error boundary
+isRouteErrorResponse(error); // Check if HTTP error response
+
+// View transitions
+useViewTransitionState(to); // Check if transitioning to a route
+```
+
+### Components Reference
+
+```typescript
+<Link to="/path">              // Navigation link
+<Link to="/path" viewTransition>  // With view transition
+
+<NavLink to="/path">           // Link with active/pending state
+<NavLink to="/path">
+  {({ isActive, isPending }) => <span>...</span>}
+</NavLink>
+
+<Form method="post">           // Declarative form (calls action, navigates)
+<Form method="post" action="/custom">  // Custom action URL
+
+<fetcher.Form method="post">   // Fetcher form (no navigation)
+
+<Outlet />                     // Render child routes
+<Outlet context={value} />     // With context for children
+
+<ScrollRestoration />          // Restore scroll on navigation
+
+<Await resolve={promise}>      // Render when promise resolves
+  {(data) => <Component data={data} />}
+</Await>
+```
+
+---
+
+### Common Patterns Reference
+
+#### Complete Route Module Pattern
+
+```typescript
+// routes/customers.tsx
+import type { Route } from "./+types/customers";
+import type { ReactElement } from "react";
+import { useLoaderData, useFetcher } from "react-router";
+import { getCustomers, deleteCustomer } from "~/services/customers";
+
+// 1. Loader - fetch data
+export async function loader(): Promise<{
+  customers: Customer[];
+  error: string | null;
+}> {
+  const result = await getCustomers();
+
+  if (result.isErr()) {
+    return { customers: [], error: result.error.message };
+  }
+
+  return { customers: result.value, error: null };
+}
+
+// 2. Action - handle mutations
+export async function action({
+  request,
+}: Route.ActionArgs): Promise<{ success: boolean; error?: string }> {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "delete") {
+    const id = Number(formData.get("customerId"));
+    const result = await deleteCustomer(id);
+
+    if (result.isErr()) {
+      return { success: false, error: result.error.message };
+    }
+
+    return { success: true };
+  }
+
+  return { success: false, error: "Unknown action" };
+}
+
+// 3. Error boundary
+export function ErrorBoundary(): ReactElement {
+  const error = useRouteError();
+  return <ErrorDisplay error={{ message: String(error) }} variant="page" />;
+}
+
+// 4. Hydrate fallback (if using clientLoader)
+export function HydrateFallback(): ReactElement {
+  return <TableSkeleton rows={10} columns={4} />;
+}
+
+// 5. Component
+export default function CustomersPage(): ReactElement {
+  const { customers, error } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher<typeof action>();
+
+  // Optimistic delete
+  const visibleCustomers = customers.filter((c) => {
+    if (
+      fetcher.formData?.get("intent") === "delete" &&
+      fetcher.formData.get("customerId") === String(c.id)
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  if (error && customers.length === 0) {
+    return <ErrorDisplay error={{ message: error }} variant="page" />;
+  }
+
+  return (
+    <PageLayout>
+      <PageHeader title="Customers" />
+
+      {error && (
+        <Banner variant="warning" className="mb-4">
+          {error}
+        </Banner>
+      )}
+
+      <CustomerTable
+        customers={visibleCustomers}
+        onDelete={(id) => {
+          fetcher.submit(
+            { intent: "delete", customerId: id },
+            { method: "post" }
+          );
+        }}
+      />
+    </PageLayout>
+  );
+}
+```
 
 ---
 
 ### Changes from React Router v6 to v7
 
-#### Key Changes from v6
+#### Key Changes
 
 ##### 1. `json()` and `defer()` Deprecated
 
-```javascript
+```typescript
 // v6
 export async function loader() {
   return json({ data });
@@ -734,117 +3064,40 @@ export async function loader() {
   return { data };
 }
 
-// If need JSON serialization, use native API
+// If need Response, use native API
 export async function loader() {
   return Response.json({ data });
 }
 ```
 
-##### 2. Future Flags (now default in v7)
+##### 2. Type Generation System
 
-These were opt-in flags in v6, now default behavior:
-
-- **v7_relativeSplatPath**: Changes relative path matching for multi-segment splat routes (`dashboard/*`)
-- **v7_startTransition**: Uses `React.useTransition` instead of `React.useState`
-- **v7_fetcherPersist**: Fetcher lifecycle based on idle state, not component unmount
-- **v7_normalizeFormMethod**: Normalizes form methods
-- **v7_partialHydration**: Partial hydration support
-- **v7_skipActionErrorRevalidation**: Skip revalidation on action errors
-
-##### 3. Data Strategy APIs Stabilized
-
-```javascript
-// Unstable → Stable
-unstable_dataStrategy → dataStrategy
-unstable_patchRoutesOnNavigation → patchRoutesOnNavigation
-unstable_flushSync → flushSync
-unstable_viewTransition → viewTransition
+```bash
+# Generate types for routes
+npx react-router typegen
 ```
 
-##### 4. React.lazy Usage
+Provides type-safe `params`, `loaderData`, `actionData` via generated `Route` types.
 
-- Must move `React.lazy()` to module scope (not inside components)
-- Incompatible with `React.useTransition` inside components
-
-##### TypeGen System
-
-- Run `npx react-router typegen` to generate types
-- Provides type-safe `params`, `loaderData`, `actionData`
-
-##### Route Module API
+##### 3. Route Module API
 
 ```typescript
-// routes/product.tsx
-import { Route } from "./+types/product";
+// Access typed route args
+import type { Route } from "./+types/product";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  return { product: await getProduct(params.id) };
+  // params.productId is typed
 }
 
 export default function Product({ loaderData }: Route.ComponentProps) {
-  return <div>{loaderData.product.name}</div>;
+  // loaderData is typed based on loader return
 }
 ```
 
-#### Key Architectural Shift
+##### 4. Future Flags (Now Default)
 
-**v6**: Component-based routing, manual data fetching in components
-
-```javascript
-function Dashboard() {
-  const [data, setData] = useState(null);
-  useEffect(() => {
-    fetchData().then(setData);
-  }, []);
-  return <div>{data && data.name}</div>;
-}
-```
-
-**v7**: Declarative data loading at route level
-
-```javascript
-export async function loader() {
-  return { data: await fetchData() };
-}
-
-function Dashboard() {
-  const { data } = useLoaderData();
-  return <div>{data.name}</div>;
-}
-```
-
-#### Error Handling Improvements
-
-- Route-level `errorElement` for granular error boundaries
-- Better error propagation and debugging
-- Integration with React Error Boundaries
-
----
-
-#### Essential Hooks
-
-```javascript
-useLoaderData(); // Access loader data
-useActionData(); // Access action results
-useNavigation(); // Navigation state (idle, loading, submitting)
-useSubmit(); // Programmatic form submission
-useFetcher(); // Non-navigational data operations
-useParams(); // URL parameters
-useNavigate(); // Programmatic navigation
-useLocation(); // Current location
-useMatches(); // Matched routes
-useRouteError(); // Error in error boundary
-```
-
-#### Components
-
-```javascript
-<Link to="/path">          // Navigation link
-<NavLink to="/path">       // Link with active state
-<Form method="post">       // Declarative form (calls action)
-<Outlet />                 // Render child routes
-<ScrollRestoration />      // Restore scroll position
-<Await resolve={promise}>  // Streaming/deferred data
-```
+- `v7_startTransition` - Uses React.useTransition
+- `v7_fetcherPersist` - Fetcher persists until idle
+- `v7_skipActionErrorRevalidation` - Skip revalidation on errors
 
 ---

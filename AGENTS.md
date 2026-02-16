@@ -36,7 +36,7 @@ This codebase follows strict architectural patterns and coding standards:
 
 - All business logic must have tests
 - All UI components must have tests
-- Run checks only at the very end of the task (right before marking it complete). Run the narrowest relevant check based on what changed (e.g. `npm run typecheck` when only TypeScript/types are modified, `npm test` when tests are updated). No need to run checks for non-code-only changes (e.g. updating Markdown/docs, copy, comments, or other non-executable content).
+- Run the narrowest relevant check based on what changed (e.g. `npm run typecheck` when only TypeScript/types are modified, `npm test` when tests are updated) when changes are made. No need to run checks for non-code-only changes (e.g. updating Markdown/docs, copy, comments, or other non-executable content).
 - Run `npm run check` at the very end only when multiple areas are updated and full validation is needed
 - Test coverage is mandatory, not optional
 

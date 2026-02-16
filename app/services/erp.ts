@@ -69,7 +69,7 @@ function createDatabaseError(message: string, originalError?: unknown): Database
  */
 function queryOne(db: Database, sql: string, params?: SqlValue[]): Record<string, unknown> | null {
   const stmt = db.prepare(sql);
-  if (params) {
+  if (params && params.length > 0) {
     stmt.bind(params);
   }
 
@@ -93,7 +93,7 @@ function queryOne(db: Database, sql: string, params?: SqlValue[]): Record<string
  */
 function queryAll(db: Database, sql: string, params?: SqlValue[]): Record<string, unknown>[] {
   const stmt = db.prepare(sql);
-  if (params) {
+  if (params && params.length > 0) {
     stmt.bind(params);
   }
 
@@ -116,7 +116,7 @@ function queryAll(db: Database, sql: string, params?: SqlValue[]): Record<string
  */
 function execute(db: Database, sql: string, params?: SqlValue[]): number {
   const stmt = db.prepare(sql);
-  if (params) {
+  if (params && params.length > 0) {
     stmt.bind(params);
   }
 
@@ -241,15 +241,17 @@ export async function createCustomer(data: CreateCustomer): Promise<Result<Custo
     execute(db, sql, params);
     await saveDatabase();
 
-    // Get the inserted record
-    const insertedId = queryOne(db, "SELECT last_insert_rowid() as id", [])?.id as number;
-    const customer = queryOne(db, "SELECT * FROM customers WHERE id = ?", [insertedId]);
+    // Query the just-inserted customer by company_name (most recently created)
+    const customer = queryOne(
+      db,
+      "SELECT * FROM customers WHERE company_name = ? ORDER BY id DESC LIMIT 1",
+      [data.company_name]
+    );
 
     if (!customer) {
       return err(createDatabaseError("Failed to retrieve created customer"));
     }
 
-    // Validate returned data with Zod schema
     const validation = CustomerSchema.safeParse(customer);
     if (!validation.success) {
       return err(createDatabaseError(`Data validation failed: ${validation.error.message}`));

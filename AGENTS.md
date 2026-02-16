@@ -413,8 +413,10 @@ npm test                     # Ensure tests pass
 
 **Database Operations Pattern:**
 
+> ⚠️ **sql.js Caveat**: `last_insert_rowid()` does NOT work reliably with sql.js prepared statements. After executing an INSERT via prepared statement, `last_insert_rowid()` returns `0`. Instead, query by a unique field (like `company_name`) to retrieve the inserted record.
+
 ```typescript
-// ✅ CORRECT - All database operations in db.ts
+// ✅ CORRECT - Query by unique field after INSERT
 export async function insertUser(
   data: Omit<User, "id">,
 ): Promise<Result<User, DatabaseError>> {
@@ -429,8 +431,10 @@ export async function insertUser(
     // CRITICAL: Save after mutation
     await saveDatabase();
 
+    // Query by unique field - last_insert_rowid() doesn't work with sql.js prepared statements
     const result = db.exec(
-      `SELECT * FROM users WHERE id = last_insert_rowid()`,
+      `SELECT * FROM users WHERE email = ? ORDER BY id DESC LIMIT 1`,
+      [data.email]
     );
 
     return ok(mapRowToUser(result[0].values[0]));
@@ -442,6 +446,9 @@ export async function insertUser(
     });
   }
 }
+
+// ❌ WRONG - last_insert_rowid() returns 0 with sql.js prepared statements
+const result = db.exec(`SELECT * FROM users WHERE id = last_insert_rowid()`);
 
 // ❌ WRONG - Never import sql.js outside db.ts
 import initSqlJs from "sql.js"; // NEVER DO THIS

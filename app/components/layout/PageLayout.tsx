@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
-import { TopBar } from "./TopBar";
+import { Link } from "react-router";
+import { Moon, Sun } from "lucide-react";
 
 interface Breadcrumb {
   label: string;
@@ -13,11 +14,73 @@ interface PageLayoutProps {
 
 export function PageLayout({
   children,
-  breadcrumbs,
+  breadcrumbs = [],
 }: PageLayoutProps): ReactElement {
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-950 transition-colors">
-      <TopBar breadcrumbs={breadcrumbs} />
+      {/* Header - Integrated directly into layout */}
+      <header className="fixed top-0 left-0 right-0 h-16 z-30 transition-colors bg-surface-50/90 dark:bg-surface-950/90 backdrop-blur-sm">
+        <div className="h-full flex items-center justify-between px-6 max-w-7xl mx-auto">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 bg-black dark:bg-white rounded-md flex items-center justify-center transition-transform group-hover:scale-105">
+                <span className="text-white dark:text-black font-bold text-sm">
+                  C
+                </span>
+              </div>
+              <span className="font-bold text-lg tracking-tight text-surface-900 dark:text-surface-100">
+                Cohesiv
+              </span>
+            </Link>
+
+            {/* Divider */}
+            {breadcrumbs.length > 0 && (
+              <div className="h-6 w-px bg-surface-200 dark:bg-surface-800 mx-2" />
+            )}
+
+            {/* Breadcrumbs */}
+            <nav className="hidden md:flex items-center gap-2 text-sm">
+              {breadcrumbs.map((crumb, index) => (
+                <div
+                  key={crumb.href || crumb.label}
+                  className="flex items-center gap-2"
+                >
+                  {index > 0 && (
+                    <span className="text-surface-300 dark:text-surface-600">
+                      /
+                    </span>
+                  )}
+                  {crumb.href ? (
+                    <Link
+                      to={crumb.href}
+                      className="text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100 transition-colors"
+                    >
+                      {crumb.label}
+                    </Link>
+                  ) : (
+                    <span className="font-medium text-surface-900 dark:text-surface-100">
+                      {crumb.label}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </nav>
+          </div>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => document.documentElement.classList.toggle("dark")}
+              className="p-2 text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-md transition-colors"
+              aria-label="Toggle theme"
+            >
+              <Sun className="w-5 h-5 hidden dark:block" />
+              <Moon className="w-5 h-5 block dark:hidden" />
+            </button>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content Area */}
       <main className="relative pt-24 pb-12 min-h-screen max-w-7xl mx-auto px-6">

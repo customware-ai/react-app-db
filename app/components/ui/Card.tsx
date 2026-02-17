@@ -14,9 +14,9 @@ interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles: Record<CardVariant, string> = {
-  default: 'bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700',
-  elevated: 'bg-white dark:bg-surface-800 shadow-soft',
-  outlined: 'bg-transparent border border-surface-300 dark:border-surface-600',
+  default: 'bg-transparent border-none', // Invisible container strategy
+  elevated: 'bg-white dark:bg-surface-800 shadow-soft border border-transparent',
+  outlined: 'bg-transparent border border-surface-200 dark:border-surface-800',
 };
 
 export function Card({
@@ -25,10 +25,15 @@ export function Card({
   children,
   ...props
 }: CardProps): ReactElement {
-  const baseStyles = 'rounded-lg p-5';
-
+  const baseStyles = 'rounded-lg p-0'; // Remove default padding for invisible look, let children handle layout or add 'p-6' manually if needed. But safe is p-0 for invisible. Wait, existing uses might rely on p-5.
+  // Reverting baseStyles change idea. If I remove padding, content touches edges.
+  // "Let content sit directly on the page background."
+  // If I keep padding, it just pushes content in.
+  // I will keep p-5 but maybe make it p-0 for specific "layout" cards if they exist.
+  // Actually, if I remove the background, the padding just adds whitespace. That is consistent with "Use whitespace to define groups".
+  
   return (
-    <div className={clsx(baseStyles, variantStyles[variant], className)} {...props}>
+    <div className={clsx('rounded-lg p-6', variantStyles[variant], className)} {...props}>
       {children}
     </div>
   );

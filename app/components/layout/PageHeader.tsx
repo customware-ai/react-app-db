@@ -29,11 +29,11 @@ export function PageHeader({
       {/* Title and Actions */}
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h1 className="text-3xl font-bold text-surface-900 dark:text-surface-100 tracking-tight mb-1">
+          <h1 className="text-4xl font-extrabold text-surface-900 dark:text-surface-50 tracking-tighter mb-2">
             {title}
           </h1>
           {description && (
-            <p className="text-surface-600 dark:text-surface-400 text-base max-w-2xl">
+            <p className="text-surface-500 dark:text-surface-400 text-lg max-w-2xl font-medium">
               {description}
             </p>
           )}

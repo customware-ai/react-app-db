@@ -33,7 +33,7 @@ export function Input({
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5"
+          className="block text-xs uppercase tracking-widest font-semibold text-surface-500 dark:text-surface-400 mb-2"
         >
           {label}
         </label>
@@ -71,7 +71,7 @@ export function Textarea({
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5"
+          className="block text-xs uppercase tracking-widest font-semibold text-surface-500 dark:text-surface-400 mb-2"
         >
           {label}
         </label>

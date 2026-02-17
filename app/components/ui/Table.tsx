@@ -82,24 +82,24 @@ export function Table<T extends Record<string, unknown>>({
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden shadow-sm">
+      <div className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-surface-50 dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700">
+            <thead className="border-b border-surface-200 dark:border-surface-800">
               <tr>
                 {columns.map((column) => (
                   <th key={column.key} className="px-6 py-4 text-left">
-                    <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded animate-pulse w-24" />
+                    <div className="h-4 bg-surface-200 dark:bg-surface-800 rounded animate-pulse w-24" />
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {["row-1", "row-2", "row-3", "row-4", "row-5"].map((rowId) => (
-                <tr key={`skeleton-${rowId}`} className="border-b border-surface-100 dark:border-surface-700">
+                <tr key={`skeleton-${rowId}`} className="border-b border-surface-100 dark:border-surface-800">
                   {columns.map((column) => (
                     <td key={column.key} className="px-6 py-4">
-                      <div className="h-4 bg-surface-100 dark:bg-surface-700 rounded animate-pulse" />
+                      <div className="h-4 bg-surface-100 dark:bg-surface-800 rounded animate-pulse" />
                     </td>
                   ))}
                 </tr>
@@ -117,10 +117,10 @@ export function Table<T extends Record<string, unknown>>({
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden shadow-sm">
+      <div className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-surface-50 dark:bg-surface-800/50 border-b border-surface-200 dark:border-surface-700">
+            <thead className="border-b border-surface-200 dark:border-surface-800">
               <tr>
                 {selectable && (
                   <th className="px-6 py-4 w-12">
@@ -128,7 +128,7 @@ export function Table<T extends Record<string, unknown>>({
                       type="checkbox"
                       checked={selectedRows.size === data.length && data.length > 0}
                       onChange={handleSelectAll}
-                      className="w-4 h-4 text-primary-600 border-surface-300 dark:border-surface-600 rounded focus:ring-primary-500"
+                      className="w-4 h-4 text-primary-600 border-surface-300 dark:border-surface-700 rounded focus:ring-primary-500 bg-transparent"
                     />
                   </th>
                 )}
@@ -136,7 +136,7 @@ export function Table<T extends Record<string, unknown>>({
                   <th
                     key={column.key}
                     className={clsx(
-                      "px-6 py-4 text-left text-xs font-semibold text-surface-600 dark:text-surface-400 uppercase tracking-wider",
+                      "px-6 py-4 text-left text-xs font-bold text-surface-500 dark:text-surface-500 uppercase tracking-widest",
                       column.sortable && "cursor-pointer select-none hover:text-surface-900 dark:hover:text-surface-200",
                       column.className
                     )}
@@ -147,9 +147,9 @@ export function Table<T extends Record<string, unknown>>({
                       {column.sortable && (
                         <ArrowUp
                           className={clsx(
-                            "w-4 h-4 transition-transform",
+                            "w-3 h-3 transition-transform",
                             sortColumn === column.key && sortDirection === "desc" && "rotate-180",
-                            sortColumn === column.key ? "text-primary-600" : "text-surface-400"
+                            sortColumn === column.key ? "text-surface-900 dark:text-surface-100" : "text-surface-300 dark:text-surface-700"
                           )}
                         />
                       )}
@@ -158,7 +158,7 @@ export function Table<T extends Record<string, unknown>>({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-surface-100 dark:divide-surface-700">
+            <tbody className="divide-y divide-surface-100 dark:divide-surface-800">
               {data.map((row) => {
                 const rowKey = keyExtractor(row);
                 const isSelected = selectedRows.has(rowKey);
@@ -167,9 +167,9 @@ export function Table<T extends Record<string, unknown>>({
                     key={rowKey}
                     onClick={() => onRowClick?.(row)}
                     className={clsx(
-                      "transition-colors",
-                      onRowClick && "cursor-pointer hover:bg-surface-50 dark:hover:bg-surface-800/50",
-                      isSelected && "bg-primary-50 dark:bg-primary-900/20"
+                      "transition-colors group",
+                      onRowClick && "cursor-pointer hover:bg-surface-50/50 dark:hover:bg-surface-900/50",
+                      isSelected && "bg-surface-50 dark:bg-surface-900"
                     )}
                   >
                     {selectable && (
@@ -179,14 +179,14 @@ export function Table<T extends Record<string, unknown>>({
                           checked={isSelected}
                           onChange={() => handleSelectRow(rowKey)}
                           onClick={(e) => e.stopPropagation()}
-                          className="w-4 h-4 text-primary-600 border-surface-300 dark:border-surface-600 rounded focus:ring-primary-500"
+                          className="w-4 h-4 text-primary-600 border-surface-300 dark:border-surface-700 rounded focus:ring-primary-500 bg-transparent"
                         />
                       </td>
                     )}
                     {columns.map((column) => (
                       <td
                         key={column.key}
-                        className={clsx("px-6 py-4 text-sm text-surface-900 dark:text-surface-100", column.className)}
+                        className={clsx("px-6 py-4 text-sm font-medium text-surface-900 dark:text-surface-100", column.className)}
                       >
                         {column.render
                           ? column.render(row[column.key], row)

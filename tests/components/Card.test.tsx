@@ -20,8 +20,8 @@ describe('Card', () => {
     it('should apply default variant by default', () => {
       render(<Card data-testid="card">Default</Card>);
       const card = screen.getByTestId('card');
-      expect(card.className).toContain('bg-white');
-      expect(card.className).toContain('border');
+      expect(card.className).toContain('bg-transparent');
+      expect(card.className).toContain('border-none');
     });
 
     it('should apply elevated variant', () => {
@@ -43,7 +43,7 @@ describe('Card', () => {
       render(<Card data-testid="card">Content</Card>);
       const card = screen.getByTestId('card');
       expect(card.className).toContain('rounded-lg');
-      expect(card.className).toContain('p-5');
+      expect(card.className).toContain('p-6');
     });
   });
 

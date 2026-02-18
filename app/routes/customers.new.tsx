@@ -59,8 +59,8 @@ export async function action({ request }: ActionFunctionArgs): Promise<Response 
     };
   }
 
-  // Redirect to customers list (home) on success
-  return redirect("/home");
+  // Redirect to customers list on success
+  return redirect("/");
 }
 
 /**
@@ -84,7 +84,7 @@ export function ErrorBoundary(): ReactElement {
   return (
     <PageLayout
       breadcrumbs={[
-        { label: "Customers", href: "/home" },
+        { label: "Customers", href: "/" },
         { label: "New Customer" },
       ]}
     >
@@ -108,7 +108,7 @@ export default function NewCustomerPage(): ReactElement {
   return (
     <PageLayout
       breadcrumbs={[
-        { label: "Customers", href: "/home" },
+        { label: "Customers", href: "/" },
         { label: "New Customer" },
       ]}
     >
@@ -210,7 +210,7 @@ export default function NewCustomerPage(): ReactElement {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/")}
               disabled={isSubmitting}
             >
               Cancel

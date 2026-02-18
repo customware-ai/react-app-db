@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Input, Textarea } from '~/components/ui/Input';
+import { Input } from '~/components/ui/input';
+import { Textarea } from '~/components/ui/textarea';
 
 describe('Input', () => {
   describe('rendering', () => {
@@ -36,7 +37,7 @@ describe('Input', () => {
     it('should apply error styles when error is present', () => {
       render(<Input error="Error" data-testid="input" />);
       const input = screen.getByTestId('input');
-      expect(input.className).toContain('border-danger');
+      expect(input.className).toContain('border-destructive');
     });
 
     it('should not show helper text when error is present', () => {
@@ -141,7 +142,7 @@ describe('Textarea', () => {
 
     it('should apply error styles', () => {
       render(<Textarea error="Error" data-testid="textarea" />);
-      expect(screen.getByTestId('textarea').className).toContain('border-danger');
+      expect(screen.getByTestId('textarea').className).toContain('border-destructive');
     });
   });
 

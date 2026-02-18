@@ -6,15 +6,15 @@ import { useLoaderData, useNavigate, useRouteError, isRouteErrorResponse } from 
 import { Plus, Users } from "lucide-react";
 import { PageLayout } from "../components/layout/PageLayout";
 import { PageHeader } from "../components/layout/PageHeader";
-import { Button } from "../components/ui/Button";
-import { Table } from "../components/ui/Table";
-import type { Column } from "../components/ui/Table";
-import { StatusBadge } from "../components/ui/StatusBadge";
-import { EmptyState } from "../components/ui/EmptyState";
-import { Input } from "../components/ui/Input";
-import { Select } from "../components/ui/Select";
-import { TableSkeleton } from "../components/ui/LoadingSkeleton";
-import { ErrorDisplay } from "../components/ui/ErrorDisplay";
+import { Button } from "../components/ui/button";
+import { DataTable } from "../components/ui/data-table";
+import type { Column } from "../components/ui/data-table";
+import { StatusBadge } from "../components/ui/status-badge";
+import { EmptyState } from "../components/ui/empty-state";
+import { Input } from "../components/ui/input";
+import { Select } from "../components/ui/select";
+import { TableSkeleton } from "../components/ui/loading-skeleton";
+import { ErrorDisplay } from "../components/ui/error-display";
 import { getCustomers } from "../services/erp";
 import type { Customer } from "../schemas";
 
@@ -132,7 +132,7 @@ export default function HomePage(): ReactElement {
       label: "Company",
       sortable: true,
       render: (value: unknown): JSX.Element => (
-        <div className="font-semibold text-surface-900 dark:text-surface-100">{value as string}</div>
+        <div className="font-semibold text-foreground">{value as string}</div>
       ),
     },
     {
@@ -141,7 +141,7 @@ export default function HomePage(): ReactElement {
       sortable: true,
       render: (value: unknown): JSX.Element => {
         const email = value as string | null;
-        return email ? <span className="font-mono text-xs">{email}</span> : <span className="text-surface-400">—</span>;
+        return email ? <span className="font-mono text-xs">{email}</span> : <span className="text-muted-foreground">—</span>;
       },
     },
     {
@@ -149,7 +149,7 @@ export default function HomePage(): ReactElement {
       label: "Phone",
       render: (value: unknown): JSX.Element => {
         const phone = value as string | null;
-        return phone ? <span className="font-mono text-xs">{phone}</span> : <span className="text-surface-400">—</span>;
+        return phone ? <span className="font-mono text-xs">{phone}</span> : <span className="text-muted-foreground">—</span>;
       },
     },
     {
@@ -166,10 +166,10 @@ export default function HomePage(): ReactElement {
       key: "actions",
       label: "",
       render: (_value: unknown, row: Customer): JSX.Element => (
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end">
           <Button
             size="sm"
-            variant="outline"
+            variant="ghost"
             onClick={(e): void => {
               e.stopPropagation();
               void navigate(`/customers/${row.id}`);
@@ -189,7 +189,7 @@ export default function HomePage(): ReactElement {
         description="Manage your customer relationships and contact information."
         actions={
           <Button
-            variant="primary"
+            variant="default"
             onClick={() => navigate("/customers/new")}
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -208,16 +208,16 @@ export default function HomePage(): ReactElement {
       )}
 
       {/* Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
+      <div className="mb-4 flex flex-col sm:flex-row gap-4">
+        <div className="flex-1 max-w-sm">
           <Input
             type="search"
-            placeholder="Search customers..."
+            placeholder="Filter customers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="w-full sm:w-48">
+        <div className="w-full sm:w-40">
           <Select
             options={[
               { label: "All Status", value: "all" },
@@ -226,7 +226,7 @@ export default function HomePage(): ReactElement {
             ]}
             value={statusFilter}
             onChange={setStatusFilter}
-            placeholder="Filter by status"
+            placeholder="Status"
           />
         </div>
       </div>
@@ -235,7 +235,7 @@ export default function HomePage(): ReactElement {
       {filteredCustomers.length === 0 ? (
         <EmptyState
           icon={
-            <Users className="w-24 h-24 text-surface-200 dark:text-surface-700" />
+            <Users className="w-24 h-24 text-muted" />
           }
           title="No customers found"
           description={
@@ -245,7 +245,7 @@ export default function HomePage(): ReactElement {
           }
           action={
             !searchQuery && statusFilter === "all" ? (
-              <Button variant="primary" onClick={() => navigate("/customers/new")}>
+              <Button variant="default" onClick={() => navigate("/customers/new")}>
                 <Plus className="w-4 h-4 mr-2" />
                 Create Your First Customer
               </Button>
@@ -253,7 +253,7 @@ export default function HomePage(): ReactElement {
           }
         />
       ) : (
-        <Table
+        <DataTable
           columns={columns}
           data={filteredCustomers}
           keyExtractor={(row) => row.id.toString()}
@@ -263,25 +263,8 @@ export default function HomePage(): ReactElement {
 
       {/* Summary Stats */}
       {filteredCustomers.length > 0 && (
-        <div className="mt-6 flex items-center justify-between text-sm text-surface-600 dark:text-surface-400">
-          <div>
-            Showing <span className="font-semibold text-surface-900 dark:text-surface-100">{filteredCustomers.length}</span> of{" "}
-            <span className="font-semibold text-surface-900 dark:text-surface-100">{customers.length}</span> customers
-          </div>
-          <div className="flex items-center gap-6">
-            <div>
-              <span className="font-semibold text-surface-900 dark:text-surface-100">
-                {customers.filter((c: Customer) => c.status === "active").length}
-              </span>{" "}
-              Active
-            </div>
-            <div>
-              <span className="font-semibold text-surface-900 dark:text-surface-100">
-                {customers.filter((c: Customer) => c.status === "inactive").length}
-              </span>{" "}
-              Inactive
-            </div>
-          </div>
+        <div className="mt-2 text-sm text-muted-foreground">
+          {filteredCustomers.length} of {customers.length} customer(s)
         </div>
       )}
     </PageLayout>

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Alert } from '~/components/ui/Alert';
+import { Alert } from '~/components/ui/alert';
 
 describe('Alert', () => {
   describe('rendering', () => {
@@ -33,32 +33,28 @@ describe('Alert', () => {
   });
 
   describe('variants', () => {
-    it('should apply info variant by default', () => {
-      render(<Alert>Info</Alert>);
+    it('should apply info variant', () => {
+      render(<Alert variant="info">Info</Alert>);
       const alert = screen.getByRole('alert');
-      expect(alert.className).toContain('bg-teal-50');
-      expect(alert.className).toContain('text-teal-700');
+      expect(alert.className).toContain('bg-blue-50');
     });
 
     it('should apply success variant', () => {
       render(<Alert variant="success">Success</Alert>);
       const alert = screen.getByRole('alert');
-      expect(alert.className).toContain('bg-primary-50');
-      expect(alert.className).toContain('text-primary-700');
+      expect(alert.className).toContain('bg-green-50');
     });
 
     it('should apply warning variant', () => {
       render(<Alert variant="warning">Warning</Alert>);
       const alert = screen.getByRole('alert');
       expect(alert.className).toContain('bg-amber-50');
-      expect(alert.className).toContain('text-amber-700');
     });
 
     it('should apply danger variant', () => {
-      render(<Alert variant="danger">Danger</Alert>);
+      render(<Alert variant="destructive">Danger</Alert>);
       const alert = screen.getByRole('alert');
-      expect(alert.className).toContain('bg-red-50');
-      expect(alert.className).toContain('text-red-700');
+      expect(alert.className).toContain('text-destructive');
     });
   });
 
@@ -91,7 +87,7 @@ describe('Alert', () => {
     it('should apply title styles', () => {
       render(<Alert title="Test Title">Content</Alert>);
       const title = screen.getByText('Test Title');
-      expect(title.tagName).toBe('H4');
+      expect(title.tagName).toBe('H5');
       expect(title.className).toContain('font-medium');
     });
   });
@@ -100,10 +96,10 @@ describe('Alert', () => {
     it('should apply base styles', () => {
       render(<Alert>Message</Alert>);
       const alert = screen.getByRole('alert');
-      expect(alert.className).toContain('p-4');
+      expect(alert.className).toContain('px-4');
+      expect(alert.className).toContain('py-3');
       expect(alert.className).toContain('rounded-lg');
-      expect(alert.className).toContain('border-l-4');
-      expect(alert.className).toContain('flex');
+      expect(alert.className).toContain('border');
     });
   });
 
@@ -112,7 +108,7 @@ describe('Alert', () => {
       render(<Alert className="custom-alert">Message</Alert>);
       const alert = screen.getByRole('alert');
       expect(alert.className).toContain('custom-alert');
-      expect(alert.className).toContain('p-4');
+      expect(alert.className).toContain('relative');
     });
   });
 
@@ -147,7 +143,7 @@ describe('Alert', () => {
     });
 
     it('should render danger icon for danger variant', () => {
-      render(<Alert variant="danger">Danger</Alert>);
+      render(<Alert variant="destructive">Danger</Alert>);
       const alert = screen.getByRole('alert');
       const svg = alert.querySelector('svg');
       expect(svg).toBeInTheDocument();

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Banner } from '~/components/ui/Banner';
+import { Banner } from '~/components/ui/banner';
 
 describe('Banner', () => {
   describe('rendering', () => {
@@ -9,14 +9,14 @@ describe('Banner', () => {
       expect(screen.getByText('Banner message')).toBeInTheDocument();
     });
 
-    it('should render with role="status"', () => {
+    it('should render with role="alert"', () => {
       render(<Banner>Message</Banner>);
-      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
     });
 
     it('should render default icon', () => {
       render(<Banner>Message</Banner>);
-      const banner = screen.getByRole('status');
+      const banner = screen.getByRole('alert');
       expect(banner.querySelector('svg')).toBeInTheDocument();
     });
 
@@ -30,30 +30,26 @@ describe('Banner', () => {
   describe('variants', () => {
     it('should apply info variant by default', () => {
       render(<Banner>Info</Banner>);
-      const banner = screen.getByRole('status');
-      expect(banner.className).toContain('bg-teal-50');
-      expect(banner.className).toContain('text-teal-800');
+      const banner = screen.getByRole('alert');
+      expect(banner.className).toContain('relative');
     });
 
     it('should apply success variant', () => {
       render(<Banner variant="success">Success</Banner>);
-      const banner = screen.getByRole('status');
-      expect(banner.className).toContain('bg-primary-50');
-      expect(banner.className).toContain('text-primary-800');
+      const banner = screen.getByRole('alert');
+      expect(banner.className).toContain('bg-primary/10');
     });
 
     it('should apply warning variant', () => {
       render(<Banner variant="warning">Warning</Banner>);
-      const banner = screen.getByRole('status');
+      const banner = screen.getByRole('alert');
       expect(banner.className).toContain('bg-amber-50');
-      expect(banner.className).toContain('text-amber-800');
     });
 
     it('should apply danger variant', () => {
       render(<Banner variant="danger">Danger</Banner>);
-      const banner = screen.getByRole('status');
-      expect(banner.className).toContain('bg-red-50');
-      expect(banner.className).toContain('text-red-800');
+      const banner = screen.getByRole('alert');
+      expect(banner.className).toContain('text-destructive');
     });
   });
 
@@ -113,9 +109,7 @@ describe('Banner', () => {
   describe('base styles', () => {
     it('should apply base styles', () => {
       render(<Banner>Message</Banner>);
-      const banner = screen.getByRole('status');
-      expect(banner.className).toContain('px-4');
-      expect(banner.className).toContain('py-3');
+      const banner = screen.getByRole('alert');
       expect(banner.className).toContain('rounded-lg');
       expect(banner.className).toContain('border');
       expect(banner.className).toContain('flex');
@@ -125,10 +119,9 @@ describe('Banner', () => {
   describe('custom className', () => {
     it('should merge custom className', () => {
       render(<Banner className="custom-banner mb-4">Message</Banner>);
-      const banner = screen.getByRole('status');
+      const banner = screen.getByRole('alert');
       expect(banner.className).toContain('custom-banner');
       expect(banner.className).toContain('mb-4');
-      expect(banner.className).toContain('px-4');
     });
   });
 
@@ -143,25 +136,25 @@ describe('Banner', () => {
   describe('icon per variant', () => {
     it('should render info icon for info variant', () => {
       render(<Banner variant="info">Info</Banner>);
-      const banner = screen.getByRole('status');
+      const banner = screen.getByRole('alert');
       expect(banner.querySelector('svg')).toBeInTheDocument();
     });
 
     it('should render success icon for success variant', () => {
       render(<Banner variant="success">Success</Banner>);
-      const banner = screen.getByRole('status');
+      const banner = screen.getByRole('alert');
       expect(banner.querySelector('svg')).toBeInTheDocument();
     });
 
     it('should render warning icon for warning variant', () => {
       render(<Banner variant="warning">Warning</Banner>);
-      const banner = screen.getByRole('status');
+      const banner = screen.getByRole('alert');
       expect(banner.querySelector('svg')).toBeInTheDocument();
     });
 
     it('should render danger icon for danger variant', () => {
       render(<Banner variant="danger">Danger</Banner>);
-      const banner = screen.getByRole('status');
+      const banner = screen.getByRole('alert');
       expect(banner.querySelector('svg')).toBeInTheDocument();
     });
   });

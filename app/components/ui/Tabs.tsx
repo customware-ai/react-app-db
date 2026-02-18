@@ -1,111 +1,53 @@
-import type { ReactElement, ReactNode } from "react";
-import clsx from "clsx";
+import * as React from "react"
+import * as TabsPrimitive from "@radix-ui/react-tabs"
 
-interface Tab {
-  label: string;
-  value: string;
-  content: ReactNode;
-  icon?: ReactNode;
-  badge?: number | string;
-}
+import { cn } from "~/lib/utils"
 
-interface TabsProps {
-  tabs: Tab[];
-  activeTab: string;
-  onTabChange: (value: string) => void;
-  variant?: "default" | "pills";
-}
+const Tabs = TabsPrimitive.Root
 
-export function Tabs({
-  tabs,
-  activeTab,
-  onTabChange,
-  variant = "default",
-}: TabsProps): ReactElement {
-  const activeTabContent = tabs.find((tab) => tab.value === activeTab)?.content;
+const TabsList = React.forwardRef<
+  React.ElementRef<typeof TabsPrimitive.List>,
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
+>(({ className, ...props }, ref) => (
+  <TabsPrimitive.List
+    ref={ref}
+    className={cn(
+      "inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground",
+      className
+    )}
+    {...props}
+  />
+))
+TabsList.displayName = TabsPrimitive.List.displayName
 
-  if (variant === "pills") {
-    return (
-      <div className="space-y-6">
-        <div className="flex gap-2 p-1 bg-surface-100 dark:bg-surface-800 rounded-lg">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.value;
-            return (
-              <button
-                key={tab.value}
-                onClick={() => onTabChange(tab.value)}
-                className={clsx(
-                  "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all",
-                  isActive
-                    ? "bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 shadow-sm"
-                    : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"
-                )}
-              >
-                {tab.icon}
-                {tab.label}
-                {tab.badge !== undefined && (
-                  <span
-                    className={clsx(
-                      "px-2 py-0.5 text-xs font-semibold rounded-full",
-                      isActive
-                        ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
-                        : "bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400"
-                    )}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-        <div className="animate-fade-in">{activeTabContent}</div>
-      </div>
-    );
-  }
+const TabsTrigger = React.forwardRef<
+  React.ElementRef<typeof TabsPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
+>(({ className, ...props }, ref) => (
+  <TabsPrimitive.Trigger
+    ref={ref}
+    className={cn(
+      "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow",
+      className
+    )}
+    {...props}
+  />
+))
+TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 
-  return (
-    <div className="space-y-6">
-      <div className="border-b border-surface-200 dark:border-surface-700">
-        <nav className="flex gap-8" role="tablist">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.value;
-            return (
-              <button
-                key={tab.value}
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => onTabChange(tab.value)}
-                className={clsx(
-                  "relative flex items-center gap-2 pb-4 px-1 text-sm font-semibold transition-colors",
-                  isActive
-                    ? "text-primary-600 dark:text-primary-400"
-                    : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"
-                )}
-              >
-                {tab.icon}
-                {tab.label}
-                {tab.badge !== undefined && (
-                  <span
-                    className={clsx(
-                      "px-2 py-0.5 text-xs font-medium rounded-full",
-                      isActive
-                        ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
-                        : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400"
-                    )}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
-                {isActive && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 dark:bg-primary-500 rounded-full" />
-                )}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-      <div className="animate-fade-in">{activeTabContent}</div>
-    </div>
-  );
-}
+const TabsContent = React.forwardRef<
+  React.ElementRef<typeof TabsPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
+>(({ className, ...props }, ref) => (
+  <TabsPrimitive.Content
+    ref={ref}
+    className={cn(
+      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      className
+    )}
+    {...props}
+  />
+))
+TabsContent.displayName = TabsPrimitive.Content.displayName
+
+export { Tabs, TabsList, TabsTrigger, TabsContent }

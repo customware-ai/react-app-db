@@ -1,42 +1,39 @@
-import type { HTMLAttributes, ReactElement } from 'react';
-import clsx from "clsx";
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 
-type BadgeVariant =
-  | 'default'
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger'
-  | 'info';
+import { cn } from "~/lib/utils"
 
-interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: BadgeVariant;
-}
+const badgeVariants = cva(
+  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  {
+    variants: {
+      variant: {
+        default:
+          "border-transparent bg-primary text-primary-foreground shadow-xl hover:bg-primary/80",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive:
+          "border-transparent bg-destructive text-destructive-foreground shadow-xl hover:bg-destructive/80",
+        outline: "text-foreground",
+        success: "border-transparent bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+        warning: "border-transparent bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+        info: "border-transparent bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
-const variantStyles: Record<BadgeVariant, string> = {
-  default: 'bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300',
-  primary: 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400',
-  success: 'bg-success-light dark:bg-green-900/30 text-success-dark dark:text-green-400',
-  warning: 'bg-warning-light dark:bg-amber-900/30 text-warning-dark dark:text-amber-400',
-  danger: 'bg-danger-light dark:bg-red-900/30 text-danger-dark dark:text-red-400',
-  info: 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400',
-};
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLSpanElement>,
+    VariantProps<typeof badgeVariants> {}
 
-export function Badge({
-  variant = 'default',
-  className = '',
-  children,
-  ...props
-}: BadgeProps): ReactElement {
-  const baseStyles =
-    'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
-
+function Badge({ className, variant, ...props }: BadgeProps): React.ReactElement {
   return (
-    <span
-      className={clsx(baseStyles, variantStyles[variant], className)}
-      {...props}
-    >
-      {children}
-    </span>
-  );
+    <span className={cn(badgeVariants({ variant }), className)} {...props} />
+  )
 }
+
+export { Badge, badgeVariants }

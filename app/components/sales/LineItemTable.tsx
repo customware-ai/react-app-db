@@ -10,8 +10,8 @@
 
 import type { ReactElement } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 interface LineItem {
   id: string;

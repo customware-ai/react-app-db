@@ -12,7 +12,8 @@ import { AlertTriangle } from "lucide-react";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { logger } from "./utils/logger";
-import { Card } from "./components/ui/Card";
+import { Card, CardContent } from "./components/ui/card";
+import { Button } from "./components/ui/button";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -23,7 +24,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap",
   },
 ];
 
@@ -50,7 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }): ReactElemen
           }}
         />
       </head>
-      <body className="bg-surface-50 dark:bg-surface-950 text-surface-900 dark:text-surface-100 transition-colors">
+      <body className="bg-background text-foreground transition-colors">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -73,47 +74,51 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps): ReactElement
 
   if (isRouteErrorResponse(error)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-50 dark:bg-surface-950 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="max-w-md text-center">
-          <h1 className="text-6xl font-bold text-danger mb-4">{error.status}</h1>
-          <p className="text-lg text-surface-600 dark:text-surface-400 mb-2">
-            {error.status === 404 ? "Page Not Found" : "Something went wrong"}
-          </p>
-          <p className="text-surface-500 dark:text-surface-400">
-            {error.statusText || "The requested page could not be found."}
-          </p>
-          <a
-            href="/"
-            className="inline-block mt-6 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-          >
-            Go Home
-          </a>
+          <CardContent className="pt-6">
+            <h1 className="text-6xl font-bold text-destructive mb-4">{error.status}</h1>
+            <p className="text-lg text-muted-foreground mb-2">
+              {error.status === 404 ? "Page Not Found" : "Something went wrong"}
+            </p>
+            <p className="text-muted-foreground">
+              {error.statusText || "The requested page could not be found."}
+            </p>
+            <Button
+              asChild
+              className="mt-6"
+            >
+              <a href="/">Go Home</a>
+            </Button>
+          </CardContent>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-50 dark:bg-surface-950 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="max-w-lg text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-danger-light flex items-center justify-center">
-          <AlertTriangle className="w-8 h-8 text-danger" />
-        </div>
-        <h1 className="text-2xl font-bold text-danger mb-2">Application Error</h1>
-        <p className="text-surface-600 dark:text-surface-400 mb-4">
-          An unexpected error occurred. Please try again.
-        </p>
-        {import.meta.env.DEV && error instanceof Error && (
-          <pre className="mt-4 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg text-left text-xs overflow-auto max-h-48 text-surface-700 dark:text-surface-300">
-            {error.stack}
-          </pre>
-        )}
-        <a
-          href="/"
-          className="inline-block mt-6 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          Go Home
-        </a>
+        <CardContent className="pt-6">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-destructive/10 flex items-center justify-center">
+            <AlertTriangle className="w-8 h-8 text-destructive" />
+          </div>
+          <h1 className="text-2xl font-bold text-destructive mb-2">Application Error</h1>
+          <p className="text-muted-foreground mb-4">
+            An unexpected error occurred. Please try again.
+          </p>
+          {import.meta.env.DEV && error instanceof Error && (
+            <pre className="mt-4 p-4 bg-muted rounded-lg text-left text-xs overflow-auto max-h-48 text-muted-foreground">
+              {error.stack}
+            </pre>
+          )}
+          <Button
+            asChild
+            className="mt-6"
+          >
+            <a href="/">Go Home</a>
+          </Button>
+        </CardContent>
       </Card>
     </div>
   );

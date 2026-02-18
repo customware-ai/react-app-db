@@ -27,7 +27,7 @@ Jump to section:
 ### Key Import Paths
 
 ```typescript
-import { Button } from "~/components/ui/Button";
+import { Button } from "~/components/ui/button";
 import { getCustomers } from "~/services/erp";
 import { CustomerSchema } from "~/schemas/sales";
 import { getDatabase } from "~/db";
@@ -434,7 +434,7 @@ export async function insertUser(
     // Query by unique field - last_insert_rowid() doesn't work with sql.js prepared statements
     const result = db.exec(
       `SELECT * FROM users WHERE email = ? ORDER BY id DESC LIMIT 1`,
-      [data.email]
+      [data.email],
     );
 
     return ok(mapRowToUser(result[0].values[0]));
@@ -460,7 +460,7 @@ import initSqlJs from "sql.js"; // NEVER DO THIS
 app/
 ├── components/
 │   ├── layout/          # TopBar, PageLayout, PageHeader
-│   ├── ui/              # Reusable UI components (Button, Card, Input, etc.)
+│   ├── ui/              # Shadcn UI components (Button, Card, Input, etc.)
 │   └── [feature]/       # Feature-specific components
 ├── routes/
 │   ├── home.tsx         # Main customers list route (dashboard)
@@ -496,21 +496,23 @@ tests/                   # Test files mirror app/ structure
 
 ### Design System
 
+**UI Components:** shadcn/ui with Radix primitives
+
 **Color Palette:**
 
-- Primary: Emerald green (`primary-*` Tailwind classes)
-- Surface: Slate gray (`surface-*` Tailwind classes)
-- Status colors: Red (danger), Amber (warning), Green (success), Blue (info)
+- Primary: Blue (`primary` / `primary-foreground` CSS variables)
+- Neutral grays following shadcn default theme
+- Status colors: Red (destructive), Amber (warning), Green (success), Blue (info)
 
 **Typography:**
 
-- Font: Work Sans (weights: 400, 500, 600, 700)
-- Professional, industrial aesthetic
-- NO generic AI aesthetics - distinctive, purposeful design
+- System fonts with clean, minimal styling (shadcn defaults)
+- Professional, clean aesthetic
 
 **Component Patterns:**
 
-- All components in `app/components/ui/` are tested and reusable
+- All components in `app/components/ui/` follow shadcn conventions
+- Built on Radix UI primitives for accessibility
 - Use composition over configuration
 - Props interfaces defined with TypeScript
 - Consistent styling with Tailwind CSS v4
@@ -860,7 +862,7 @@ describe("User Service", () => {
 
 ### Path Alias
 
-Use `~/` to import from `app/` directory (e.g., `import { Button } from '~/components/ui/Button'`).
+Use `~/` to import from `app/` directory (e.g., `import { Button } from '~/components/ui/button'`).
 
 ## Autonomous Task Workflow
 
@@ -915,11 +917,11 @@ React Router v7 is essentially "Remix v3" - it brings Remix's framework features
 
 **Use `loader` for initial page load (SSR), use `clientLoader` for fast subsequent navigations.**
 
-| Scenario | Use | Why |
-|----------|-----|-----|
-| Initial page load | `loader` | SSR for SEO, fast first paint |
-| Subsequent navigations | `clientLoader` | Runs on client = instant navigation |
-| Hybrid (best of both) | `loader` + `clientLoader` | SSR initial load, fast client navigations |
+| Scenario               | Use                       | Why                                       |
+| ---------------------- | ------------------------- | ----------------------------------------- |
+| Initial page load      | `loader`                  | SSR for SEO, fast first paint             |
+| Subsequent navigations | `clientLoader`            | Runs on client = instant navigation       |
+| Hybrid (best of both)  | `loader` + `clientLoader` | SSR initial load, fast client navigations |
 
 **Pattern for fast navigations:**
 
@@ -946,6 +948,7 @@ export function HydrateFallback(): ReactElement {
 ```
 
 This gives you:
+
 - ✅ SEO-friendly initial page load (SSR)
 - ✅ Fast subsequent navigations (client-side fetch)
 - ✅ Consistent loading states via `HydrateFallback`
@@ -1906,6 +1909,7 @@ npm run typegen
 Provides type-safe `params`, `loaderData`, `actionData` via generated `Route` types.
 
 **IMPORTANT**: If you see errors like `Cannot find module './+types/...'`, run `npm run typegen` to generate the missing type files. This is required after:
+
 - Creating new route files
 - Renaming route files
 - Fresh clone/install

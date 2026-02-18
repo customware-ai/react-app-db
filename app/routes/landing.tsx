@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { useRouteError, isRouteErrorResponse } from "react-router";
-import { ErrorDisplay } from "../components/ui/ErrorDisplay";
+import { ErrorDisplay } from "../components/ui/error-display";
 
 /**
  * ErrorBoundary - Handles errors in this route
@@ -40,7 +40,7 @@ export default function LandingPage(): ReactElement {
 
       <main className="relative z-10 flex flex-col items-center text-center px-6 max-w-2xl animate-fade-in">
         {/* Status Badge */}
-        <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-none shadow-sm mb-10">
+        <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-none shadow-xs mb-10">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-none bg-slate-400 opacity-75"></span>
             <span className="relative inline-flex rounded-none h-2.5 w-2.5 bg-slate-900 dark:bg-slate-100"></span>

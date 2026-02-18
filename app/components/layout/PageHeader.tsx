@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
-import clsx from "clsx";
+import { cn } from "~/lib/utils";
 
 interface Tab {
   label: string;
@@ -26,29 +26,19 @@ export function PageHeader({
 }: PageHeaderProps): ReactElement {
   return (
     <div className="mb-6">
-      {/* Title and Actions */}
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h1 className="text-4xl font-extrabold text-surface-900 dark:text-surface-50 tracking-tighter mb-2">
-            {title}
-          </h1>
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
           {description && (
-            <p className="text-surface-500 dark:text-surface-400 text-lg max-w-2xl font-medium">
-              {description}
-            </p>
+            <p className="text-sm text-muted-foreground">{description}</p>
           )}
         </div>
-        {actions && (
-          <div className="flex items-center gap-3">
-            {actions}
-          </div>
-        )}
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
 
-      {/* Tabs */}
       {tabs && tabs.length > 0 && (
-        <div className="border-b border-surface-200 dark:border-surface-700">
-          <nav className="flex gap-8" role="tablist">
+        <div className="mt-4 border-b">
+          <nav className="flex gap-4" role="tablist">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.value;
               return (
@@ -56,29 +46,29 @@ export function PageHeader({
                   key={tab.value}
                   role="tab"
                   aria-selected={isActive}
-                  onClick={() => onTabChange?.(tab.value)}
-                  className={clsx(
-                    "relative pb-4 px-1 text-sm font-semibold transition-colors",
-                    isActive
-                      ? "text-primary-600 dark:text-primary-400"
-                      : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"
+                  onClick={(): void => onTabChange?.(tab.value)}
+                  className={cn(
+                    "relative pb-3 text-sm font-medium transition-colors hover:text-foreground",
+                    isActive ? "text-foreground" : "text-muted-foreground",
                   )}
                 >
                   <span className="flex items-center gap-2">
                     {tab.label}
                     {tab.count !== undefined && (
-                      <span className={clsx(
-                        "px-2 py-0.5 text-xs font-medium rounded-full",
-                        isActive
-                          ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
-                          : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400"
-                      )}>
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-xs",
+                          isActive
+                            ? "bg-primary/10 text-primary"
+                            : "bg-muted text-muted-foreground",
+                        )}
+                      >
                         {tab.count}
                       </span>
                     )}
                   </span>
                   {isActive && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 dark:bg-primary-500 rounded-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
                   )}
                 </button>
               );

@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import { Link } from "react-router";
 import { Moon, Sun } from "lucide-react";
+import { Button } from "~/components/ui/button";
 
 interface Breadcrumb {
   label: string;
@@ -16,75 +17,65 @@ export function PageLayout({
   children,
   breadcrumbs = [],
 }: PageLayoutProps): ReactElement {
+  const toggleTheme = (): void => {
+    document.documentElement.classList.toggle("dark");
+  };
+
   return (
-    <div className="min-h-screen bg-surface-50 dark:bg-surface-950 transition-colors">
-      {/* Header - Integrated directly into layout */}
-      <header className="fixed top-0 left-0 right-0 h-16 z-30 transition-colors bg-surface-50/90 dark:bg-surface-950/90 backdrop-blur-sm">
-        <div className="h-full flex items-center justify-between px-6 max-w-7xl mx-auto">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 bg-black dark:bg-white rounded-md flex items-center justify-center transition-transform group-hover:scale-105">
-                <span className="text-white dark:text-black font-bold text-sm">
-                  C
-                </span>
+    <div className="min-h-screen bg-background">
+      {/* Top navigation bar */}
+      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+        <div className="mx-auto flex h-14 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <span className="text-sm font-bold">C</span>
               </div>
-              <span className="font-bold text-lg tracking-tight text-surface-900 dark:text-surface-100">
-                Cohesiv
-              </span>
+              <span className="font-semibold">Cohesiv</span>
             </Link>
 
-            {/* Divider */}
             {breadcrumbs.length > 0 && (
-              <div className="h-6 w-px bg-surface-200 dark:bg-surface-800 mx-2" />
-            )}
-
-            {/* Breadcrumbs */}
-            <nav className="hidden md:flex items-center gap-2 text-sm">
-              {breadcrumbs.map((crumb, index) => (
-                <div
-                  key={crumb.href || crumb.label}
-                  className="flex items-center gap-2"
-                >
-                  {index > 0 && (
-                    <span className="text-surface-300 dark:text-surface-600">
-                      /
-                    </span>
-                  )}
-                  {crumb.href ? (
-                    <Link
-                      to={crumb.href}
-                      className="text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100 transition-colors"
+              <>
+                <span className="text-muted-foreground">/</span>
+                <nav className="flex items-center gap-1 text-sm">
+                  {breadcrumbs.map((crumb, index) => (
+                    <div
+                      key={crumb.href || crumb.label}
+                      className="flex items-center gap-1"
                     >
-                      {crumb.label}
-                    </Link>
-                  ) : (
-                    <span className="font-medium text-surface-900 dark:text-surface-100">
-                      {crumb.label}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </nav>
+                      {index > 0 && (
+                        <span className="text-muted-foreground">/</span>
+                      )}
+                      {crumb.href ? (
+                        <Link
+                          to={crumb.href}
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {crumb.label}
+                        </Link>
+                      ) : (
+                        <span className="text-foreground">{crumb.label}</span>
+                      )}
+                    </div>
+                  ))}
+                </nav>
+              </>
+            )}
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => document.documentElement.classList.toggle("dark")}
-              className="p-2 text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-md transition-colors"
-              aria-label="Toggle theme"
-            >
-              <Sun className="w-5 h-5 hidden dark:block" />
-              <Moon className="w-5 h-5 block dark:hidden" />
-            </button>
+          <div className="ml-auto flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={toggleTheme}>
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="relative pt-24 pb-12 min-h-screen max-w-7xl mx-auto px-6">
-        <div className="animate-fade-in">{children}</div>
+      {/* Page content */}
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        {children}
       </main>
     </div>
   );

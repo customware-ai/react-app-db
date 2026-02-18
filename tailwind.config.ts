@@ -1,27 +1,20 @@
-import type { Config } from 'tailwindcss';
+import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 export default {
-  content: ['./app/**/*.{ts,tsx}'],
-  darkMode: 'class',
+  darkMode: "class",
+  content: ["./app/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        // Neutral palette (Slate - Clean Cool Grey)
-        slate: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-          950: '#020617',
-        },
-        // Primary - Ocean Blue (Sky/Blue Mix - Professional & Clean)
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
         primary: {
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
           50: '#f0f9ff',
           100: '#e0f2fe',
           200: '#bae6fd',
@@ -34,8 +27,21 @@ export default {
           900: '#0c4a6e',
           950: '#082f49',
         },
-        // Accent - Cyan (Complementary Ocean Tone)
+        secondary: {
+          DEFAULT: "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
+        },
+        destructive: {
+          DEFAULT: "var(--destructive)",
+          foreground: "var(--destructive-foreground)",
+        },
+        muted: {
+          DEFAULT: "var(--muted)",
+          foreground: "var(--muted-foreground)",
+        },
         accent: {
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
           50: '#ecfeff',
           100: '#cffafe',
           200: '#a5f3fc',
@@ -48,7 +54,15 @@ export default {
           900: '#164e63',
           950: '#083344',
         },
-        // Surface - Zinc (True Neutral - No Blue Tint)
+        popover: {
+          DEFAULT: "var(--popover)",
+          foreground: "var(--popover-foreground)",
+        },
+        card: {
+          DEFAULT: "var(--card)",
+          foreground: "var(--card-foreground)",
+        },
+        // Keeping surface and other custom colors for backward compatibility during transition
         surface: {
           50: '#fafafa',
           100: '#f4f4f5',
@@ -62,7 +76,6 @@ export default {
           900: '#18181b',
           950: '#09090b',
         },
-        // Semantic - Clean/Cool palette
         success: {
           light: '#ecfdf5',
           DEFAULT: '#10b981',
@@ -84,8 +97,13 @@ export default {
           dark: '#0369a1',
         },
       },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
       fontFamily: {
-        sans: ['Inter', 'Work Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Sora', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
         serif: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'monospace'],
       },
@@ -95,26 +113,31 @@ export default {
           '0 4px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03)',
         strong: '0 20px 50px -10px rgba(0, 0, 0, 0.15)',
       },
-      animation: {
-        'fade-in': 'fadeIn 0.3s ease-out',
-        'slide-up': 'slideUp 0.3s ease-out',
-        'scale-in': 'scaleIn 0.2s ease-out',
-      },
       keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
-        slideUp: {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
-        scaleIn: {
-          '0%': { opacity: '0', transform: 'scale(0.95)' },
-          '100%': { opacity: '1', transform: 'scale(1)' },
+        "collapsible-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-collapsible-content-height)" },
         },
+        "collapsible-up": {
+          from: { height: "var(--radix-collapsible-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        "collapsible-down": "collapsible-down 0.2s ease-out",
+        "collapsible-up": "collapsible-up 0.2s ease-out",
       },
     },
   },
-  plugins: [],
+  plugins: [animate],
 } satisfies Config;

@@ -68,6 +68,7 @@ This template demonstrates:
 | react-router | 7.13.0        | Full-stack React framework |
 | vite         | 8.0.0-beta.12 | Build tool                 |
 | tailwindcss  | 4.1.18        | Styling                    |
+| shadcn/ui    | latest        | UI component library       |
 | zod          | 4.3.6         | Schema validation          |
 | neverthrow   | 8.2.0         | Type-safe error handling   |
 | vitest       | 4.0.x         | Testing framework          |
@@ -76,10 +77,10 @@ This template demonstrates:
 
 ## 🎨 Design
 
-- **Color Palette**: Emerald green (primary) + Slate gray (surface)
-- **Typography**: Work Sans (400, 500, 600, 700)
-- **Style**: Industrial precision, professional enterprise-grade UI
-- **NO generic AI aesthetics** - Distinctive, purposeful design
+- **UI Components**: shadcn/ui with Radix primitives
+- **Color Palette**: Blue primary with neutral grays (shadcn default)
+- **Typography**: System fonts with clean, minimal styling
+- **Style**: Clean, professional, shadcn-inspired design
 
 ## 🚀 Quick Start
 

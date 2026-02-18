@@ -1,90 +1,47 @@
-import type { InputHTMLAttributes, ReactElement, TextareaHTMLAttributes } from 'react';
-import clsx from "clsx";
+import * as React from "react"
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  helperText?: string;
+import { cn } from "~/lib/utils"
+
+interface InputProps extends Omit<React.ComponentProps<"input">, "ref"> {
+  label?: string
+  error?: string
+  helperText?: string
 }
 
-interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label?: string;
-  error?: string;
-  helperText?: string;
-}
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, label, error, helperText, id, ...props }, ref) => {
+    const generatedId = id ?? (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined)
 
-export function Input({
-  label,
-  error,
-  helperText,
-  className = '',
-  id,
-  ...props
-}: InputProps): ReactElement {
-  const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
-  const baseStyles =
-    'w-full px-3 py-2 border rounded-md text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500';
-  const errorStyles = error
-    ? 'border-danger focus:ring-danger focus:border-danger'
-    : 'border-surface-300 dark:border-surface-600';
+    return (
+      <div className="w-full">
+        {label && (
+          <label
+            htmlFor={generatedId}
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block"
+          >
+            {label}
+          </label>
+        )}
+        <input
+          id={generatedId}
+          type={type}
+          className={cn(
+            "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+            error && "border-destructive focus-visible:ring-destructive",
+            className
+          )}
+          ref={ref}
+          {...props}
+        />
+        {error ? (
+          <p className="text-[0.8rem] font-medium text-destructive mt-2">{error}</p>
+        ) : helperText ? (
+          <p className="text-[0.8rem] text-muted-foreground mt-2">{helperText}</p>
+        ) : null}
+      </div>
+    )
+  }
+)
+Input.displayName = "Input"
 
-  return (
-    <div className="w-full">
-      {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-xs uppercase tracking-widest font-semibold text-surface-500 dark:text-surface-400 mb-2"
-        >
-          {label}
-        </label>
-      )}
-      <input
-        id={inputId}
-        className={clsx(baseStyles, errorStyles, className)}
-        {...props}
-      />
-      {error && <p className="mt-1.5 text-sm text-danger">{error}</p>}
-      {helperText && !error && (
-        <p className="mt-1.5 text-sm text-surface-500 dark:text-surface-400">{helperText}</p>
-      )}
-    </div>
-  );
-}
-
-export function Textarea({
-  label,
-  error,
-  helperText,
-  className = '',
-  id,
-  ...props
-}: TextareaProps): ReactElement {
-  const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
-  const baseStyles =
-    'w-full px-3 py-2 border rounded-md text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[80px] resize-y bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500';
-  const errorStyles = error
-    ? 'border-danger focus:ring-danger focus:border-danger'
-    : 'border-surface-300 dark:border-surface-600';
-
-  return (
-    <div className="w-full">
-      {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-xs uppercase tracking-widest font-semibold text-surface-500 dark:text-surface-400 mb-2"
-        >
-          {label}
-        </label>
-      )}
-      <textarea
-        id={inputId}
-        className={clsx(baseStyles, errorStyles, className)}
-        {...props}
-      />
-      {error && <p className="mt-1.5 text-sm text-danger">{error}</p>}
-      {helperText && !error && (
-        <p className="mt-1.5 text-sm text-surface-500 dark:text-surface-400">{helperText}</p>
-      )}
-    </div>
-  );
-}
+export { Input }

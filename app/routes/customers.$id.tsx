@@ -54,7 +54,7 @@ export function HydrateFallback(): ReactElement {
   return (
     <PageLayout
       breadcrumbs={[
-        { label: "Customers", href: "/home" },
+        { label: "Customers", href: "/" },
         { label: "Loading..." },
       ]}
     >
@@ -102,7 +102,7 @@ export function ErrorBoundary(): ReactElement {
   return (
     <PageLayout
       breadcrumbs={[
-        { label: "Customers", href: "/home" },
+        { label: "Customers", href: "/" },
         { label: "Error" },
       ]}
     >
@@ -133,7 +133,7 @@ export default function CustomerDetailPage(): ReactElement {
   return (
     <PageLayout
       breadcrumbs={[
-        { label: "Customers", href: "/home" },
+        { label: "Customers", href: "/" },
         { label: customer.company_name },
       ]}
     >

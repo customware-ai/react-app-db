@@ -70,7 +70,7 @@ describe('New Customer Route', () => {
       // Should redirect on success
       expect(result).toBeInstanceOf(Response);
       expect((result as Response).status).toBe(302);
-      expect((result as Response).headers.get('Location')).toBe('/home');
+      expect((result as Response).headers.get('Location')).toBe('/');
     });
 
     it('should return validation error for missing company_name', async () => {

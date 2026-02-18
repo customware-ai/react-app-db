@@ -204,7 +204,7 @@ export async function createCustomer(
   return ok(result.value);
 }
 
-// 4. Route loader uses typed result (routes/home.tsx)
+// 4. Route loader uses typed result (routes/index.tsx)
 export async function loader(): Promise<{
   customers: Customer[];
   error: string | null;
@@ -1004,8 +1004,8 @@ export default function CustomerPage({
 Use `clientLoader` for browser-only data fetching patterns. **MUST include `HydrateFallback` to show loading state.**
 
 ```typescript
-// routes/home.tsx
-import type { Route } from "./+types/home";
+// routes/index.tsx
+import type { Route } from "./+types/_index";
 
 /**
  * Client loader - runs only in the browser.
@@ -1048,8 +1048,8 @@ export default function Home({
 Combine both loaders for optimal SSR with client-side enhancements.
 
 ```typescript
-// routes/home.tsx
-import type { Route } from "./+types/home";
+// routes/index.tsx
+import type { Route } from "./+types/_index";
 
 // Server loader for SSR
 export async function loader(): Promise<{ customers: Customer[] }> {
@@ -1185,7 +1185,7 @@ function TopBar(): ReactElement {
   return (
     <nav className="flex gap-4">
       <NavLink
-        to="/home"
+        to="/"
         viewTransition // Enable view transitions
         className={({ isActive, isPending }) =>
           clsx(

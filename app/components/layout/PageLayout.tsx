@@ -1,82 +1,160 @@
+import { Fragment } from "react";
 import type { ReactElement, ReactNode } from "react";
-import { Link } from "react-router";
-import { Moon, Sun } from "lucide-react";
+import { Link, useLocation } from "react-router";
+import { Moon, Sun, Users } from "lucide-react";
 import { Button } from "~/components/ui/Button";
+import { Separator } from "~/components/ui/Separator";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "~/components/ui/Sidebar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/Breadcrumb";
 
-interface Breadcrumb {
+interface BreadcrumbConfig {
   label: string;
   href?: string;
 }
 
 interface PageLayoutProps {
   children: ReactNode;
-  breadcrumbs?: Breadcrumb[];
+  breadcrumbs?: BreadcrumbConfig[];
 }
+
+const navItems = [{ label: "Customers", href: "/", icon: Users }];
 
 export function PageLayout({
   children,
   breadcrumbs = [],
 }: PageLayoutProps): ReactElement {
+  const location = useLocation();
+
   const toggleTheme = (): void => {
     document.documentElement.classList.toggle("dark");
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top navigation bar */}
-      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="mx-auto flex h-14 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                <span className="text-sm font-bold">C</span>
-              </div>
-              <span className="font-semibold">Cohesiv</span>
-            </Link>
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        {/* Logo / company header */}
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild>
+                <Link to="/">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                    <span className="text-sm font-bold">C</span>
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">Customware</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      Enterprise
+                    </span>
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
 
-            {breadcrumbs.length > 0 && (
-              <>
-                <span className="text-muted-foreground">/</span>
-                <nav className="flex items-center gap-1 text-sm">
-                  {breadcrumbs.map((crumb, index) => (
-                    <div
-                      key={crumb.href || crumb.label}
-                      className="flex items-center gap-1"
+        {/* Nav */}
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Sales</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {navItems.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={
+                        item.href === "/"
+                          ? location.pathname === "/" ||
+                            location.pathname.startsWith("/customers")
+                          : location.pathname.startsWith(item.href)
+                      }
+                      tooltip={item.label}
                     >
-                      {index > 0 && (
-                        <span className="text-muted-foreground">/</span>
-                      )}
-                      {crumb.href ? (
-                        <Link
-                          to={crumb.href}
-                          className="text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          {crumb.label}
-                        </Link>
-                      ) : (
-                        <span className="text-foreground">{crumb.label}</span>
-                      )}
-                    </div>
-                  ))}
-                </nav>
-              </>
-            )}
-          </div>
+                      <Link to={item.href}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
 
-          <div className="ml-auto flex items-center gap-2">
+        {/* Footer: theme toggle */}
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={toggleTheme} tooltip="Toggle theme">
+                <Sun className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span>Toggle theme</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+
+      <SidebarInset>
+        <header className="flex h-14 shrink-0 items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+
+          {breadcrumbs.length > 0 && (
+            <Breadcrumb>
+              <BreadcrumbList>
+                {breadcrumbs.map((crumb, index) => (
+                  <Fragment key={crumb.href ?? crumb.label}>
+                    {index > 0 && <BreadcrumbSeparator />}
+                    <BreadcrumbItem>
+                      {crumb.href ? (
+                        <BreadcrumbLink asChild>
+                          <Link to={crumb.href}>{crumb.label}</Link>
+                        </BreadcrumbLink>
+                      ) : (
+                        <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                      )}
+                    </BreadcrumbItem>
+                  </Fragment>
+                ))}
+              </BreadcrumbList>
+            </Breadcrumb>
+          )}
+
+          <div className="ml-auto">
             <Button variant="ghost" size="icon" onClick={toggleTheme}>
               <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">Toggle theme</span>
             </Button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Page content */}
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {children}
-      </main>
-    </div>
+        <main className="flex-1 p-6">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
